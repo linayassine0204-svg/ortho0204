@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   },
   "scripts": {
     "dev:web": "pnpm --filter @app/web dev",
@@ -20,7 +20,9 @@
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @app/db generate",
-    "db:migrate": "pnpm --filter @app/db migrate"
+    "db:migrate": "pnpm --filter @app/db migrate",
+    "db:seed": "pnpm --filter @app/db seed",
+    "db:reset": "pnpm --filter @app/db exec prisma migrate reset --force"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

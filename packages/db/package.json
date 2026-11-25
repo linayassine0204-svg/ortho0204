@@ -12,12 +12,16 @@
     "generate": "prisma generate",
     "postinstall": "prisma generate",
     "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "seed": "prisma db seed",
     "studio": "prisma studio",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22.20.6",
+    "@types/pg": "^8.23.1",
     "dotenv": "^18.0.10",
+    "pg": "^8.23.1",
     "prisma": "7.10.1"
   },
   "dependencies": {

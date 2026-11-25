@@ -8,6 +8,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "node prisma/seed.ts",
   },
   datasource: {
     // Lue depuis l'environnement (.env à la racine ou variable de CI), jamais en dur.
