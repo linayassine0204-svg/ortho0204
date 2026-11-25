@@ -10,7 +10,13 @@ export interface Acteur {
   cabinetId: string;
 }
 
-export type Action = "lire" | "modifier" | "supprimer" | "inviter";
+/**
+ * - lire, modifier, supprimer : sur un patient ;
+ * - inviter : envoyer un lien d'invitation pour un patient ;
+ * - consentir : donner ou retirer son propre consentement pour un patient ;
+ * - creer : créer un patient dans un cabinet.
+ */
+export type Action = "lire" | "modifier" | "supprimer" | "inviter" | "consentir" | "creer";
 
 /** Sous-parties du dossier patient (/patients/[id]/[section]). */
 export const SECTIONS_PATIENT = [
@@ -39,6 +45,11 @@ export interface RessourcePatient {
   tuteurIds: readonly string[];
   /** Messagerie activée pour ce patient (réglage patient, sinon réglage du cabinet). */
   messagerieActivee: boolean;
+  /**
+   * Comptes famille ayant un consentement « données de santé » actif pour ce patient.
+   * Sans consentement, aucune donnée n'est envoyée à la famille (règle produit).
+   */
+  consentementIds: readonly string[];
   /** Partie du dossier visée. Absente = identité minimale (prénom, âge). */
   section?: SectionPatient;
 }
@@ -69,17 +80,20 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
 
   switch (acteur.role) {
     case "ORTHO":
-      return true;
-    case "PARENT": {
-      if (action !== "lire") return false;
-      if (!patient.tuteurIds.includes(acteur.id)) return false;
-      return patient.section === undefined || SECTIONS_FAMILLE.PARENT.includes(patient.section);
-    }
+      // L'orthophoniste ne consent pas à la place de la famille.
+      return action !== "consentir" && action !== "creer";
+    case "PARENT":
     case "PATIENT_ADULT": {
+      const lie =
+        acteur.role === "PARENT"
+          ? patient.tuteurIds.includes(acteur.id)
+          : patient.compteUserId === acteur.id;
+      if (!lie) return false;
+      if (action === "consentir") return true;
       if (action !== "lire") return false;
-      if (patient.compteUserId !== acteur.id) return false;
+      if (!patient.consentementIds.includes(acteur.id)) return false;
       return (
-        patient.section === undefined || SECTIONS_FAMILLE.PATIENT_ADULT.includes(patient.section)
+        patient.section === undefined || SECTIONS_FAMILLE[acteur.role].includes(patient.section)
       );
     }
     default:
@@ -90,5 +104,5 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
 function peutSurCabinet(acteur: Acteur, action: Action, cabinet: RessourceCabinet): boolean {
   if (cabinet.id !== acteur.cabinetId) return false;
   if (acteur.role !== "ORTHO") return false;
-  return action === "lire" || action === "modifier" || action === "inviter";
+  return action === "lire" || action === "modifier" || action === "creer";
 }

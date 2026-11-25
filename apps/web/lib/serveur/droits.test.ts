@@ -14,6 +14,7 @@ const enfant: RessourcePatient = {
   compteUserId: null,
   tuteurIds: ["parent-1"],
   messagerieActivee: true,
+  consentementIds: ["parent-1"],
 };
 const dossierAdulte: RessourcePatient = {
   type: "patient",
@@ -21,6 +22,7 @@ const dossierAdulte: RessourcePatient = {
   compteUserId: "adulte-1",
   tuteurIds: [],
   messagerieActivee: true,
+  consentementIds: ["adulte-1"],
 };
 const section = (r: RessourcePatient, s: RessourcePatient["section"]) => ({ ...r, section: s });
 
@@ -29,6 +31,8 @@ describe("can() — orthophoniste", () => {
     for (const action of ["lire", "modifier", "supprimer", "inviter"] as const) {
       expect(can(ortho, action, enfant)).toBe(true);
     }
+    // Même sans aucun consentement famille : le consentement concerne l'envoi aux familles.
+    expect(can(ortho, "lire", { ...enfant, consentementIds: [] })).toBe(true);
     for (const s of SECTIONS_PATIENT) expect(can(ortho, "lire", section(enfant, s))).toBe(true);
   });
 
@@ -42,6 +46,15 @@ describe("can() — orthophoniste", () => {
   it("gère son propre cabinet, pas celui d'un autre", () => {
     expect(can(ortho, "modifier", { type: "cabinet", id: "cab-a" })).toBe(true);
     expect(can(ortho, "lire", { type: "cabinet", id: "cab-b" })).toBe(false);
+  });
+
+  it("crée des patients dans son cabinet, pas dans un autre", () => {
+    expect(can(ortho, "creer", { type: "cabinet", id: "cab-a" })).toBe(true);
+    expect(can(ortho, "creer", { type: "cabinet", id: "cab-b" })).toBe(false);
+  });
+
+  it("ne peut pas consentir à la place de la famille", () => {
+    expect(can(ortho, "consentir", enfant)).toBe(false);
   });
 });
 
@@ -78,8 +91,9 @@ describe("can() — parent", () => {
     }
   });
 
-  it("ne gère pas le cabinet", () => {
+  it("ne gère pas le cabinet et ne crée pas de patient", () => {
     expect(can(parent, "lire", { type: "cabinet", id: "cab-a" })).toBe(false);
+    expect(can(parent, "creer", { type: "cabinet", id: "cab-a" })).toBe(false);
   });
 });
 
@@ -103,6 +117,42 @@ describe("can() — patient adulte", () => {
 
   it("ne peut pas modifier son dossier", () => {
     expect(can(adulte, "modifier", dossierAdulte)).toBe(false);
+  });
+});
+
+describe("can() — consentement de la famille", () => {
+  const sansConsentement = { ...enfant, consentementIds: [] };
+
+  it("sans consentement, le parent ne reçoit AUCUNE donnée de son enfant", () => {
+    expect(can(parent, "lire", sansConsentement)).toBe(false);
+    for (const s of ["programme", "conseils", "messagerie", "suivi"] as const) {
+      expect(can(parent, "lire", section(sansConsentement, s))).toBe(false);
+    }
+  });
+
+  it("le parent peut donner son consentement pour son enfant", () => {
+    expect(can(parent, "consentir", sansConsentement)).toBe(true);
+  });
+
+  it("le consentement d'un autre parent ne suffit pas", () => {
+    const consentDeLAutre = {
+      ...enfant,
+      tuteurIds: ["parent-1", "parent-2"],
+      consentementIds: ["parent-2"],
+    };
+    expect(can(parent, "lire", consentDeLAutre)).toBe(false);
+    expect(can(autreParent, "lire", consentDeLAutre)).toBe(true);
+  });
+
+  it("ÉCHEC : un parent ne consent pas pour l'enfant d'un autre", () => {
+    expect(can(autreParent, "consentir", enfant)).toBe(false);
+  });
+
+  it("l'adulte donne son propre consentement ; sans lui, rien", () => {
+    const sansAdulte = { ...dossierAdulte, consentementIds: [] };
+    expect(can(adulte, "lire", sansAdulte)).toBe(false);
+    expect(can(adulte, "consentir", sansAdulte)).toBe(true);
+    expect(can(autreAdulte, "consentir", sansAdulte)).toBe(false);
   });
 });
 

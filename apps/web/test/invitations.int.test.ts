@@ -7,6 +7,7 @@ import { GET as listerPatients } from "@/app/api/patients/route";
 import { GET as lirePatient } from "@/app/api/patients/[id]/route";
 import { POST as inviter } from "@/app/api/patients/[id]/invitations/route";
 import { POST as accepter } from "@/app/api/invitations/accepter/route";
+import { POST as consentir } from "@/app/api/patients/[id]/consentement/route";
 import { db } from "@/lib/serveur/db";
 import { empreinteJeton } from "@/lib/serveur/jetons";
 import {
@@ -89,6 +90,19 @@ describe("parcours complet", () => {
     });
     expect(mobile.status).toBe(200);
     const bearer = mobile.corps.jetonAcces as string;
+
+    // 6. Sans consentement : seulement le prénom (écran de consentement), aucune donnée.
+    const avant = await appeler(listerPatients, { bearer });
+    expect(avant.corps.patients).toEqual([
+      { id: enfant.id, prenom: enfant.prenom, consentementRequis: true },
+    ]);
+    const refuse = await appeler(lirePatient, { bearer, params: { id: enfant.id } });
+    expect(refuse.status).toBe(403);
+    expect(refuse.corps.erreur.code).toBe("consentement_requis");
+
+    // 7. Le parent donne son consentement, puis voit le dossier de son enfant.
+    const ok2 = await appeler(consentir, { methode: "POST", bearer, params: { id: enfant.id } });
+    expect(ok2.status).toBe(201);
     const liste = await appeler(listerPatients, { bearer });
     expect(liste.corps.patients.map((p: { id: string }) => p.id)).toEqual([enfant.id]);
     expect((await appeler(lirePatient, { bearer, params: { id: enfant.id } })).status).toBe(200);

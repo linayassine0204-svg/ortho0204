@@ -16,6 +16,9 @@ export const emailFictif = (prefixe: string) => `${prefixe}.${unique()}@exemple.
 /** Adresse IP fictive (plage de documentation), différente à chaque appel. */
 export const ipFictive = () => `192.0.2.${Math.floor(Math.random() * 250) + 1}-${unique()}`;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- corps JSON lu dans les tests
+type CorpsJson = Record<string, any>;
+
 interface Appel {
   methode?: string;
   url?: string;
@@ -43,8 +46,7 @@ export async function appeler(gestionnaire: GestionnaireNext, appel: Appel = {})
   const texte = await reponse.text();
   return {
     status: reponse.status,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- corps JSON lu dans les tests
-    corps: (texte ? JSON.parse(texte) : null) as Record<string, any>,
+    corps: (texte ? JSON.parse(texte) : null) as CorpsJson,
     entetes: reponse.headers,
   };
 }
@@ -73,16 +75,34 @@ export function naissanceIlYa(ans: number): Date {
 
 export async function creerPatient(
   cabinetId: string,
-  options: { age?: number; tuteurIds?: string[]; compteUserId?: string } = {},
+  options: {
+    age?: number;
+    tuteurIds?: string[];
+    compteUserId?: string;
+    /** Consentement « données de santé » des comptes famille (oui par défaut). */
+    consentement?: boolean;
+  } = {},
 ) {
+  const famille = [
+    ...(options.tuteurIds ?? []),
+    ...(options.compteUserId ? [options.compteUserId] : []),
+  ];
   return db().patient.create({
     data: {
       cabinetId,
       prenom: `Enfant${unique()}`,
+      nom: "Exemple",
       dateNaissance: naissanceIlYa(options.age ?? 8),
       notes: "Note clinique fictive",
       compteUserId: options.compteUserId ?? null,
       tuteurs: { create: (options.tuteurIds ?? []).map((parentId) => ({ parentId })) },
+      consentements: {
+        create: (options.consentement === false ? [] : famille).map((userId) => ({
+          userId,
+          type: "DONNEES_SANTE" as const,
+          versionTexte: "test",
+        })),
+      },
     },
   });
 }
@@ -143,3 +163,35 @@ export function cookieSession(entetes: Headers): { valeur: string; brut: string 
   if (!brut) return null;
   return { valeur: exiger(brut.split(";")[0]).slice("session=".length), brut };
 }
+
+/** Envoie un fichier en multipart, comme le formulaire de la Fiche. */
+export async function envoyerFichier(
+  gestionnaire: GestionnaireNext,
+  appel: { cookie?: string; bearer?: string; params: Record<string, string> },
+  fichier: { nom: string; octets: Uint8Array; type?: string },
+) {
+  const formulaire = new FormData();
+  formulaire.set(
+    "fichier",
+    new File([new Uint8Array(fichier.octets)], fichier.nom, {
+      type: fichier.type ?? "application/octet-stream",
+    }),
+  );
+  const entetes = new Headers({ "x-forwarded-for": ipFictive() });
+  if (appel.cookie) entetes.set("cookie", `session=${appel.cookie}`);
+  if (appel.bearer) entetes.set("authorization", `Bearer ${appel.bearer}`);
+  const req = new NextRequest("http://localhost:3000/api/test", {
+    method: "POST",
+    headers: entetes,
+    body: formulaire,
+  });
+  const reponse = await gestionnaire(req, { params: Promise.resolve(appel.params) });
+  const texte = await reponse.text();
+  return { status: reponse.status, corps: (texte ? JSON.parse(texte) : null) as CorpsJson };
+}
+
+/** Faux fichiers : seuls les premiers octets (signature) comptent. */
+export const PDF_FICTIF = new TextEncoder().encode("%PDF-1.4\n% document fictif\n%%EOF\n");
+export const PNG_FICTIF = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
+]);

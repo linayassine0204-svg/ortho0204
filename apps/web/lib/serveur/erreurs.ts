@@ -21,6 +21,12 @@ export const erreurs = {
   introuvable: () => new ErreurApi(404, "introuvable", "erreurs.introuvable"),
   tropDeTentatives: () => new ErreurApi(429, "trop_de_tentatives", "erreurs.tropDeTentatives"),
   invitationInvalide: () => new ErreurApi(400, "invitation_invalide", "erreurs.invitationInvalide"),
+  /** Compte famille relié au patient, mais sans consentement actif. */
+  consentementRequis: () => new ErreurApi(403, "consentement_requis", "erreurs.consentementRequis"),
+  pathologieInconnue: () => new ErreurApi(400, "pathologie_inconnue", "erreurs.pathologieInconnue"),
+  documentTypeRefuse: () =>
+    new ErreurApi(415, "document_type_refuse", "erreurs.documentTypeRefuse"),
+  documentTropGros: () => new ErreurApi(413, "document_trop_gros", "erreurs.documentTropGros"),
 };
 
 export function corpsErreur(erreur: ErreurApi) {

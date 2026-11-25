@@ -169,8 +169,12 @@ describe("droits relus à chaque requête", () => {
       data: {
         cabinetId: d.cabA.id,
         prenom: "Temporaire",
+        nom: "Exemple",
         dateNaissance: new Date("2018-01-01"),
         tuteurs: { create: { parentId: d.parentA2.id } },
+        consentements: {
+          create: { userId: d.parentA2.id, type: "DONNEES_SANTE", versionTexte: "test" },
+        },
       },
     });
     expect((await lire(enfant.id, { bearer: jetons.parentA2 })).status).toBe(200);
