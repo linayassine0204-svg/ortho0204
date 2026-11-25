@@ -37,12 +37,24 @@
     "menu": {
       "patients": "Patients",
       "bibliotheque": "Bibliothèque",
-      "deconnexion": "Se déconnecter"
+      "deconnexion": "Se déconnecter",
+      "principal": "Menu principal",
+      "dossier": "Dossier de {{prenom}}"
     },
     "patients": {
       "titre": "Patients",
       "aucun": "Aucun patient pour le moment.",
-      "inviter": "Inviter un parent ou le patient"
+      "aucunResultat": "Aucun patient ne correspond à votre recherche.",
+      "inviter": "Inviter un parent ou le patient",
+      "nouveau": "Nouveau patient",
+      "recherche": "Rechercher un patient",
+      "rechercheAide": "Prénom ou nom",
+      "filtrePathologie": "Pathologie",
+      "toutes": "Toutes les pathologies",
+      "filtrer": "Rechercher",
+      "effacer": "Effacer",
+      "ans": "{{age}} ans",
+      "an": "{{age}} an"
     },
     "invitation": {
       "titre": "Inviter un proche de {{prenom}}",
@@ -72,7 +84,65 @@
       "menu": "Mon espace",
       "titreParent": "Mes enfants suivis",
       "titrePatient": "Mon suivi",
-      "aucun": "Aucun dossier relié à votre compte pour le moment."
+      "aucun": "Aucun dossier relié à votre compte pour le moment.",
+      "consentementTitre": "Votre consentement"
+    },
+    "bientot": {
+      "titre": "Bientôt disponible",
+      "texte": "Cette partie arrive dans une prochaine version."
+    },
+    "bibliotheque": {
+      "titre": "Bibliothèque d'exercices"
+    },
+    "nouveauPatient": {
+      "titre": "Nouveau patient",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "dateNaissance": "Date de naissance",
+      "pathologies": "Pathologie(s)",
+      "bouton": "Créer le patient",
+      "annuler": "Annuler"
+    },
+    "sections": {
+      "fiche": "Fiche",
+      "preparation": "Préparation",
+      "bilans": "Bilans",
+      "programme": "Programme",
+      "conseils": "Conseils",
+      "messagerie": "Messages",
+      "suivi": "Progrès"
+    },
+    "fiche": {
+      "identite": "Identité",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "dateNaissance": "Date de naissance",
+      "age": "Âge",
+      "pathologies": "Pathologie(s)",
+      "aucunePathologie": "Aucune pathologie renseignée.",
+      "contacts": "Contacts",
+      "aucunContact": "Aucun compte relié pour le moment.",
+      "parent": "Parent",
+      "patientLuiMeme": "Patient (compte personnel)",
+      "invitationEnAttente": "Invitation envoyée à {{email}}, valable jusqu'au {{date}}.",
+      "consentementOk": "Consentement donné le {{date}}",
+      "consentementManquant": "Consentement en attente : aucune donnée n'est envoyée à ce compte.",
+      "alerteSansParent": "Enfant de moins de 15 ans sans parent relié : invitez un parent pour qu'il donne son consentement.",
+      "alerteSansCompteAdulte": "Ce patient n'a pas encore de compte : invitez-le pour qu'il donne son consentement.",
+      "medecin": "Médecin prescripteur",
+      "medecinNom": "Nom du médecin",
+      "medecinContact": "Téléphone ou adresse",
+      "documents": "Documents",
+      "aucunDocument": "Aucun document.",
+      "ajouterDocument": "Ajouter un document",
+      "documentAide": "PDF, PNG ou JPEG, 10 Mo au maximum.",
+      "telecharger": "Télécharger",
+      "supprimer": "Supprimer",
+      "confirmerSuppression": "Supprimer ce document ?",
+      "notes": "Notes",
+      "enregistrer": "Enregistrer",
+      "enregistre": "Modifications enregistrées.",
+      "modifier": "Modifier"
     }
   },
   "mobile": {
@@ -92,6 +162,22 @@
     "invitationInvalide": "Ce lien d'invitation n'est plus valable. Demandez un nouveau lien à votre {{terme.professionnel}}.",
     "patientDejaUnCompte": "Ce patient a déjà un compte.",
     "patientTropJeune": "Un enfant de moins de 15 ans n'a pas de compte propre : invitez plutôt un parent.",
-    "methodeNonAutorisee": "Méthode non autorisée."
+    "methodeNonAutorisee": "Méthode non autorisée.",
+    "consentementRequis": "Votre consentement est nécessaire avant de voir ce dossier.",
+    "documentTypeRefuse": "Ce type de fichier n'est pas accepté (PDF, PNG ou JPEG).",
+    "documentTropGros": "Ce fichier est trop volumineux (10 Mo au maximum).",
+    "pathologieInconnue": "Une pathologie choisie n'existe pas."
+  },
+  "consentement": {
+    "donneesSante": {
+      "titre": "Consentement au suivi à la maison",
+      "texte": "Votre {{terme.professionnel}} utilise ce service pour vous transmettre le programme d'exercices, des conseils et le suivi de la rééducation.\n\nPour cela, des données de santé vous concernant, ou concernant votre enfant, sont conservées chez un hébergeur certifié pour les données de santé (HDS), en France : prénom, âge, pathologie, exercices réalisés et résultats.\n\nCes données ne sont visibles que par votre {{terme.professionnel}} et par les comptes que vous avez reliés. Elles ne sont ni vendues, ni transmises à d'autres services.\n\nVous pouvez retirer votre consentement à tout moment depuis l'application : plus aucune donnée ne vous sera alors envoyée.",
+      "case": "J'ai lu ce texte et j'accepte que ces données soient utilisées pour le suivi.",
+      "bouton": "Je donne mon consentement",
+      "retirer": "Retirer mon consentement",
+      "requisPour": "Votre consentement est nécessaire pour voir le suivi de {{prenom}}.",
+      "donne": "Consentement donné le {{date}} (version {{version}}).",
+      "retire": "Consentement retiré."
+    }
   }
 }
