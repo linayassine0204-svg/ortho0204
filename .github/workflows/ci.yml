@@ -16,6 +16,9 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
   # Base PostgreSQL éphémère de la CI (service ci-dessous), aucune donnée réelle.
   DATABASE_URL: postgresql://ci:ci-local-only@localhost:5432/ortho_ci?schema=public
+  # Secret fictif propre à la CI (aucune donnée réelle).
+  AUTH_SECRET: secret-fictif-de-ci-au-moins-32-caracteres
+  APP_URL: http://localhost:3000
 
 jobs:
   verifications:
