@@ -44,6 +44,7 @@ pnpm db:seed
 ```
 
 Détail des tables : [`docs/BASE_DE_DONNEES.md`](./docs/BASE_DE_DONNEES.md).
+Connexion et droits d'accès : [`docs/AUTHENTIFICATION.md`](./docs/AUTHENTIFICATION.md).
 
 ## Lancer le web
 
@@ -52,6 +53,9 @@ pnpm dev:web
 ```
 
 Puis ouvrir http://localhost:3000 (API : http://localhost:3000/api/health).
+
+Comptes fictifs du seed : `ortho@exemple.test` (web), `parent.lea@exemple.test` (mobile), mot de passe
+= `SEED_PASSWORD` du fichier `.env`.
 
 ## Lancer le mobile
 

@@ -46,6 +46,14 @@ erDiagram
 | **LienTuteur**           | « Ce parent est responsable de cet enfant ». Un enfant peut avoir plusieurs parents, un parent plusieurs enfants. C'est ce lien qui décidera de ce qu'un parent a le droit de voir. |
 | **Consentement**         | Qui a accepté quoi (conditions, données de santé, messagerie, audio), avec quelle version du texte, quand, et s'il l'a retiré (avec la date du retrait).                            |
 
+### Connexion (voir [AUTHENTIFICATION.md](./AUTHENTIFICATION.md))
+
+| Table                  | Ce qu'elle contient                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Session**            | Une session ouverte (web, ou jeton mobile). Seule l'**empreinte** du jeton est stockée, avec expiration et révocation. |
+| **Invitation**         | Lien d'invitation d'un parent ou d'un patient : e-mail, rôle, expiration, date d'utilisation (usage unique).           |
+| **TentativeConnexion** | Tentatives comptées pour limiter les essais. Clé = empreinte (jamais l'e-mail ou l'IP en clair).                       |
+
 ### Patients
 
 | Table                 | Ce qu'elle contient                                                                                                                                                    |
