@@ -1,0 +1,128 @@
+# Requêtes pour essayer l'API à la main, dans VS Code.
+# Extension nécessaire : « REST Client » (humao.rest-client).
+# Cliquer sur « Send Request » au-dessus de chaque requête, DANS L'ORDRE.
+# Avant : pnpm db:up, pnpm db:migrate, pnpm db:seed, puis pnpm dev:web.
+# Comptes FICTIFS du seed ; mot de passe = SEED_PASSWORD du fichier .env.
+
+@api = http://localhost:3000/api
+@motDePasse = {{$dotenv SEED_PASSWORD}}
+
+### 1. Le service répond (sans connexion)
+GET {{api}}/health
+
+### 2. Sans connexion, les patients sont refusés (401)
+GET {{api}}/patients
+
+### ─── Orthophoniste, connexion WEB (cookie) ─────────────────────────────
+
+### 3. Mauvais mot de passe : message volontairement vague (401)
+POST {{api}}/auth/connexion
+Content-Type: application/json
+
+{ "email": "ortho@exemple.test", "motDePasse": "mauvais-mot-de-passe" }
+
+### 4. E-mail inconnu : exactement le même message (401)
+POST {{api}}/auth/connexion
+Content-Type: application/json
+
+{ "email": "personne@exemple.test", "motDePasse": "mauvais-mot-de-passe" }
+
+### 5. Connexion de l'orthophoniste : regarder l'en-tête Set-Cookie (HttpOnly, SameSite=Strict)
+POST {{api}}/auth/connexion
+Content-Type: application/json
+
+{ "email": "ortho@exemple.test", "motDePasse": "{{motDePasse}}" }
+
+### 6. Qui suis-je ? (le cookie est renvoyé automatiquement)
+GET {{api}}/auth/moi
+
+### 7. Les patients de son cabinet : Léa, Paul, Tom
+# @name patientsOrtho
+GET {{api}}/patients
+
+### 8. Lire le dossier du 1er patient (avec les notes) → une ligne dans le journal d'accès
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}
+
+### 9. Inviter un nouveau parent pour ce patient → copier le texte après « # » dans « lien »
+# @name invitation
+POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/invitations
+Content-Type: application/json
+
+{ "email": "nouveau.parent@exemple.test", "role": "PARENT" }
+
+### 10. Déconnexion de l'orthophoniste
+POST {{api}}/auth/deconnexion
+
+### 11. Après déconnexion : refusé (401)
+GET {{api}}/auth/moi
+
+### ─── Le parent invité active son compte ────────────────────────────────
+
+### 12. Coller le jeton copié à l'étape 9 à la place de COLLER_LE_JETON_ICI
+POST {{api}}/invitations/accepter
+Content-Type: application/json
+
+{
+  "jeton": "COLLER_LE_JETON_ICI",
+  "motDePasse": "{{motDePasse}}",
+  "prenom": "Sam",
+  "nom": "Exemple"
+}
+
+### 13. Même lien une 2e fois : refusé (400, lien déjà utilisé)
+POST {{api}}/invitations/accepter
+Content-Type: application/json
+
+{
+  "jeton": "COLLER_LE_JETON_ICI",
+  "motDePasse": "{{motDePasse}}",
+  "prenom": "Sam",
+  "nom": "Exemple"
+}
+
+### ─── Parent, connexion MOBILE (jetons) ─────────────────────────────────
+
+### 14. Le parent de Léa se connecte comme sur l'application mobile
+# @name parent
+POST {{api}}/auth/mobile/connexion
+Content-Type: application/json
+
+{ "email": "parent.lea@exemple.test", "motDePasse": "{{motDePasse}}" }
+
+### 15. Ses patients : seulement Léa
+GET {{api}}/patients
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
+### 16. Le parent de Léa essaie le dossier de Tom (patients[2]) : 404, accès refusé sans le dire.
+###     Remplacer [2] par [0] (Léa) : 200, mais sans les notes cliniques.
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[2].id}}
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
+### 17. Le parent essaie d'inviter quelqu'un : refusé (404)
+POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/invitations
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+Content-Type: application/json
+
+{ "email": "intrus@exemple.test", "role": "PARENT" }
+
+### 18. Renouveler les jetons (le jeton d'accès dure 15 min)
+# @name renouvellement
+POST {{api}}/auth/mobile/renouvellement
+Content-Type: application/json
+
+{ "jetonRenouvellement": "{{parent.response.body.jetonRenouvellement}}" }
+
+### 19. Réutiliser l'ANCIEN jeton de renouvellement : refusé, et toute la session est coupée
+POST {{api}}/auth/mobile/renouvellement
+Content-Type: application/json
+
+{ "jetonRenouvellement": "{{parent.response.body.jetonRenouvellement}}" }
+
+### ─── Limitation des essais ─────────────────────────────────────────────
+
+### 20. Envoyer 6 fois : à la 6e, réponse 429 « Trop de tentatives »
+###     (ce compte est ensuite bloqué 15 min ; `pnpm db:seed` remet tout à zéro)
+POST {{api}}/auth/connexion
+Content-Type: application/json
+
+{ "email": "parent.lea@exemple.test", "motDePasse": "mauvais-mot-de-passe" }

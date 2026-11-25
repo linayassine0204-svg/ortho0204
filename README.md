@@ -57,6 +57,17 @@ Puis ouvrir http://localhost:3000 (API : http://localhost:3000/api/health).
 Comptes fictifs du seed : `ortho@exemple.test` (web), `parent.lea@exemple.test` (mobile), mot de passe
 = `SEED_PASSWORD` du fichier `.env`.
 
+## Voir l'API
+
+Deux façons, une fois `pnpm dev:web` lancé :
+
+- **Dans le navigateur** : se connecter sur http://localhost:3000/connexion, puis ouvrir par exemple
+  http://localhost:3000/api/patients ou http://localhost:3000/api/auth/moi : la réponse JSON s'affiche.
+- **Toutes les requêtes, pas à pas** : ouvrir [`api.http`](./api.http) dans VS Code avec l'extension
+  « REST Client » (proposée automatiquement) et cliquer sur « Send Request » au-dessus de chaque
+  requête, dans l'ordre. Le fichier montre la connexion, les refus d'accès, l'invitation, les jetons
+  mobiles et la limitation des essais.
+
 ## Lancer le mobile
 
 ```bash

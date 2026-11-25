@@ -4,14 +4,15 @@ Code : `apps/web/lib/serveur/` (serveur) et `packages/shared/src/schemas/auth.ts
 
 ## Qui se connecte où
 
-| Qui                           | Où                 | Comment                                                           |
-| ----------------------------- | ------------------ | ----------------------------------------------------------------- |
-| Orthophoniste                 | Logiciel web       | Cookie de session `HttpOnly`, `SameSite=Strict`, `Secure` en prod |
-| Parent, patient (15 ans et +) | Application mobile | Jeton d'accès (15 min) + jeton de renouvellement (30 jours)       |
-| Enfant de moins de 15 ans     | Compte du parent   | Pas de compte propre                                              |
+Tous les comptes (orthophoniste, parent, patient de 15 ans et plus) peuvent se connecter **au web et
+au mobile**. Ce que chacun voit est décidé par `can()`, identique sur les deux.
 
-Un compte parent ne peut pas se connecter au web, un orthophoniste ne peut pas se connecter au
-mobile : dans les deux cas, le message est le même que pour un mauvais mot de passe.
+| Canal              | Comment                                                                 | Après connexion web                      |
+| ------------------ | ----------------------------------------------------------------------- | ---------------------------------------- |
+| Logiciel web       | Cookie de session `HttpOnly`, `SameSite=Strict`, `Secure` en production | ORTHO → `/patients`, autres → `/famille` |
+| Application mobile | Jeton d'accès (15 min) + jeton de renouvellement (30 jours)             | —                                        |
+
+L'enfant de moins de 15 ans n'a pas de compte propre : il utilise celui de son parent.
 
 ## Sessions et jetons
 
