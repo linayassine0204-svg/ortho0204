@@ -14,7 +14,7 @@
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "prisma db seed",
-    "studio": "prisma studio",
+    "studio": "prisma studio --port 5555 --browser none",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

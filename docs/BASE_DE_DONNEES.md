@@ -127,11 +127,11 @@ Tous les comptes ont des e-mails en `@exemple.test` (domaine réservé, jamais r
 
 ## Commandes
 
-| Commande                       | Effet                                                                                    |
-| ------------------------------ | ---------------------------------------------------------------------------------------- |
-| `pnpm db:up`                   | Démarre PostgreSQL (Docker).                                                             |
-| `pnpm db:migrate`              | Applique les migrations (crée les tables).                                               |
-| `pnpm db:seed`                 | Remplace le contenu par les données fictives.                                            |
-| `pnpm db:reset`                | Efface **toute** la base de développement puis réapplique les migrations.                |
-| `pnpm --filter @app/db studio` | Ouvre Prisma Studio pour regarder les données.                                           |
-| `pnpm test`                    | Lance aussi les tests de base sur une base séparée `…_test`, recréée vide à chaque fois. |
+| Commande                       | Effet                                                                                                                                                                         |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:up`                   | Démarre PostgreSQL (Docker).                                                                                                                                                  |
+| `pnpm db:migrate`              | Applique les migrations (crée les tables).                                                                                                                                    |
+| `pnpm db:seed`                 | Remplace le contenu par les données fictives.                                                                                                                                 |
+| `pnpm db:reset`                | Efface **toute** la base de développement puis réapplique les migrations.                                                                                                     |
+| `pnpm --filter @app/db studio` | Ouvre Prisma Studio (port 5555) pour regarder les données. Dans un Codespace, passer le port en « Public » le temps de regarder (403 sinon), puis le remettre en « Private ». |
+| `pnpm test`                    | Lance aussi les tests de base sur une base séparée `…_test`, recréée vide à chaque fois.                                                                                      |
