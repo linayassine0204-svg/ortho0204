@@ -33,6 +33,18 @@ pnpm db:up
 
 (équivaut à `docker compose up -d` ; `pnpm db:down` pour l'arrêter.)
 
+Puis créer les tables et les données fictives :
+
+```bash
+pnpm db:migrate
+```
+
+```bash
+pnpm db:seed
+```
+
+Détail des tables : [`docs/BASE_DE_DONNEES.md`](./docs/BASE_DE_DONNEES.md).
+
 ## Lancer le web
 
 ```bash
@@ -62,6 +74,8 @@ pnpm typecheck
 ```bash
 pnpm test
 ```
+
+(`pnpm test` a besoin de la base démarrée : il utilise une base séparée `ortho_dev_test`.)
 
 ```bash
 pnpm test:e2e
