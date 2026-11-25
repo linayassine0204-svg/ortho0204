@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readDatabaseUrl } from "./env";
+import { readDatabaseUrl } from "./env.ts";
 
 describe("readDatabaseUrl", () => {
   it("accepte une URL PostgreSQL", () => {
