@@ -12,7 +12,60 @@
   "web": {
     "accueil": {
       "titre": "Bienvenue",
-      "sousTitre": "Espace {{terme.professionnel}} — projet en cours de préparation."
+      "sousTitre": "Espace {{terme.professionnel}} — projet en cours de préparation.",
+      "seConnecter": "Se connecter",
+      "creerCompte": "Créer mon compte et mon cabinet"
+    },
+    "inscription": {
+      "titre": "Créer votre compte {{terme.professionnel}}",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "email": "Adresse e-mail",
+      "motDePasse": "Mot de passe (au moins 12 caractères)",
+      "nomCabinet": "Nom du cabinet",
+      "bouton": "Créer mon compte",
+      "succes": "Si cette adresse n'était pas déjà utilisée, votre compte et votre cabinet sont créés. Vous pouvez maintenant vous connecter.",
+      "dejaUnCompte": "Déjà un compte ? Se connecter"
+    },
+    "connexion": {
+      "titre": "Connexion",
+      "email": "Adresse e-mail",
+      "motDePasse": "Mot de passe",
+      "bouton": "Se connecter",
+      "pasDeCompte": "Pas encore de compte ? Créer mon cabinet"
+    },
+    "menu": {
+      "patients": "Patients",
+      "bibliotheque": "Bibliothèque",
+      "deconnexion": "Se déconnecter"
+    },
+    "patients": {
+      "titre": "Patients",
+      "aucun": "Aucun patient pour le moment.",
+      "inviter": "Inviter un parent ou le patient"
+    },
+    "invitation": {
+      "titre": "Inviter un proche de {{prenom}}",
+      "explication": "La personne invitée reçoit un lien valable {{heures}} heures, utilisable une seule fois.",
+      "email": "Adresse e-mail de la personne invitée",
+      "role": "La personne invitée est",
+      "roleParent": "un parent",
+      "rolePatient": "le patient lui-même (15 ans ou plus)",
+      "bouton": "Créer le lien d'invitation",
+      "lienCree": "Lien d'invitation créé. Transmettez-le à la personne invitée :",
+      "emailNonEnvoye": "L'envoi automatique par e-mail n'est pas encore branché : copiez ce lien.",
+      "retour": "Retour aux patients"
+    },
+    "accepterInvitation": {
+      "titre": "Activer votre compte",
+      "explication": "Choisissez votre mot de passe. Vous l'utiliserez ensuite dans l'application mobile.",
+      "dejaUnCompte": "Vous avez déjà un compte parent avec cette adresse ? Saisissez seulement votre mot de passe actuel.",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "motDePasse": "Mot de passe (au moins 12 caractères)",
+      "bouton": "Activer mon compte",
+      "succes": "Votre compte est activé. Vous pouvez vous connecter dans l'application mobile.",
+      "lienAbsent": "Ce lien est incomplet. Ouvrez le lien reçu en entier."
     }
   },
   "mobile": {
@@ -22,6 +75,16 @@
     }
   },
   "erreurs": {
-    "inconnue": "Une erreur est survenue. Veuillez réessayer."
+    "inconnue": "Une erreur est survenue. Veuillez réessayer.",
+    "identifiantsIncorrects": "Adresse e-mail ou mot de passe incorrect.",
+    "tropDeTentatives": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "nonConnecte": "Vous devez vous connecter.",
+    "introuvable": "Ce dossier n'existe pas ou vous n'y avez pas accès.",
+    "donneesInvalides": "Certaines informations sont manquantes ou invalides.",
+    "requeteRefusee": "Requête refusée.",
+    "invitationInvalide": "Ce lien d'invitation n'est plus valable. Demandez un nouveau lien à votre {{terme.professionnel}}.",
+    "patientDejaUnCompte": "Ce patient a déjà un compte.",
+    "patientTropJeune": "Un enfant de moins de 15 ans n'a pas de compte propre : invitez plutôt un parent.",
+    "methodeNonAutorisee": "Méthode non autorisée."
   }
 }
