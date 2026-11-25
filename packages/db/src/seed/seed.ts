@@ -163,6 +163,9 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     data: {
       cabinetId: cabinet.id,
       prenom: "Léa",
+      nom: "Exemple",
+      medecinNom: "Dr Martin (fictif)",
+      medecinContact: "01 00 00 00 00",
       dateNaissance: naissance(aujourdhui, 7),
       notes: "Patiente fictive. Difficultés de conscience phonologique.",
       pathologies: {
@@ -175,6 +178,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     data: {
       cabinetId: cabinet.id,
       prenom: "Tom",
+      nom: "Exemple",
       dateNaissance: naissance(aujourdhui, 9),
       notes: "Patient fictif. Bégaiement.",
       pathologies: { create: [{ categorieId: cat("begaiement") }] },
@@ -185,6 +189,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     data: {
       cabinetId: cabinet.id,
       prenom: "Paul",
+      nom: "Exemple",
       dateNaissance: naissance(aujourdhui, 34),
       notes: "Patient fictif adulte. Fatigue vocale.",
       compteUserId: compteAdulte.id,
@@ -195,6 +200,8 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
   });
 
   // ── Consentements ──
+  // Même version que CONSENTEMENT_DONNEES_SANTE.version (packages/shared). Le père
+  // de Tom n'a PAS donné son consentement « données de santé » : il le verra demandé.
   const versionTexte = "2026-11-v1";
   await prisma.consentement.createMany({
     data: [

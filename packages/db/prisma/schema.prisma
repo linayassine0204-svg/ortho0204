@@ -127,6 +127,7 @@ model User {
   messages          Message[]
   sessions          Session[]
   invitationsCreees Invitation[]   @relation("InvitationsCreees")
+  documents         Document[]
 
   @@index([cabinetId, role])
   @@map("utilisateur")
@@ -192,15 +193,19 @@ model TentativeConnexion {
 // ─── Patients ────────────────────────────────────────────────────────────────
 
 model Patient {
-  id            String   @id @default(cuid())
-  cabinetId     String
-  prenom        String
-  dateNaissance DateTime @db.Date
-  notes         String?
+  id             String   @id @default(cuid())
+  cabinetId      String
+  prenom         String
+  nom            String
+  dateNaissance  DateTime @db.Date
+  notes          String?
+  /// Médecin prescripteur (nom, et un moyen de contact libre : téléphone, adresse…).
+  medecinNom     String?
+  medecinContact String?
   /// Compte de l'application pour un patient adolescent ou adulte (null pour un enfant).
-  compteUserId  String?  @unique
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  compteUserId   String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   cabinet       Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
   compte        User?               @relation("CompteDuPatient", fields: [compteUserId], references: [id], onDelete: SetNull)
@@ -215,9 +220,29 @@ model Patient {
   filsMessages  FilMessages[]
   reglage       ReglagePatient?
   invitations   Invitation[]
+  documents     Document[]
 
   @@index([cabinetId])
   @@map("patient")
+}
+
+/// Document joint au dossier (ordonnance, compte rendu…). Seule la clé de stockage
+/// est en base ; le fichier est chez l'hébergeur (disque local en développement).
+model Document {
+  id           String   @id @default(cuid())
+  patientId    String
+  nomFichier   String
+  typeMime     String
+  tailleOctets Int
+  cleStockage  String   @unique
+  ajouteParId  String?
+  createdAt    DateTime @default(now())
+
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  ajoutePar User?   @relation(fields: [ajouteParId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, createdAt])
+  @@map("document")
 }
 
 /// Pathologie(s) d'un patient (lien Patient ↔ Catégorie).

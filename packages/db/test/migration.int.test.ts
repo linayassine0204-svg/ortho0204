@@ -12,6 +12,7 @@ const TABLES_ATTENDUES = [
   "conseil",
   "conseil_etiquette",
   "consentement",
+  "document",
   "element_programme",
   "enregistrement",
   "envoi_conseil",
