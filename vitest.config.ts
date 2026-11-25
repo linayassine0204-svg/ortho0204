@@ -25,8 +25,9 @@ export default defineConfig({
         extends: true,
         test: {
           name: "base-de-donnees",
-          include: ["packages/db/test/**/*.int.test.ts"],
+          include: ["packages/db/test/**/*.int.test.ts", "apps/web/test/**/*.int.test.ts"],
           globalSetup: ["packages/db/test/global-setup.ts"],
+          setupFiles: ["apps/web/test/env-de-test.ts"],
           environment: "node",
           // Une seule base de test partagée : les fichiers passent l'un après l'autre.
           fileParallelism: false,
