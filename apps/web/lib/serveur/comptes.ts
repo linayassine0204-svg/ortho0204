@@ -1,4 +1,4 @@
-import { hashPassword, verifyPassword, type PrismaClient, type Role } from "@app/db";
+import { hashPassword, verifyPassword, type PrismaClient } from "@app/db";
 import type { Connexion, Inscription } from "@app/shared";
 import { LIMITES } from "./config";
 import { erreurs } from "./erreurs";
@@ -60,15 +60,10 @@ function estViolationUnicite(erreur: unknown): boolean {
 
 /**
  * Vérifie e-mail et mot de passe, avec limitation des essais.
- * `rolesAutorises` : le web n'accepte que les orthophonistes, le mobile que
- * les parents et patients. Tout échec renvoie le même message.
+ * Tous les rôles peuvent se connecter au web et au mobile ; ce que chacun voit
+ * est décidé ensuite par `can()`. Tout échec renvoie le même message.
  */
-export async function verifierIdentifiants(
-  prisma: PrismaClient,
-  donnees: Connexion,
-  ip: string,
-  rolesAutorises: readonly Role[],
-) {
+export async function verifierIdentifiants(prisma: PrismaClient, donnees: Connexion, ip: string) {
   const cles: CleLimite[] = [
     { type: "connexion:email", valeur: donnees.email, limite: LIMITES.connexionParEmail },
     { type: "connexion:ip", valeur: ip, limite: LIMITES.connexionParIp },
@@ -81,7 +76,7 @@ export async function verifierIdentifiants(
     user?.motDePasseHash ?? (await obtenirEmpreinteFactice()),
   );
 
-  if (!user || !motDePasseOk || !rolesAutorises.includes(user.role)) {
+  if (!user || !motDePasseOk) {
     await enregistrerTentative(prisma, cles);
     throw erreurs.identifiantsIncorrects();
   }

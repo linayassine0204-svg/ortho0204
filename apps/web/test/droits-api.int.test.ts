@@ -178,3 +178,33 @@ describe("droits relus à chaque requête", () => {
     expect((await lire(enfant.id, { bearer: jetons.parentA2 })).status).toBe(404);
   });
 });
+
+describe("mêmes règles sur le web et sur le mobile", () => {
+  it("parent connecté au web : voit son enfant, ÉCHEC sur l'enfant d'un autre", async () => {
+    const cookie = await jetonWeb(d.parentA1.id);
+    expect((await lire(d.enfantA1.id, { cookie })).status).toBe(200);
+    expect((await lire(d.enfantA2.id, { cookie })).status).toBe(404);
+    expect((await lire(d.enfantB.id, { cookie })).status).toBe(404);
+  });
+
+  it("patient adulte connecté au web : ÉCHEC sur le dossier d'un autre", async () => {
+    const cookie = await jetonWeb(d.adulteA.id);
+    expect((await lire(d.dossierAdulteA.id, { cookie })).status).toBe(200);
+    expect((await lire(d.dossierAdulteA2.id, { cookie })).status).toBe(404);
+  });
+
+  it("orthophoniste connecté au mobile : ÉCHEC sur un patient d'un autre cabinet", async () => {
+    const bearer = await jetonMobile(d.orthoA.id);
+    expect((await lire(d.enfantA1.id, { bearer })).status).toBe(200);
+    expect((await lire(d.enfantB.id, { bearer })).status).toBe(404);
+  });
+
+  it("parent connecté au web : ÉCHEC pour inviter", async () => {
+    const r = await appeler(inviter, {
+      cookie: await jetonWeb(d.parentA1.id),
+      params: { id: d.enfantA1.id },
+      corps: { email: emailFictif("x"), role: "PARENT" },
+    });
+    expect(r.status).toBe(404);
+  });
+});

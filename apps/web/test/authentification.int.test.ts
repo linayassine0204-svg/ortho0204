@@ -134,14 +134,17 @@ describe("connexion web (orthophoniste)", () => {
     expect(cookieSession(mauvais.entetes)).toBeNull();
   });
 
-  it("refuse un compte parent sur le web, avec le même message", async () => {
+  it("accepte aussi un parent et un patient adulte sur le web", async () => {
     const cab = await creerCabinet();
-    const parent = await creerCompte("PARENT", cab.id);
-    const r = await appeler(connexionWeb, {
-      corps: { email: parent.email, motDePasse: MOT_DE_PASSE },
-    });
-    expect(r.status).toBe(401);
-    expect(r.corps.erreur.message).toBe(t("erreurs.identifiantsIncorrects"));
+    for (const role of ["PARENT", "PATIENT_ADULT"] as const) {
+      const compte = await creerCompte(role, cab.id);
+      const r = await appeler(connexionWeb, {
+        corps: { email: compte.email, motDePasse: MOT_DE_PASSE },
+      });
+      expect(r.status).toBe(200);
+      expect(r.corps.utilisateur.role).toBe(role);
+      expect(cookieSession(r.entetes)).not.toBeNull();
+    }
   });
 
   it("bloque après 5 échecs sur un e-mail, même avec le bon mot de passe ensuite", async () => {
@@ -256,14 +259,15 @@ describe("connexion mobile (parent, patient adulte)", () => {
     expect((await appeler(moi, { bearer: r.corps.jetonRenouvellement })).status).toBe(401);
   });
 
-  it("refuse un orthophoniste sur le mobile, avec le même message", async () => {
+  it("accepte aussi un orthophoniste sur le mobile", async () => {
     const cab = await creerCabinet();
     const ortho = await creerCompte("ORTHO", cab.id);
     const r = await appeler(connexionMobile, {
       corps: { email: ortho.email, motDePasse: MOT_DE_PASSE },
     });
-    expect(r.status).toBe(401);
-    expect(r.corps.erreur.message).toBe(t("erreurs.identifiantsIncorrects"));
+    expect(r.status).toBe(200);
+    const moiR = await appeler(moi, { bearer: r.corps.jetonAcces });
+    expect(moiR.corps.utilisateur.role).toBe("ORTHO");
   });
 
   it("le renouvellement donne une nouvelle paire et invalide l'ancien jeton d'accès", async () => {

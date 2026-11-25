@@ -58,14 +58,21 @@
     },
     "accepterInvitation": {
       "titre": "Activer votre compte",
-      "explication": "Choisissez votre mot de passe. Vous l'utiliserez ensuite dans l'application mobile.",
+      "explication": "Choisissez votre mot de passe. Vous l'utiliserez pour vous connecter, sur le site ou dans l'application mobile.",
       "dejaUnCompte": "Vous avez déjà un compte parent avec cette adresse ? Saisissez seulement votre mot de passe actuel.",
       "prenom": "Prénom",
       "nom": "Nom",
       "motDePasse": "Mot de passe (au moins 12 caractères)",
       "bouton": "Activer mon compte",
-      "succes": "Votre compte est activé. Vous pouvez vous connecter dans l'application mobile.",
-      "lienAbsent": "Ce lien est incomplet. Ouvrez le lien reçu en entier."
+      "succes": "Votre compte est activé. Vous pouvez vous connecter sur le site ou dans l'application mobile.",
+      "lienAbsent": "Ce lien est incomplet. Ouvrez le lien reçu en entier.",
+      "seConnecter": "Se connecter"
+    },
+    "famille": {
+      "menu": "Mon espace",
+      "titreParent": "Mes enfants suivis",
+      "titrePatient": "Mon suivi",
+      "aucun": "Aucun dossier relié à votre compte pour le moment."
     }
   },
   "mobile": {

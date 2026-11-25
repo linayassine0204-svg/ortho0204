@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { LONGUEUR_MIN_MOT_DE_PASSE, t } from "@app/shared";
 import { Champ } from "@/components/Champ";
@@ -41,7 +42,12 @@ export default function AccepterInvitationPage() {
     <main className="page-formulaire">
       <h1>{t("web.accepterInvitation.titre")}</h1>
       {succes ? (
-        <Message type="succes" texte={t("web.accepterInvitation.succes")} />
+        <>
+          <Message type="succes" texte={t("web.accepterInvitation.succes")} />
+          <Link className="bouton" href="/connexion">
+            {t("web.accepterInvitation.seConnecter")}
+          </Link>
+        </>
       ) : !jeton ? (
         <Message type="erreur" texte={t("web.accepterInvitation.lienAbsent")} />
       ) : (

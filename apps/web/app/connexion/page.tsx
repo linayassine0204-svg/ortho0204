@@ -17,9 +17,12 @@ export default function ConnexionPage() {
     e.preventDefault();
     setEnvoi(true);
     setErreur(null);
-    const r = await envoyerJson("/api/auth/connexion", champs(e.currentTarget));
+    const r = await envoyerJson<{ utilisateur: { role: string } }>(
+      "/api/auth/connexion",
+      champs(e.currentTarget),
+    );
     setEnvoi(false);
-    if (r.ok) router.push("/patients");
+    if (r.ok) router.push(r.donnees.utilisateur.role === "ORTHO" ? "/patients" : "/famille");
     else setErreur(r.message);
   }
 
