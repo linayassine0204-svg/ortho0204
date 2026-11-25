@@ -1,0 +1,41 @@
+:root {
+  --vert: #2e7d6b;
+  --jaune: #e0a33a;
+  --bleu-nuit: #1b2a41;
+  --fond: #ffffff;
+  --texte: var(--bleu-nuit);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%; /* 16 px, respecte le réglage de l'utilisateur */
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--texte);
+  background: var(--fond);
+}
+
+.accueil {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.accueil h1 {
+  color: var(--vert);
+}
