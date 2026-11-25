@@ -39,3 +39,148 @@ body {
 .accueil h1 {
   color: var(--vert);
 }
+
+a {
+  color: var(--vert);
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.page-formulaire,
+.contenu {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.contenu {
+  max-width: 48rem;
+}
+
+h1 {
+  color: var(--vert);
+  font-size: 1.75rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+input,
+button,
+.bouton {
+  font: inherit;
+  font-size: 1rem;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input:not([type]),
+.lien {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--bleu-nuit);
+  border-radius: 0.375rem;
+}
+
+button,
+.bouton {
+  display: inline-block;
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: var(--vert);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--jaune);
+  outline-offset: 2px;
+}
+
+.bouton-secondaire {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #fff;
+}
+
+fieldset {
+  border: 1px solid var(--bleu-nuit);
+  border-radius: 0.375rem;
+}
+
+.choix {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.message {
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.message-erreur {
+  background: #fdecea;
+  color: #8a1c13;
+}
+
+.message-succes {
+  background: #e6f2ef;
+  color: var(--bleu-nuit);
+}
+
+.aide {
+  font-size: 0.95rem;
+}
+
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--bleu-nuit);
+}
+
+.entete a {
+  color: #fff;
+  font-weight: 600;
+}
+
+.liste {
+  list-style: none;
+  padding: 0;
+}
+
+.liste li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #d6dbe1;
+}
