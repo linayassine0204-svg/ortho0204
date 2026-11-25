@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+node_modules
+.next
+.expo
+dist
+coverage
+packages/db/src/generated
+apps/web/playwright-report
+apps/web/test-results
+CLAUDE.md
