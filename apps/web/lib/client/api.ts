@@ -1,15 +1,25 @@
 import { t } from "@app/shared";
 
-/** Appel JSON vers l'API depuis le navigateur. Le message d'erreur vient de l'API. */
+export type ResultatApi<T> = { ok: true; donnees: T } | { ok: false; message: string };
+
+/**
+ * Appel vers l'API depuis le navigateur (JSON, ou FormData pour un fichier).
+ * Le message d'erreur affiché vient de l'API (fichier de traduction).
+ */
 export async function envoyerJson<T = unknown>(
   url: string,
   corps?: unknown,
-): Promise<{ ok: true; donnees: T } | { ok: false; message: string }> {
+  methode: "POST" | "PATCH" | "DELETE" = "POST",
+): Promise<ResultatApi<T>> {
+  const estFormulaire = corps instanceof FormData;
+  let corpsRequete: BodyInit | undefined;
+  if (estFormulaire) corpsRequete = corps;
+  else if (corps !== undefined) corpsRequete = JSON.stringify(corps);
   try {
     const reponse = await fetch(url, {
-      method: "POST",
-      headers: corps === undefined ? {} : { "content-type": "application/json" },
-      body: corps === undefined ? undefined : JSON.stringify(corps),
+      method: methode,
+      headers: corps === undefined || estFormulaire ? {} : { "content-type": "application/json" },
+      body: corpsRequete,
       credentials: "same-origin",
     });
     const texte = await reponse.text();

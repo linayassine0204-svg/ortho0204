@@ -20,12 +20,12 @@ export default async function InvitationPage({ params }: PageProps<"/patients/[i
     throw erreur;
   }
   return (
-    <main className="page-formulaire">
+    <main className="contenu contenu-etroit">
       <h1>{t("web.invitation.titre", { prenom })}</h1>
       <p>{t("web.invitation.explication", { heures: DUREES.invitationMs / 3_600_000 })}</p>
       <FormulaireInvitation patientId={id} />
       <p>
-        <Link href="/patients">{t("web.invitation.retour")}</Link>
+        <Link href={`/patients/${id}/fiche`}>{t("web.invitation.retour")}</Link>
       </p>
     </main>
   );
