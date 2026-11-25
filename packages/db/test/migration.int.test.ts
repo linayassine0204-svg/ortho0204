@@ -17,6 +17,7 @@ const TABLES_ATTENDUES = [
   "envoi_conseil",
   "exercice",
   "fil_messages",
+  "invitation",
   "journal_acces",
   "lien_tuteur",
   "message",
@@ -28,6 +29,8 @@ const TABLES_ATTENDUES = [
   "realisation",
   "reglage_patient",
   "seance",
+  "session",
+  "tentative_connexion",
   "utilisateur",
 ];
 

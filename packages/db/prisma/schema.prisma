@@ -70,6 +70,15 @@ enum StatutBilan {
   ENVOYE
 }
 
+enum TypeSession {
+  /// Session du logiciel web (cookie HttpOnly).
+  WEB
+  /// Jeton court de l'application mobile (en-tête Authorization).
+  MOBILE_ACCES
+  /// Jeton de renouvellement de l'application mobile (usage unique, rotation).
+  MOBILE_RENOUVELLEMENT
+}
+
 enum ActionAcces {
   LECTURE
   MODIFICATION
@@ -105,20 +114,79 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  cabinet         Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
+  cabinet           Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
   /// Pour un PATIENT_ADULT : son propre dossier patient.
-  dossierPatient  Patient?       @relation("CompteDuPatient")
-  enfants         LienTuteur[]
-  consentements   Consentement[]
-  programmesCrees Programme[]
-  realisations    Realisation[]
-  conseilsEnvoyes EnvoiConseil[]
-  seances         Seance[]
-  bilans          Bilan[]
-  messages        Message[]
+  dossierPatient    Patient?       @relation("CompteDuPatient")
+  enfants           LienTuteur[]
+  consentements     Consentement[]
+  programmesCrees   Programme[]
+  realisations      Realisation[]
+  conseilsEnvoyes   EnvoiConseil[]
+  seances           Seance[]
+  bilans            Bilan[]
+  messages          Message[]
+  sessions          Session[]
+  invitationsCreees Invitation[]   @relation("InvitationsCreees")
 
   @@index([cabinetId, role])
   @@map("utilisateur")
+}
+
+/// Session ouverte (web ou mobile). Seule l'empreinte SHA-256 du jeton est stockée :
+/// une fuite de la base ne permet pas de se connecter.
+model Session {
+  id                String      @id @default(cuid())
+  userId            String
+  type              TypeSession
+  jetonHash         String      @unique
+  /// Mobile : le jeton d'accès et ses jetons de renouvellement successifs partagent
+  /// la même famille. Réutiliser un ancien jeton de renouvellement révoque toute la famille.
+  familleId         String
+  expireLe          DateTime
+  revoqueLe         DateTime?
+  /// Réservé à la double authentification (TOTP) : date de validation du 2e facteur.
+  /// Non utilisé en version 1.
+  deuxiemeFacteurLe DateTime?
+  createdAt         DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familleId])
+  @@map("session")
+}
+
+/// Invitation d'un parent ou d'un patient adulte : lien à usage unique, durée limitée.
+/// Seule l'empreinte SHA-256 du jeton est stockée.
+model Invitation {
+  id         String    @id @default(cuid())
+  cabinetId  String
+  patientId  String
+  email      String
+  /// PARENT ou PATIENT_ADULT (jamais ORTHO).
+  role       Role
+  jetonHash  String    @unique
+  expireLe   DateTime
+  utiliseeLe DateTime?
+  creeParId  String?
+  createdAt  DateTime  @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  creePar User?   @relation("InvitationsCreees", fields: [creeParId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@map("invitation")
+}
+
+/// Tentatives comptées pour limiter les essais (connexion, inscription…).
+/// `cle` est une empreinte HMAC (jamais l'e-mail ni l'adresse IP en clair).
+model TentativeConnexion {
+  id        String   @id @default(cuid())
+  cle       String
+  createdAt DateTime @default(now())
+
+  @@index([cle, createdAt])
+  @@map("tentative_connexion")
 }
 
 // ─── Patients ────────────────────────────────────────────────────────────────
@@ -146,6 +214,7 @@ model Patient {
   bilans        Bilan[]
   filsMessages  FilMessages[]
   reglage       ReglagePatient?
+  invitations   Invitation[]
 
   @@index([cabinetId])
   @@map("patient")
