@@ -1,0 +1,27 @@
+{
+  "terme": {
+    "professionnel": "orthophoniste",
+    "professionnelMajuscule": "Orthophoniste",
+    "professionnels": "orthophonistes",
+    "discipline": "orthophonie"
+  },
+  "app": {
+    "nom": "Suivi en {{terme.discipline}}",
+    "description": "Le logiciel des {{terme.professionnels}} et l'application des familles."
+  },
+  "web": {
+    "accueil": {
+      "titre": "Bienvenue",
+      "sousTitre": "Espace {{terme.professionnel}} — projet en cours de préparation."
+    }
+  },
+  "mobile": {
+    "accueil": {
+      "titre": "Bienvenue",
+      "sousTitre": "Application des parents et des patients."
+    }
+  },
+  "erreurs": {
+    "inconnue": "Une erreur est survenue. Veuillez réessayer."
+  }
+}
