@@ -1,0 +1,12 @@
+// Schéma de la base PostgreSQL.
+// Aucun modèle métier pour l'instant : ils seront ajoutés étape par étape.
+// Rappel : uniquement des données fictives en développement.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
