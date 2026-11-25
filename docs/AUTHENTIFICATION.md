@@ -38,18 +38,19 @@ TOTP chiffré par compte (nouvelle migration).
 
 Fichier `lib/serveur/droits.ts`. Pure (sans base de données), **refus par défaut**.
 
-| Rôle          | Patients visibles                    | Actions                            | Sections du dossier                    |
-| ------------- | ------------------------------------ | ---------------------------------- | -------------------------------------- |
-| ORTHO         | ceux de **son cabinet**              | lire, modifier, supprimer, inviter | toutes                                 |
-| PARENT        | **ses enfants** (table `LienTuteur`) | lire                               | programme, conseils, messagerie, suivi |
-| PATIENT_ADULT | **son propre dossier**               | lire                               | programme, messagerie                  |
+| Rôle          | Patients visibles                    | Actions                                              | Sections du dossier                    |
+| ------------- | ------------------------------------ | ---------------------------------------------------- | -------------------------------------- |
+| ORTHO         | ceux de **son cabinet**              | lire, modifier, supprimer, inviter ; créer (cabinet) | toutes                                 |
+| PARENT        | **ses enfants** (table `LienTuteur`) | consentir ; lire **après son consentement**          | programme, conseils, messagerie, suivi |
+| PATIENT_ADULT | **son propre dossier**               | consentir ; lire **après son consentement**          | programme, messagerie                  |
 
 Pour tous : jamais un patient d'un autre cabinet ; messagerie refusée si elle est désactivée pour le
-patient (réglage du patient, sinon du cabinet).
+patient (réglage du patient, sinon du cabinet). Consentement : voir [DOSSIER_PATIENT.md](./DOSSIER_PATIENT.md).
 
 Les routes appellent `patientAutorise()` (`lib/serveur/patients.ts`), qui charge le patient, appelle
 `can()` et répond **404** si le patient n'existe pas **ou** si l'accès est refusé (même réponse :
-on ne révèle pas qu'un dossier existe). La liste des patients est filtrée en base puis revérifiée
+on ne révèle pas qu'un dossier existe). Seule exception : un compte famille relié à qui il ne manque
+que son consentement reçoit **403 `consentement_requis`**. La liste des patients est filtrée en base puis revérifiée
 avec `can()` ligne par ligne.
 
 ## Toute route passe par une enveloppe

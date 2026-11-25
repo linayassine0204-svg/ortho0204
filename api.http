@@ -50,6 +50,28 @@ Content-Type: application/json
 
 { "email": "nouveau.parent@exemple.test", "role": "PARENT" }
 
+### 9b. Créer un patient (il sera dans le cabinet de l'orthophoniste connecté)
+# @name nouveauPatient
+POST {{api}}/patients
+Content-Type: application/json
+
+{ "prenom": "Inès", "nom": "Exemple", "dateNaissance": "2018-03-01" }
+
+### 9c. Rechercher par nom
+GET {{api}}/patients?q=exemple
+
+### 9d. Filtrer par pathologie (slug)
+GET {{api}}/patients?pathologie=voix
+
+### 9e. Lire la Fiche complète du nouveau patient (journalisée)
+GET {{api}}/patients/{{nouveauPatient.response.body.id}}/fiche
+
+### 9f. Remplir la Fiche (seuls les champs envoyés changent)
+PATCH {{api}}/patients/{{nouveauPatient.response.body.id}}/fiche
+Content-Type: application/json
+
+{ "medecinNom": "Dr Exemple (fictif)", "notes": "Note fictive" }
+
 ### 10. Déconnexion de l'orthophoniste
 POST {{api}}/auth/deconnexion
 
@@ -117,6 +139,32 @@ POST {{api}}/auth/mobile/renouvellement
 Content-Type: application/json
 
 { "jetonRenouvellement": "{{parent.response.body.jetonRenouvellement}}" }
+
+### ─── Consentement ───────────────────────────────────────────────────
+
+### 19b. Le père de Tom n'a pas donné son consentement
+# @name pere
+POST {{api}}/auth/mobile/connexion
+Content-Type: application/json
+
+{ "email": "pere.tom@exemple.test", "motDePasse": "{{motDePasse}}" }
+
+### 19c. Sa liste : Tom avec « consentementRequis », sans aucune autre donnée
+# @name listePere
+GET {{api}}/patients
+Authorization: Bearer {{pere.response.body.jetonAcces}}
+
+### 19d. Le dossier de Tom : refusé (403 consentement_requis)
+GET {{api}}/patients/{{listePere.response.body.$.patients[0].id}}
+Authorization: Bearer {{pere.response.body.jetonAcces}}
+
+### 19e. Il donne son consentement (version du texte et date enregistrées)
+POST {{api}}/patients/{{listePere.response.body.$.patients[0].id}}/consentement
+Authorization: Bearer {{pere.response.body.jetonAcces}}
+
+### 19f. Le dossier de Tom est maintenant accessible (refaire 19d)
+GET {{api}}/patients/{{listePere.response.body.$.patients[0].id}}
+Authorization: Bearer {{pere.response.body.jetonAcces}}
 
 ### ─── Limitation des essais ─────────────────────────────────────────────
 

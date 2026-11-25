@@ -56,11 +56,12 @@ erDiagram
 
 ### Patients
 
-| Table                 | Ce qu'elle contient                                                                                                                                                    |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Patient**           | Prénom, date de naissance, notes, cabinet. Un patient adulte a en plus un lien vers **son propre compte** ; un enfant n'en a pas (il utilise le compte de son parent). |
-| **PatientPathologie** | Les pathologies du patient (lien vers les catégories). Un patient peut en avoir plusieurs.                                                                             |
-| **ReglagePatient**    | Exception à la messagerie du cabinet pour un patient : `oui`, `non`, ou vide = suit le cabinet.                                                                        |
+| Table                 | Ce qu'elle contient                                                                                                                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Patient**           | Prénom, nom, date de naissance, médecin prescripteur, notes, cabinet. Un patient adulte a en plus un lien vers **son propre compte** ; un enfant n'en a pas (il utilise le compte de son parent). |
+| **PatientPathologie** | Les pathologies du patient (lien vers les catégories). Un patient peut en avoir plusieurs.                                                                                                        |
+| **Document**          | Un fichier joint à la Fiche (ordonnance, compte rendu…) : nom affiché, type, taille, clé de stockage. Le fichier lui-même est chez l'hébergeur.                                                   |
+| **ReglagePatient**    | Exception à la messagerie du cabinet pour un patient : `oui`, `non`, ou vide = suit le cabinet.                                                                                                   |
 
 **Règle messagerie** : activée pour un patient = réglage du patient s'il existe, sinon réglage du cabinet.
 

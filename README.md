@@ -45,6 +45,7 @@ pnpm db:seed
 
 Détail des tables : [`docs/BASE_DE_DONNEES.md`](./docs/BASE_DE_DONNEES.md).
 Connexion et droits d'accès : [`docs/AUTHENTIFICATION.md`](./docs/AUTHENTIFICATION.md).
+Dossier patient, Fiche et consentement : [`docs/DOSSIER_PATIENT.md`](./docs/DOSSIER_PATIENT.md).
 
 ## Lancer le web
 
