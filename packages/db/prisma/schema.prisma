@@ -1,6 +1,14 @@
 // Schéma de la base PostgreSQL.
-// Aucun modèle métier pour l'instant : ils seront ajoutés étape par étape.
+// Explication en mots simples : docs/BASE_DE_DONNEES.md
 // Rappel : uniquement des données fictives en développement.
+//
+// Règles de suppression :
+// - Supprimer un patient supprime tout ce qui le concerne (programmes, réalisations,
+//   enregistrements, séances, bilans, conseils envoyés, messages, liens tuteurs).
+// - Le journal d'accès n'a volontairement AUCUNE clé étrangère : il survit à la
+//   suppression d'un patient ou d'un compte (traçabilité).
+// - Un cabinet, une catégorie ou un exercice encore utilisés ne peuvent pas être
+//   supprimés (Restrict) : on évite les effacements massifs par erreur.
 
 generator client {
   provider = "prisma-client"
@@ -9,4 +17,487 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── Énumérations ────────────────────────────────────────────────────────────
+
+enum Role {
+  ORTHO
+  PARENT
+  PATIENT_ADULT
+}
+
+enum TypeConsentement {
+  CONDITIONS_UTILISATION
+  DONNEES_SANTE
+  MESSAGERIE
+  ENREGISTREMENT_AUDIO
+}
+
+enum JourSemaine {
+  LUNDI
+  MARDI
+  MERCREDI
+  JEUDI
+  VENDREDI
+  SAMEDI
+  DIMANCHE
+}
+
+enum Ressenti {
+  FACILE
+  MOYEN
+  DIFFICILE
+}
+
+enum Repetition {
+  UNE_FOIS
+  QUOTIDIENNE
+  HEBDOMADAIRE
+  MENSUELLE
+}
+
+enum TypeBilan {
+  INITIAL
+  EVOLUTION
+  RENOUVELLEMENT
+  FIN_DE_PRISE_EN_CHARGE
+}
+
+enum StatutBilan {
+  BROUILLON
+  FINALISE
+  ENVOYE
+}
+
+enum ActionAcces {
+  LECTURE
+  MODIFICATION
+  EXPORT
+}
+
+// ─── Cabinet et comptes ──────────────────────────────────────────────────────
+
+model Cabinet {
+  id                String   @id @default(cuid())
+  nom               String
+  /// Messagerie activée pour tout le cabinet (exception possible par patient : ReglagePatient).
+  messagerieActivee Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  utilisateurs User[]
+  patients     Patient[]
+  exercices    Exercice[]
+  conseils     Conseil[]
+
+  @@map("cabinet")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  motDePasseHash String
+  role           Role
+  prenom         String
+  nom            String
+  cabinetId      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cabinet         Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
+  /// Pour un PATIENT_ADULT : son propre dossier patient.
+  dossierPatient  Patient?       @relation("CompteDuPatient")
+  enfants         LienTuteur[]
+  consentements   Consentement[]
+  programmesCrees Programme[]
+  realisations    Realisation[]
+  conseilsEnvoyes EnvoiConseil[]
+  seances         Seance[]
+  bilans          Bilan[]
+  messages        Message[]
+
+  @@index([cabinetId, role])
+  @@map("utilisateur")
+}
+
+// ─── Patients ────────────────────────────────────────────────────────────────
+
+model Patient {
+  id            String   @id @default(cuid())
+  cabinetId     String
+  prenom        String
+  dateNaissance DateTime @db.Date
+  notes         String?
+  /// Compte de l'application pour un patient adolescent ou adulte (null pour un enfant).
+  compteUserId  String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cabinet       Cabinet             @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
+  compte        User?               @relation("CompteDuPatient", fields: [compteUserId], references: [id], onDelete: SetNull)
+  pathologies   PatientPathologie[]
+  tuteurs       LienTuteur[]
+  consentements Consentement[]
+  programmes    Programme[]
+  envoisConseil EnvoiConseil[]
+  conseils      Conseil[]
+  seances       Seance[]
+  bilans        Bilan[]
+  filsMessages  FilMessages[]
+  reglage       ReglagePatient?
+
+  @@index([cabinetId])
+  @@map("patient")
+}
+
+/// Pathologie(s) d'un patient (lien Patient ↔ Catégorie).
+model PatientPathologie {
+  patientId   String
+  categorieId String
+
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  categorie Categorie @relation(fields: [categorieId], references: [id], onDelete: Restrict)
+
+  @@id([patientId, categorieId])
+  @@index([categorieId])
+  @@map("patient_pathologie")
+}
+
+/// Quel parent (User PARENT) est responsable de quel enfant.
+model LienTuteur {
+  parentId  String
+  patientId String
+  createdAt DateTime @default(now())
+
+  parent  User    @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, patientId])
+  @@index([patientId])
+  @@map("lien_tuteur")
+}
+
+/// Preuve de consentement. Conservée si le patient est supprimé (patientId remis à null).
+model Consentement {
+  id           String           @id @default(cuid())
+  userId       String
+  patientId    String?
+  type         TypeConsentement
+  versionTexte String
+  accordeLe    DateTime         @default(now())
+  retire       Boolean          @default(false)
+  retireLe     DateTime?
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patient Patient? @relation(fields: [patientId], references: [id], onDelete: SetNull)
+
+  @@index([userId, type])
+  @@index([patientId])
+  @@map("consentement")
+}
+
+/// Exception au réglage du cabinet pour un patient. null = suit le cabinet.
+model ReglagePatient {
+  patientId         String   @id
+  messagerieActivee Boolean?
+  updatedAt         DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("reglage_patient")
+}
+
+// ─── Bibliothèque ────────────────────────────────────────────────────────────
+
+/// Catégorie = pathologie (ex. « Langage oral »).
+model Categorie {
+  id   String @id @default(cuid())
+  nom  String @unique
+  slug String @unique
+
+  exercices  Exercice[]
+  patients   PatientPathologie[]
+  etiquettes ConseilEtiquette[]
+
+  @@map("categorie")
+}
+
+model Exercice {
+  id             String   @id @default(cuid())
+  categorieId    String
+  /// null = exercice commun à tous ; sinon exercice propre à un cabinet.
+  cabinetId      String?
+  titre          String
+  description    String
+  ageMin         Int
+  ageMax         Int
+  dureeMinutes   Int
+  materiel       String[]
+  /// Aperçu visible sans ouvrir la fiche : image + consigne courte (+ matériel ci-dessus).
+  apercuImage    String?
+  apercuConsigne String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  categorie Categorie          @relation(fields: [categorieId], references: [id], onDelete: Restrict)
+  cabinet   Cabinet?           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  niveaux   NiveauExercice[]
+  elements  ElementProgramme[]
+
+  @@index([categorieId])
+  @@index([cabinetId])
+  @@map("exercice")
+}
+
+/// 3 niveaux par exercice (1, 2, 3), chacun avec sa consigne.
+model NiveauExercice {
+  id         String @id @default(cuid())
+  exerciceId String
+  niveau     Int
+  consigne   String
+
+  exercice Exercice @relation(fields: [exerciceId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciceId, niveau])
+  @@map("niveau_exercice")
+}
+
+// ─── Programme et réalisations ───────────────────────────────────────────────
+
+model Programme {
+  id        String    @id @default(cuid())
+  patientId String
+  auteurId  String?
+  titre     String
+  dateDebut DateTime  @db.Date
+  dateFin   DateTime? @db.Date
+  actif     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  patient  Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  auteur   User?              @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  elements ElementProgramme[]
+
+  @@index([patientId, actif])
+  @@map("programme")
+}
+
+model ElementProgramme {
+  id             String        @id @default(cuid())
+  programmeId    String
+  exerciceId     String
+  niveau         Int
+  foisParSemaine Int
+  jours          JourSemaine[]
+  motFamille     String?
+  ordre          Int           @default(0)
+
+  programme    Programme     @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  exercice     Exercice      @relation(fields: [exerciceId], references: [id], onDelete: Restrict)
+  realisations Realisation[]
+
+  @@index([programmeId, ordre])
+  @@index([exerciceId])
+  @@map("element_programme")
+}
+
+model Realisation {
+  id                 String    @id @default(cuid())
+  elementProgrammeId String
+  /// Compte qui a saisi la réalisation (parent ou patient adulte).
+  saisieParId        String?
+  date               DateTime
+  fait               Boolean
+  ressenti           Ressenti?
+  /// Score de 0 à 100 (optionnel).
+  score              Int?
+  createdAt          DateTime  @default(now())
+
+  element         ElementProgramme @relation(fields: [elementProgrammeId], references: [id], onDelete: Cascade)
+  saisiePar       User?            @relation(fields: [saisieParId], references: [id], onDelete: SetNull)
+  enregistrements Enregistrement[]
+
+  @@index([elementProgrammeId, date])
+  @@map("realisation")
+}
+
+/// Fichier audio d'une réalisation. Seule la clé de stockage est en base (stockage HDS).
+model Enregistrement {
+  id            String   @id @default(cuid())
+  realisationId String
+  cleStockage   String   @unique
+  typeMime      String
+  dureeSecondes Int
+  createdAt     DateTime @default(now())
+
+  realisation Realisation @relation(fields: [realisationId], references: [id], onDelete: Cascade)
+
+  @@index([realisationId])
+  @@map("enregistrement")
+}
+
+// ─── Conseils ────────────────────────────────────────────────────────────────
+
+/// Modèle pré-fait (estModele = true, étiquettes pathologie + âge) ou conseil personnalisé pour un patient.
+model Conseil {
+  id             String   @id @default(cuid())
+  titre          String
+  contenu        String
+  estModele      Boolean  @default(false)
+  ageMin         Int?
+  ageMax         Int?
+  /// null = modèle commun ; sinon propre à un cabinet.
+  cabinetId      String?
+  /// Rempli pour un conseil personnalisé.
+  patientId      String?
+  /// Modèle dont ce conseil a été adapté.
+  modeleSourceId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cabinet      Cabinet?           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  patient      Patient?           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  modeleSource Conseil?           @relation("Adaptation", fields: [modeleSourceId], references: [id], onDelete: SetNull)
+  adaptations  Conseil[]          @relation("Adaptation")
+  etiquettes   ConseilEtiquette[]
+  envois       EnvoiConseil[]
+
+  @@index([estModele])
+  @@index([patientId])
+  @@index([cabinetId])
+  @@map("conseil")
+}
+
+/// Étiquette pathologie d'un conseil (lien Conseil ↔ Catégorie).
+model ConseilEtiquette {
+  conseilId   String
+  categorieId String
+
+  conseil   Conseil   @relation(fields: [conseilId], references: [id], onDelete: Cascade)
+  categorie Categorie @relation(fields: [categorieId], references: [id], onDelete: Cascade)
+
+  @@id([conseilId, categorieId])
+  @@index([categorieId])
+  @@map("conseil_etiquette")
+}
+
+model EnvoiConseil {
+  id          String     @id @default(cuid())
+  conseilId   String
+  patientId   String
+  envoyeParId String?
+  repetition  Repetition @default(UNE_FOIS)
+  envoyeLe    DateTime   @default(now())
+  luLe        DateTime?
+
+  conseil   Conseil @relation(fields: [conseilId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  envoyePar User?   @relation(fields: [envoyeParId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, envoyeLe])
+  @@index([conseilId])
+  @@map("envoi_conseil")
+}
+
+// ─── Séances et bilans ───────────────────────────────────────────────────────
+
+model Seance {
+  id        String   @id @default(cuid())
+  patientId String
+  orthoId   String?
+  date      DateTime
+  objectifs String?
+  materiel  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  ortho   User?   @relation(fields: [orthoId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, date])
+  @@map("seance")
+}
+
+model Bilan {
+  id        String      @id @default(cuid())
+  patientId String
+  auteurId  String?
+  type      TypeBilan
+  date      DateTime    @db.Date
+  contenu   String
+  statut    StatutBilan @default(BROUILLON)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  auteur  User?   @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, date])
+  @@map("bilan")
+}
+
+// ─── Messagerie ──────────────────────────────────────────────────────────────
+
+model FilMessages {
+  id        String   @id @default(cuid())
+  patientId String
+  sujet     String?
+  createdAt DateTime @default(now())
+
+  patient  Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([patientId])
+  @@map("fil_messages")
+}
+
+model Message {
+  id       String    @id @default(cuid())
+  filId    String
+  auteurId String?
+  contenu  String
+  envoyeLe DateTime  @default(now())
+  luLe     DateTime?
+
+  fil           FilMessages   @relation(fields: [filId], references: [id], onDelete: Cascade)
+  auteur        User?         @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  piecesJointes PieceJointe[]
+
+  @@index([filId, envoyeLe])
+  @@map("message")
+}
+
+model PieceJointe {
+  id           String @id @default(cuid())
+  messageId    String
+  nomFichier   String
+  typeMime     String
+  tailleOctets Int
+  cleStockage  String @unique
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@map("piece_jointe")
+}
+
+// ─── Traçabilité ─────────────────────────────────────────────────────────────
+
+/// Qui a lu quel dossier patient, quand. Pas de clé étrangère : conservé même si
+/// le patient ou le compte est supprimé. Ne contient jamais de contenu médical.
+model JournalAcces {
+  id        String      @id @default(cuid())
+  userId    String
+  patientId String
+  action    ActionAcces @default(LECTURE)
+  /// Section consultée, ex. "fiche", "bilans".
+  section   String?
+  createdAt DateTime    @default(now())
+
+  @@index([patientId, createdAt])
+  @@index([userId, createdAt])
+  @@map("journal_acces")
 }
