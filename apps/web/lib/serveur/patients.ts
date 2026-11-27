@@ -123,6 +123,8 @@ export type PatientListe =
       nom?: string;
       dateNaissance: Date;
       pathologies?: { id: string; nom: string; slug: string }[];
+      /** Familles seulement : le mobile affiche l'onglet Messages si `true`. */
+      messagerieActivee?: boolean;
     }
   | { id: string; prenom: string; consentementRequis: true };
 
@@ -130,6 +132,8 @@ export type PatientListe =
  * Liste des patients visibles, avec recherche et filtre par pathologie.
  * Double contrôle : filtre en base, puis `can()` sur chaque ligne.
  * Une famille sans consentement ne reçoit que le prénom (pour l'écran de consentement).
+ * Une famille reçoit aussi `messagerieActivee` (onglet Messages du mobile ; l'API de
+ * messagerie revérifie de toute façon avec `can()`).
  */
 export async function listerPatientsVisibles(
   prisma: PrismaClient,
@@ -161,7 +165,12 @@ export async function listerPatientsVisibles(
                 slug: c.slug,
               })),
             }
-          : { id: p.id, prenom: p.prenom, dateNaissance: p.dateNaissance },
+          : {
+              id: p.id,
+              prenom: p.prenom,
+              dateNaissance: p.dateNaissance,
+              messagerieActivee: messagerieActivee(p),
+            },
       );
     } else if (can(acteur, "consentir", ressource)) {
       resultat.push({ id: p.id, prenom: p.prenom, consentementRequis: true });

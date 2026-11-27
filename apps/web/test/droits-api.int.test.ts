@@ -212,3 +212,25 @@ describe("mêmes règles sur le web et sur le mobile", () => {
     expect(r.status).toBe(404);
   });
 });
+
+describe("liste des patients : indicateur de messagerie pour le mobile", () => {
+  it("suit le réglage du cabinet, puis l'exception du patient", async () => {
+    const r = await appeler(listerPatients, { bearer: jetons.parentA1 });
+    const cabinet = await db().cabinet.findUniqueOrThrow({ where: { id: d.enfantA1.cabinetId } });
+    expect(r.corps.patients[0].messagerieActivee).toBe(cabinet.messagerieActivee);
+
+    await db().reglagePatient.upsert({
+      where: { patientId: d.enfantA1.id },
+      create: { patientId: d.enfantA1.id, messagerieActivee: !cabinet.messagerieActivee },
+      update: { messagerieActivee: !cabinet.messagerieActivee },
+    });
+    const apres = await appeler(listerPatients, { bearer: jetons.parentA1 });
+    expect(apres.corps.patients[0].messagerieActivee).toBe(!cabinet.messagerieActivee);
+    await db().reglagePatient.delete({ where: { patientId: d.enfantA1.id } });
+  });
+
+  it("le patient adulte reçoit aussi l'indicateur", async () => {
+    const r = await appeler(listerPatients, { bearer: jetons.adulteA2 });
+    expect(typeof r.corps.patients[0].messagerieActivee).toBe("boolean");
+  });
+});
