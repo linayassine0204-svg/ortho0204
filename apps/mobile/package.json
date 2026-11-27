@@ -7,17 +7,26 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
     "@app/shared": "workspace:*",
+    "@noble/ciphers": "^1.3.0",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "^58.0.26",
+    "expo-crypto": "~58.0.9",
+    "expo-secure-store": "~58.0.3",
     "expo-status-bar": "~58.0.5",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.11.1"
   },
   "devDependencies": {
-    "@types/react": "~19.3.2"
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "~19.3.2",
+    "jsdom": "^26.1.0",
+    "react-dom": "19.3.0",
+    "react-native-web": "~0.21.4"
   }
 }

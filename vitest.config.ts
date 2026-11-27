@@ -17,7 +17,13 @@ export default defineConfig({
         test: {
           name: "unitaires",
           include: ["{apps,packages}/*/{src,lib,app}/**/*.test.{ts,tsx}"],
-          exclude: ["**/node_modules/**", "**/.next/**", "**/*.int.test.ts", "**/*.test.tsx"],
+          exclude: [
+            "**/node_modules/**",
+            "**/.next/**",
+            "**/*.int.test.ts",
+            "**/*.test.tsx",
+            "apps/mobile/**",
+          ],
           environment: "node",
         },
       },
@@ -27,6 +33,19 @@ export default defineConfig({
           name: "composants",
           include: ["apps/web/{components,app}/**/*.test.tsx"],
           environment: "jsdom",
+        },
+      },
+      {
+        // Application mobile : composants React Native rendus avec react-native-web.
+        extends: true,
+        resolve: {
+          alias: [{ find: /^react-native$/, replacement: "react-native-web" }],
+        },
+        test: {
+          name: "mobile",
+          include: ["apps/mobile/src/**/*.test.{ts,tsx}"],
+          environment: "jsdom",
+          setupFiles: ["apps/mobile/test/setup.ts"],
         },
       },
       {

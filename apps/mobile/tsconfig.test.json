@@ -1,0 +1,10 @@
+{
+  // Tests : rendus dans jsdom (react-native-web), d'où la bibliothèque DOM.
+  // Le code de l'application, lui, est vérifié sans DOM (tsconfig.json).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
