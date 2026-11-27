@@ -181,3 +181,32 @@ describe("can() — refus par défaut", () => {
     expect(can(ortho, "lire", { type: "facture", id: "1" })).toBe(false);
   });
 });
+
+describe("can() — exercices de la bibliothèque", () => {
+  const commun = { type: "exercice" as const, cabinetId: null };
+  const duCabinet = { type: "exercice" as const, cabinetId: "cab-a" };
+  const dAilleurs = { type: "exercice" as const, cabinetId: "cab-b" };
+
+  it("l'orthophoniste lit les exercices communs et ceux de son cabinet", () => {
+    expect(can(ortho, "lire", commun)).toBe(true);
+    expect(can(ortho, "lire", duCabinet)).toBe(true);
+  });
+
+  it("ÉCHEC : il ne voit pas les exercices d'un autre cabinet", () => {
+    expect(can(ortho, "lire", dAilleurs)).toBe(false);
+    expect(can(ortho, "modifier", dAilleurs)).toBe(false);
+    expect(can(ortho, "supprimer", dAilleurs)).toBe(false);
+  });
+
+  it("il modifie et supprime ses exercices, jamais les exercices communs", () => {
+    expect(can(ortho, "modifier", duCabinet)).toBe(true);
+    expect(can(ortho, "supprimer", duCabinet)).toBe(true);
+    expect(can(ortho, "modifier", commun)).toBe(false);
+    expect(can(ortho, "supprimer", commun)).toBe(false);
+  });
+
+  it("les familles n'accèdent pas à la bibliothèque", () => {
+    expect(can(parent, "lire", commun)).toBe(false);
+    expect(can(adulte, "lire", commun)).toBe(false);
+  });
+});

@@ -26,6 +26,7 @@ export const erreurs = {
   pathologieInconnue: () => new ErreurApi(400, "pathologie_inconnue", "erreurs.pathologieInconnue"),
   documentTypeRefuse: () =>
     new ErreurApi(415, "document_type_refuse", "erreurs.documentTypeRefuse"),
+  exerciceUtilise: () => new ErreurApi(409, "exercice_utilise", "erreurs.exerciceUtilise"),
   documentTropGros: () => new ErreurApi(413, "document_trop_gros", "erreurs.documentTropGros"),
 };
 

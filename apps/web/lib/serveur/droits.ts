@@ -59,7 +59,13 @@ export interface RessourceCabinet {
   id: string;
 }
 
-export type Ressource = RessourcePatient | RessourceCabinet;
+/** Exercice de la bibliothèque : commun (cabinetId null) ou propre à un cabinet. */
+export interface RessourceExercice {
+  type: "exercice";
+  cabinetId: string | null;
+}
+
+export type Ressource = RessourcePatient | RessourceCabinet | RessourceExercice;
 
 export function can(acteur: Acteur, action: Action, ressource: Ressource): boolean {
   switch (ressource.type) {
@@ -67,6 +73,8 @@ export function can(acteur: Acteur, action: Action, ressource: Ressource): boole
       return peutSurPatient(acteur, action, ressource);
     case "cabinet":
       return peutSurCabinet(acteur, action, ressource);
+    case "exercice":
+      return peutSurExercice(acteur, action, ressource);
     default:
       return false;
   }
@@ -105,4 +113,18 @@ function peutSurCabinet(acteur: Acteur, action: Action, cabinet: RessourceCabine
   if (cabinet.id !== acteur.cabinetId) return false;
   if (acteur.role !== "ORTHO") return false;
   return action === "lire" || action === "modifier" || action === "creer";
+}
+
+/**
+ * Bibliothèque (orthophonistes) : on lit les exercices communs et ceux de son
+ * cabinet ; on ne modifie que ceux de son cabinet. Les exercices communs (dont
+ * les exemples « à valider ») ne sont modifiables par personne depuis le logiciel.
+ * Les familles verront les exercices à travers le programme du patient (tâche 9).
+ */
+function peutSurExercice(acteur: Acteur, action: Action, exercice: RessourceExercice): boolean {
+  if (acteur.role !== "ORTHO") return false;
+  const duCabinet = exercice.cabinetId === acteur.cabinetId;
+  if (action === "lire") return exercice.cabinetId === null || duCabinet;
+  if (action === "modifier" || action === "supprimer") return duCabinet;
+  return false;
 }
