@@ -28,6 +28,8 @@ export interface ExerciceFictif {
   materiel: string[];
   apercuConsigne: string;
   niveaux: [string, string, string];
+  /** Score « sur N » prévu par l'exercice (facultatif). */
+  scoreMax?: number;
 }
 
 export const EXERCICES: ExerciceFictif[] = [
@@ -41,6 +43,7 @@ export const EXERCICES: ExerciceFictif[] = [
     dureeMinutes: 10,
     materiel: ["Cartes images"],
     apercuConsigne: "Trouve deux mots qui riment.",
+    scoreMax: 10,
     niveaux: [
       "Choisis parmi 2 images celle qui rime avec le mot dit.",
       "Choisis parmi 4 images celle qui rime avec le mot dit.",
@@ -57,6 +60,7 @@ export const EXERCICES: ExerciceFictif[] = [
     dureeMinutes: 5,
     materiel: [],
     apercuConsigne: "Frappe une fois par syllabe.",
+    scoreMax: 10,
     niveaux: ["Mots de 2 syllabes.", "Mots de 3 syllabes.", "Mots de 4 syllabes et plus."],
   },
   {

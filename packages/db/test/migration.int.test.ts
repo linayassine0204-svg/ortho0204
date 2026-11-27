@@ -99,6 +99,25 @@ describe("contraintes", () => {
     ).rejects.toThrow();
   });
 
+  it("refuse un score supérieur au « sur N » de la réalisation", async () => {
+    const realisation = await prisma.realisation.findFirstOrThrow();
+    await expect(
+      prisma.realisation.update({
+        where: { id: realisation.id },
+        data: { score: 8, scoreMax: 5 },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse deux réalisations avec le même identifiant du téléphone (pas de doublon)", async () => {
+    const r = await prisma.realisation.findFirstOrThrow();
+    const base = { elementProgrammeId: r.elementProgrammeId, date: new Date(), fait: true };
+    await prisma.realisation.create({ data: { ...base, idClient: "telephone-0001" } });
+    await expect(
+      prisma.realisation.create({ data: { ...base, idClient: "telephone-0001" } }),
+    ).rejects.toThrow();
+  });
+
   it("refuse un âge maximum inférieur à l'âge minimum", async () => {
     const exercice = await prisma.exercice.findFirstOrThrow();
     await expect(

@@ -337,6 +337,8 @@ model Exercice {
   /// Étiquette interne : contenu d'exemple NON vérifié médicalement
   /// (« à valider par un orthophoniste »). Toujours affichée tant qu'elle est vraie.
   aValider       Boolean  @default(false)
+  /// Score prévu par l'exercice, « sur N » (ex. 10 pour « 7 sur 10 »). null = pas de score.
+  scoreMax       Int?
   /// Orthophoniste qui a créé l'exercice (exercices du cabinet).
   auteurId       String?
   createdAt      DateTime @default(now())
@@ -454,14 +456,20 @@ model Realisation {
   date               DateTime
   fait               Boolean
   ressenti           Ressenti?
-  /// Score de 0 à 100 (optionnel).
+  /// Score obtenu, de 0 à `scoreMax` (optionnel).
   score              Int?
+  /// « Sur combien » au moment de la réalisation (copie de Exercice.scoreMax).
+  scoreMax           Int?
+  /// Identifiant créé par le téléphone : une réalisation renvoyée (synchronisation
+  /// après une coupure réseau) n'est jamais enregistrée deux fois.
+  idClient           String?
   createdAt          DateTime  @default(now())
 
   element         ElementProgramme @relation(fields: [elementProgrammeId], references: [id], onDelete: Cascade)
   saisiePar       User?            @relation(fields: [saisieParId], references: [id], onDelete: SetNull)
   enregistrements Enregistrement[]
 
+  @@unique([elementProgrammeId, idClient])
   @@index([elementProgrammeId, date])
   @@map("realisation")
 }

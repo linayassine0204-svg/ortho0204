@@ -97,6 +97,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
   };
 
   const exercices = new Map<string, string>();
+  const scoreMaxParExercice = new Map<string, number | null>();
   for (const e of EXERCICES) {
     const cree = await prisma.exercice.create({
       data: {
@@ -108,6 +109,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
         dureeMinutes: e.dureeMinutes,
         materiel: e.materiel,
         apercuConsigne: e.apercuConsigne,
+        scoreMax: e.scoreMax ?? null,
         // Exemple non vérifié médicalement : étiquette « à valider par un orthophoniste ».
         aValider: true,
         niveaux: {
@@ -116,6 +118,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
       },
     });
     exercices.set(e.cle, cree.id);
+    scoreMaxParExercice.set(cree.id, e.scoreMax ?? null);
   }
   const exo = (cle: string): string => {
     const id = exercices.get(cle);
@@ -337,6 +340,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     fait: boolean;
     ressenti: Ressenti | null;
     score: number | null;
+    scoreMax: number | null;
   }[] = [];
   for (let j = SEMAINES_DE_REALISATIONS * 7; j >= 1; j--) {
     const jour = moinsJours(aujourdhui, j);
@@ -347,13 +351,22 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
         // Progression : un peu plus réussi au fil des semaines.
         const progression = 1 - j / (SEMAINES_DE_REALISATIONS * 7);
         const fait = hasard() < 0.7 + 0.2 * progression;
+        const scoreMax = scoreMaxParExercice.get(element.exerciceId) ?? null;
         realisations.push({
           elementProgrammeId: element.id,
           saisieParId: saisiePar,
           date: new Date(jour.getTime() + 18 * 60 * 60 * 1000),
           fait,
           ressenti: fait ? (ressentis[Math.floor(hasard() * 3)] ?? null) : null,
-          score: fait ? Math.round(50 + 40 * progression + hasard() * 10) : null,
+          // Score seulement si l'exercice en prévoit un (ex. 7 sur 10).
+          score:
+            fait && scoreMax
+              ? Math.min(
+                  scoreMax,
+                  Math.round((0.5 + 0.4 * progression + hasard() * 0.1) * scoreMax),
+                )
+              : null,
+          scoreMax: fait && scoreMax ? scoreMax : null,
         });
       }
     }
