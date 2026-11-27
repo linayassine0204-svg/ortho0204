@@ -29,6 +29,7 @@ erDiagram
     Conseil ||--o{ PlanConseil : "planifié"
     PlanConseil ||--o{ EnvoiConseil : "crée"
     Patient ||--o{ Seance : "a"
+    Seance ||--o{ ElementSeance : "contient"
     Patient ||--o{ Bilan : "a"
     Patient ||--o{ FilMessages : "a"
     FilMessages ||--o{ Message : "contient"
@@ -97,10 +98,11 @@ erDiagram
 
 ### Séances et bilans
 
-| Table      | Ce qu'elle contient                                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| **Seance** | Date, objectifs, matériel, notes.                                                                                 |
-| **Bilan**  | Type (initial, évolution, renouvellement, fin de prise en charge), contenu, statut (brouillon, finalisé, envoyé). |
+| Table             | Ce qu'elle contient                                                                                                                                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Seance**        | Date, objectifs, matériel en plus, notes, points à reprendre, date de fin. **Une seule séance en préparation** (sans date de fin) par patient.                                                                  |
+| **ElementSeance** | Exercice d'une séance, au niveau choisi : proposé par les règles (en attente tant qu'il n'est pas accepté), ajouté depuis la bibliothèque, ou copié d'une séance passée. Un exercice une seule fois par séance. |
+| **Bilan**         | Type (initial, évolution, renouvellement, fin de prise en charge), contenu, statut (brouillon, finalisé, envoyé).                                                                                               |
 
 ### Messagerie
 
@@ -136,7 +138,7 @@ erDiagram
 - 7 catégories, 21 exercices d'exemple à 3 niveaux (tous « à valider par un orthophoniste »), 16 conseils pré-faits (tous « à valider par un orthophoniste ») ;
 - des conseils envoyés : à Léa chaque semaine (un envoi lu), à Tom une fois (pas lu) ;
 - 2 programmes (Léa et Tom), déjà envoyés (version 1), et leurs réalisations sur les **6 dernières semaines** ;
-- quelques séances, bilans, consentements, messages et entrées du journal d'accès.
+- 3 séances passées par patient (avec exercices, notes et points à reprendre), des bilans, consentements, messages et entrées du journal d'accès.
 
 Tous les comptes ont des e-mails en `@exemple.test` (domaine réservé, jamais réel) et le mot de passe défini par `SEED_PASSWORD` dans `.env`. Le seed refuse de tourner si `NODE_ENV=production`.
 

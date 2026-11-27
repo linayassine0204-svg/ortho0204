@@ -1,7 +1,7 @@
 # Bibliothèque d'exercices
 
 Partie à part du logiciel (`/bibliotheque`), **hors dossier patient**. On y parcourt, crée et gère
-les exercices. La même bibliothèque s'affichera dans Préparation (tâche 5) et Programme (tâche 9).
+les exercices. La même bibliothèque s'affiche dans Préparation et dans Programme (voir `PREPARATION.md` et `PROGRAMME.md`).
 
 ## Un seul composant : `<BibliothequeSelecteur>`
 
@@ -19,6 +19,8 @@ aperçu partout, en deux modes :
   exercices={exercices}
   categories={categories}
   onAjouter={(exercice, niveau) => { /* ajouter à la séance ou au programme */ }}
+  libelleAjouter="Ajouter à la séance"          // facultatif
+  autresAjouts={[{ libelle: "Ajouter au programme", onAjouter: … }]} // facultatif
 />
 ```
 
