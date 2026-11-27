@@ -67,11 +67,12 @@ erDiagram
 
 ### Bibliothèque
 
-| Table              | Ce qu'elle contient                                                                                                                                                              |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Categorie**      | Une pathologie (Langage écrit, Bégaiement, Voix…). Sert à ranger les exercices, à décrire les patients et à étiqueter les conseils.                                              |
-| **Exercice**       | Titre, description, âge min/max, durée, matériel, et l'**aperçu** (image + consigne courte) visible sans ouvrir la fiche. Un exercice est commun à tous, ou propre à un cabinet. |
-| **NiveauExercice** | Les 3 niveaux d'un exercice (1, 2, 3), chacun avec sa consigne. La base refuse un niveau 0 ou 4, ou deux fois le même niveau.                                                    |
+| Table              | Ce qu'elle contient                                                                                                                                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Categorie**      | Une pathologie (Langage écrit, Bégaiement, Voix…). Sert à ranger les exercices, à décrire les patients et à étiqueter les conseils.                                                                                                                                      |
+| **Exercice**       | Titre, description, âge min/max, durée, matériel, et l'**aperçu** (image + consigne courte) visible sans ouvrir la fiche. Un exercice est commun à tous, ou propre à un cabinet (avec son auteur). L'étiquette « à valider » marque un exemple non vérifié médicalement. |
+| **Favori**         | Exercice marqué comme favori par un orthophoniste (favoris personnels).                                                                                                                                                                                                  |
+| **NiveauExercice** | Les 3 niveaux d'un exercice (1, 2, 3), chacun avec sa consigne. La base refuse un niveau 0 ou 4, ou deux fois le même niveau.                                                                                                                                            |
 
 ### Programme et suivi à la maison
 
@@ -128,7 +129,7 @@ erDiagram
 
 - 1 cabinet fictif (messagerie activée) et 1 orthophoniste ;
 - 3 patients : **Léa, 7 ans** (1 parent), **Tom, 9 ans** (2 parents), **Paul, adulte** avec son propre compte (messagerie désactivée pour lui) ;
-- 7 catégories, 9 exercices à 3 niveaux, 4 modèles de conseil ;
+- 7 catégories, 21 exercices d'exemple à 3 niveaux (tous « à valider par un orthophoniste »), 4 modèles de conseil ;
 - 2 programmes (Léa et Tom) et leurs réalisations sur les **6 dernières semaines** ;
 - quelques séances, bilans, consentements, messages et entrées du journal d'accès.
 

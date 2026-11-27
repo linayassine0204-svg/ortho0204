@@ -46,6 +46,7 @@ pnpm db:seed
 Détail des tables : [`docs/BASE_DE_DONNEES.md`](./docs/BASE_DE_DONNEES.md).
 Connexion et droits d'accès : [`docs/AUTHENTIFICATION.md`](./docs/AUTHENTIFICATION.md).
 Dossier patient, Fiche et consentement : [`docs/DOSSIER_PATIENT.md`](./docs/DOSSIER_PATIENT.md).
+Bibliothèque d'exercices : [`docs/BIBLIOTHEQUE.md`](./docs/BIBLIOTHEQUE.md).
 
 ## Lancer le web
 
@@ -91,7 +92,8 @@ pnpm typecheck
 pnpm test
 ```
 
-(`pnpm test` a besoin de la base démarrée : il utilise une base séparée `ortho_dev_test`.)
+(`pnpm test` a besoin de la base démarrée : il utilise une base séparée `ortho_dev_test`. Les tests
+des composants React tournent dans un navigateur simulé, jsdom.)
 
 ```bash
 pnpm test:e2e
