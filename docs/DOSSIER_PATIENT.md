@@ -12,8 +12,8 @@
 | Fiche       | `/fiche`       | faite                                                          |
 | Préparation | `/preparation` | bientôt disponible                                             |
 | Bilans      | `/bilans`      | bientôt disponible                                             |
-| Programme   | `/programme`   | bientôt disponible                                             |
-| Conseils    | `/conseils`    | bientôt disponible                                             |
+| Programme   | `/programme`   | fait (voir PROGRAMME.md)                                       |
+| Conseils    | `/conseils`    | fait (voir CONSEILS.md)                                        |
 | Messages    | `/messagerie`  | bientôt disponible, **masqué si la messagerie est désactivée** |
 | Progrès     | `/suivi`       | bientôt disponible                                             |
 

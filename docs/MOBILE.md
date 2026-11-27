@@ -16,8 +16,10 @@ Code : `apps/mobile/src/`. Textes : bloc `mobile` de `packages/shared/i18n/fr.js
      sans bouton, avec une explication ;
    - patient adulte : directement son programme ;
    - compte orthophoniste : refusé (application réservée aux familles).
-5. **Espace du patient** : onglets en bas **Aujourd'hui**, **Conseils** (vide pour l'instant) et
-   **Messages** seulement si la messagerie est activée pour ce patient.
+5. **Espace du patient** : onglets en bas **Aujourd'hui**, **Conseils** (parents seulement : liste
+   des conseils reçus et bouton « J'ai compris », voir `docs/CONSEILS.md`) et **Messages**
+   seulement si la messagerie est activée pour ce patient. Avec un seul onglet (patient adulte sans
+   messagerie), la barre n'est pas affichée.
 
 ## Écran « Aujourd'hui »
 

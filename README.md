@@ -48,6 +48,7 @@ Connexion et droits d'accès : [`docs/AUTHENTIFICATION.md`](./docs/AUTHENTIFICAT
 Dossier patient, Fiche et consentement : [`docs/DOSSIER_PATIENT.md`](./docs/DOSSIER_PATIENT.md).
 Bibliothèque d'exercices : [`docs/BIBLIOTHEQUE.md`](./docs/BIBLIOTHEQUE.md).
 Programme à la maison : [`docs/PROGRAMME.md`](./docs/PROGRAMME.md).
+Conseils pour la famille : [`docs/CONSEILS.md`](./docs/CONSEILS.md).
 
 ## Lancer le web
 

@@ -26,6 +26,8 @@ erDiagram
     Categorie ||--o{ ConseilEtiquette : ""
     Conseil ||--o{ EnvoiConseil : "envoyé"
     Patient ||--o{ EnvoiConseil : "reçoit"
+    Conseil ||--o{ PlanConseil : "planifié"
+    PlanConseil ||--o{ EnvoiConseil : "crée"
     Patient ||--o{ Seance : "a"
     Patient ||--o{ Bilan : "a"
     Patient ||--o{ FilMessages : "a"
@@ -86,11 +88,12 @@ erDiagram
 
 ### Conseils
 
-| Table                | Ce qu'elle contient                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Conseil**          | Soit un **modèle pré-fait** (avec tranche d'âge et étiquettes de pathologie), soit un **conseil personnalisé** pour un patient, éventuellement adapté d'un modèle. |
-| **ConseilEtiquette** | Les pathologies auxquelles un modèle de conseil s'applique.                                                                                                        |
-| **EnvoiConseil**     | Un conseil envoyé à un patient : quand, à quelle fréquence le rappeler, et quand la famille l'a lu.                                                                |
+| Table                | Ce qu'elle contient                                                                                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Conseil**          | Soit un **modèle pré-fait** (blocs « À faire » / « À éviter », tranche d'âge, étiquettes de pathologie, « à valider »), soit la **copie envoyée** à un patient (telle quelle, modifiée ou écrite de zéro). |
+| **ConseilEtiquette** | Les pathologies auxquelles un modèle de conseil s'applique.                                                                                                                                                |
+| **PlanConseil**      | Quand envoyer un conseil à un patient : une fois (maintenant ou à une date) ou chaque semaine, prochain envoi prévu.                                                                                       |
+| **EnvoiConseil**     | Un envoi à la famille (un par occurrence d'une répétition) : quand, et quand / par quel parent il a été lu (« J'ai compris »).                                                                             |
 
 ### Séances et bilans
 
@@ -130,7 +133,8 @@ erDiagram
 
 - 1 cabinet fictif (messagerie activée) et 1 orthophoniste ;
 - 3 patients : **Léa, 7 ans** (1 parent), **Tom, 9 ans** (2 parents), **Paul, adulte** avec son propre compte (messagerie désactivée pour lui) ;
-- 7 catégories, 21 exercices d'exemple à 3 niveaux (tous « à valider par un orthophoniste »), 4 modèles de conseil ;
+- 7 catégories, 21 exercices d'exemple à 3 niveaux (tous « à valider par un orthophoniste »), 16 conseils pré-faits (tous « à valider par un orthophoniste ») ;
+- des conseils envoyés : à Léa chaque semaine (un envoi lu), à Tom une fois (pas lu) ;
 - 2 programmes (Léa et Tom), déjà envoyés (version 1), et leurs réalisations sur les **6 dernières semaines** ;
 - quelques séances, bilans, consentements, messages et entrées du journal d'accès.
 

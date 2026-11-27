@@ -43,6 +43,25 @@ GET {{api}}/patients
 ### 8. Lire le dossier du 1er patient (avec les notes) → une ligne dans le journal d'accès
 GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}
 
+### 8b. Conseils de Léa : proposés (même pathologie, âge dans la tranche), envoyés, lu / pas lu
+# @name conseilsLea
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/conseils
+
+### 8c. Envoyer le 1er conseil proposé, tel quel, maintenant
+POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/conseils
+Content-Type: application/json
+
+{ "modeleId": "{{conseilsLea.response.body.$.proposes[0].id}}" }
+
+### 8d. Écrire un conseil de zéro, envoyé chaque semaine
+POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/conseils
+Content-Type: application/json
+
+{
+  "contenu": { "titre": "Le coucher", "aFaire": ["Une histoire courte."], "aEviter": ["Les écrans."] },
+  "planification": { "repetition": "HEBDOMADAIRE" }
+}
+
 ### 9. Inviter un nouveau parent pour ce patient → copier le texte après « # » dans « lien »
 # @name invitation
 POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/invitations
@@ -117,6 +136,15 @@ Authorization: Bearer {{parent.response.body.jetonAcces}}
 
 ### 14c. Programme du jour (ajouter ?date=AAAA-MM-JJ pour un autre jour)
 GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/programme/jour
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
+### 14d. Conseils reçus pour Léa (le dernier envoi de chacun, à lire d'abord)
+# @name conseilsRecus
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/conseils/recus
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
+### 14e. « J'ai compris » sur le premier (puis refaire 8b : « Lu le … par Julie »)
+POST {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/conseils/envois/{{conseilsRecus.response.body.$.conseils[0].envoiId}}/lu
 Authorization: Bearer {{parent.response.body.jetonAcces}}
 
 ### 15. Ses patients : seulement Léa
