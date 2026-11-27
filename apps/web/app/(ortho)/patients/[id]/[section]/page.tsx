@@ -10,6 +10,8 @@ import { listerExercices } from "@/lib/serveur/exercices";
 import { lireFiche, patientPourBibliotheque } from "@/lib/serveur/patients";
 import { lireBrouillon } from "@/lib/serveur/programme";
 import { EditeurProgramme } from "@/components/programme/EditeurProgramme";
+import { EcranConseils } from "@/components/conseils/EcranConseils";
+import { lireConseilsPatient } from "@/lib/serveur/conseils";
 
 function estSection(valeur: string): valeur is SectionPatient {
   return (SECTIONS_PATIENT as readonly string[]).includes(valeur);
@@ -48,6 +50,18 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
           exercices={exercices}
           categories={categories}
         />
+      </main>
+    );
+  }
+
+  if (section === "conseils") {
+    const { utilisateur } = await patientDePage(id);
+    // lireConseilsPatient vérifie le droit d'envoyer et journalise la lecture « conseils ».
+    const conseils = await lireConseilsPatient(db(), utilisateur, id);
+    return (
+      <main className="contenu contenu-large">
+        <h1>{t("web.conseils.titre")}</h1>
+        <EcranConseils initial={conseils} />
       </main>
     );
   }

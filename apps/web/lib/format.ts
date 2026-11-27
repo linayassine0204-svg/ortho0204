@@ -5,6 +5,11 @@ export function dateFr(date: Date | string): string {
   return new Date(date).toLocaleDateString("fr-FR", { timeZone: "UTC" });
 }
 
+/** Jour d'un instant (envoi, lecture) au format français, heure de Paris. */
+export function jourFr(instant: Date | string): string {
+  return new Date(instant).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" });
+}
+
 /** Âge affiché : « 1 an », « 7 ans ». */
 export function libelleAge(age: number): string {
   return t(age > 1 ? "web.patients.ans" : "web.patients.an", { age });

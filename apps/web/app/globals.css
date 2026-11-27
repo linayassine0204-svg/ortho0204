@@ -1057,3 +1057,178 @@ legend {
   outline: 3px solid var(--ambre);
   outline-offset: 2px;
 }
+
+/* ─── Conseils ─────────────────────────────────────────────────────────── */
+
+.conseils-ecran {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.grille-conseils {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 1rem;
+}
+
+.carte-conseil {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.carte-conseil h3,
+.editeur-conseil h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.carte-conseil .etiquettes {
+  grid-column: auto;
+}
+
+.blocs-conseil {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.blocs-conseil h4 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+
+.blocs-conseil ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.bloc-a-faire,
+.bloc-a-eviter {
+  border-radius: var(--rayon);
+  padding: 0.6rem 0.8rem;
+}
+
+.bloc-a-faire {
+  background: var(--menthe);
+}
+
+.bloc-a-faire h4 {
+  color: var(--vert-fonce);
+}
+
+.bloc-a-eviter {
+  background: #fdf3e1;
+}
+
+.bloc-a-eviter h4 {
+  color: #7a4f00;
+}
+
+.actions-conseil {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+.actions-conseil .bouton-secondaire-vert {
+  width: auto;
+}
+
+.bouton-ecrire {
+  align-self: flex-start;
+}
+
+.editeur-conseil {
+  border: 2px solid var(--vert);
+}
+
+.editeur-conseil form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planification {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.planification fieldset {
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  padding: 0.6rem 1rem;
+  min-width: 16rem;
+}
+
+.planification legend {
+  font-weight: 600;
+}
+
+.tableau-conseils {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-conseils th,
+.tableau-conseils td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1px solid var(--bordure);
+}
+
+.tableau-conseils .badge-a-valider {
+  display: inline-block;
+  margin-left: 0.4rem;
+}
+
+.statut-lecture {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.plan-conseil {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.autres-conseils summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--vert-fonce);
+  padding: 0.5rem 0;
+}
+
+@media (max-width: 52rem) {
+  .blocs-conseil {
+    grid-template-columns: 1fr;
+  }
+
+  .tableau-conseils thead {
+    display: none;
+  }
+
+  .tableau-conseils tr,
+  .tableau-conseils td {
+    display: block;
+  }
+
+  .tableau-conseils td[data-titre]::before {
+    content: attr(data-titre) " : ";
+    font-weight: 600;
+  }
+}
+
+.actions-conseil .bouton-secondaire-vert,
+.tableau-conseils .bouton-secondaire-vert {
+  margin-top: 0;
+}
