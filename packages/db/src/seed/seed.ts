@@ -479,18 +479,65 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     },
   });
 
-  // ── Séances et bilans ──
-  const seances = [lea, tom, adulte].flatMap((p) =>
-    [42, 28, 14, 0].map((j) => ({
-      patientId: p.id,
-      orthoId: ortho.id,
-      date: new Date(moinsJours(aujourdhui, j).getTime() + 10 * 60 * 60 * 1000),
-      objectifs: "Objectifs fictifs de séance.",
-      materiel: "Matériel fictif.",
-      notes: "Notes fictives.",
-    })),
-  );
-  await prisma.seance.createMany({ data: seances });
+  // ── Séances passées (terminées), avec leurs exercices ──
+  // Pas de séance en préparation : elle est créée à l'ouverture de « Préparation ».
+  const seancesPassees: {
+    patientId: string;
+    exercices: { cle: string; niveau: number }[];
+    notes: string;
+    pointsAReprendre: string;
+  }[] = [
+    {
+      patientId: lea.id,
+      exercices: [
+        { cle: "rimes", niveau: 1 },
+        { cle: "syllabes", niveau: 2 },
+        { cle: "histoire-images", niveau: 1 },
+      ],
+      notes: "Notes fictives : bonne attention, rimes encore hésitantes sur les sons proches.",
+      pointsAReprendre: "Reprendre les rimes en « -on » / « -an ». Essayer l'histoire en 4 images.",
+    },
+    {
+      patientId: tom.id,
+      exercices: [
+        { cle: "respiration", niveau: 2 },
+        { cle: "parole-lente", niveau: 1 },
+      ],
+      notes: "Notes fictives : respiration plus régulière, débit encore rapide en fin de séance.",
+      pointsAReprendre: "Parole lente sur des phrases plus longues.",
+    },
+    {
+      patientId: adulte.id,
+      exercices: [{ cle: "voix-paille", niveau: 1 }],
+      notes: "Notes fictives : fatigue vocale moindre en fin de journée.",
+      pointsAReprendre: "Ajouter un exercice de sirène vocale.",
+    },
+  ];
+  for (const s of seancesPassees) {
+    for (const [i, j] of [35, 21, 7].entries()) {
+      const date = new Date(moinsJours(aujourdhui, j).getTime() + 10 * 60 * 60 * 1000);
+      const derniere = i === 2;
+      await prisma.seance.create({
+        data: {
+          patientId: s.patientId,
+          orthoId: ortho.id,
+          date,
+          termineeLe: new Date(date.getTime() + 45 * 60 * 1000),
+          objectifs: "Objectifs fictifs de séance.",
+          notes: derniere ? s.notes : "Notes fictives.",
+          pointsAReprendre: derniere ? s.pointsAReprendre : null,
+          elements: {
+            create: s.exercices.map((e, ordre) => ({
+              exerciceId: exo(e.cle),
+              niveau: e.niveau,
+              ordre: ordre + 1,
+              origine: "BIBLIOTHEQUE" as const,
+            })),
+          },
+        },
+      });
+    }
+  }
   await prisma.bilan.createMany({
     data: [lea, tom, adulte].map((p) => ({
       patientId: p.id,

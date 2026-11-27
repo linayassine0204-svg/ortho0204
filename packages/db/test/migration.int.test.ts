@@ -14,6 +14,7 @@ const TABLES_ATTENDUES = [
   "consentement",
   "document",
   "element_programme",
+  "element_seance",
   "enregistrement",
   "envoi_conseil",
   "exercice",
@@ -90,6 +91,44 @@ describe("contraintes", () => {
     const element = await prisma.elementProgramme.findFirstOrThrow();
     await expect(
       prisma.elementProgramme.update({ where: { id: element.id }, data: { niveau: 5 } }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse deux séances en préparation pour le même patient", async () => {
+    const donnees = { patientId: ids.patients.lea, date: new Date() };
+    await prisma.seance.create({ data: donnees });
+    await expect(prisma.seance.create({ data: donnees })).rejects.toThrow();
+    // Une séance terminée de plus, elle, est acceptée.
+    await prisma.seance.create({ data: { ...donnees, termineeLe: new Date() } });
+  });
+
+  it("refuse un niveau hors de 1 à 3, ou deux fois le même exercice, dans une séance", async () => {
+    const element = await prisma.elementSeance.findFirstOrThrow();
+    await expect(
+      prisma.elementSeance.update({ where: { id: element.id }, data: { niveau: 4 } }),
+    ).rejects.toThrow();
+    await expect(
+      prisma.elementSeance.create({
+        data: {
+          seanceId: element.seanceId,
+          exerciceId: element.exerciceId,
+          niveau: 1,
+          origine: "BIBLIOTHEQUE",
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("n'accepte une proposition en attente que pour une proposition, avec sa raison", async () => {
+    const element = await prisma.elementSeance.findFirstOrThrow();
+    await expect(
+      prisma.elementSeance.update({ where: { id: element.id }, data: { retenu: false } }),
+    ).rejects.toThrow();
+    await expect(
+      prisma.elementSeance.update({
+        where: { id: element.id },
+        data: { origine: "PROPOSITION" },
+      }),
     ).rejects.toThrow();
   });
 
@@ -215,6 +254,7 @@ describe("suppressions", () => {
       expect(await compter(table, "patientId", tom), table).toBe(0);
     }
     expect(await prisma.elementProgramme.count({ where: { id: { in: elementIds } } })).toBe(0);
+    expect(await prisma.elementSeance.count({ where: { seance: { patientId: tom } } })).toBe(0);
     expect(
       await prisma.realisation.count({ where: { elementProgrammeId: { in: elementIds } } }),
     ).toBe(0);
@@ -280,6 +320,11 @@ describe("suppressions", () => {
 
   it("refuse de supprimer un exercice utilisé dans un programme", async () => {
     const element = await prisma.elementProgramme.findFirstOrThrow();
+    await expect(prisma.exercice.delete({ where: { id: element.exerciceId } })).rejects.toThrow();
+  });
+
+  it("refuse de supprimer un exercice utilisé dans une séance", async () => {
+    const element = await prisma.elementSeance.findFirstOrThrow();
     await expect(prisma.exercice.delete({ where: { id: element.exerciceId } })).rejects.toThrow();
   });
 

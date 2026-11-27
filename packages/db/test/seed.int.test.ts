@@ -192,4 +192,18 @@ describe("seed : données fictives", () => {
       comptes: await prisma.user.count(),
     }).toEqual(avant);
   });
+
+  it("crée des séances passées terminées, avec exercices et points à reprendre", async () => {
+    for (const patientId of Object.values(ids.patients)) {
+      const seances = await prisma.seance.findMany({
+        where: { patientId },
+        include: { elements: true },
+        orderBy: { date: "desc" },
+      });
+      expect(seances).toHaveLength(3);
+      expect(seances.every((s) => s.termineeLe !== null && s.elements.length > 0)).toBe(true);
+      expect(seances[0]?.pointsAReprendre).toBeTruthy();
+      expect(seances[0]?.date.getTime()).toBeLessThan(AUJOURDHUI_TEST.getTime());
+    }
+  });
 });

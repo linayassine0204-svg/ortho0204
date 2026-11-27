@@ -79,6 +79,24 @@ enum TypeSession {
   MOBILE_RENOUVELLEMENT
 }
 
+enum OrigineElement {
+  /// Proposé par les règles simples (pathologie, âge, derniers résultats).
+  PROPOSITION
+  /// Ajouté depuis le panneau Bibliothèque.
+  BIBLIOTHEQUE
+  /// Copié d'une séance passée.
+  COPIE
+}
+
+enum RaisonProposition {
+  /// Exercice déjà travaillé, derniers résultats bons : niveau suivant.
+  NIVEAU_SUIVANT
+  /// Exercice déjà travaillé : on reste au niveau en cours.
+  NIVEAU_EN_COURS
+  /// Exercice pas encore travaillé, de la pathologie et de l'âge du patient.
+  NOUVEAU
+}
+
 enum ActionAcces {
   LECTURE
   MODIFICATION
@@ -352,6 +370,7 @@ model Exercice {
   auteur    User?              @relation("ExercicesCrees", fields: [auteurId], references: [id], onDelete: SetNull)
   niveaux   NiveauExercice[]
   elements  ElementProgramme[]
+  seances   ElementSeance[]
   favoris   Favori[]
 
   @@index([categorieId])
@@ -600,22 +619,57 @@ model EnvoiConseil {
 
 // ─── Séances et bilans ───────────────────────────────────────────────────────
 
+/// Séance au cabinet. Une seule séance « en préparation » par patient (termineeLe null,
+/// garanti par la base) ; une fois terminée, ses notes et points à reprendre alimentent
+/// le résumé de la séance suivante.
 model Seance {
-  id        String   @id @default(cuid())
-  patientId String
-  orthoId   String?
-  date      DateTime
-  objectifs String?
-  materiel  String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String    @id @default(cuid())
+  patientId        String
+  orthoId          String?
+  date             DateTime
+  objectifs        String?
+  /// Matériel en plus, écrit à la main (le reste est calculé à partir des exercices).
+  materiel         String?
+  /// Notes prises pendant ou après la séance (jamais envoyées à un service externe).
+  notes            String?
+  /// Points à reprendre à la séance suivante.
+  pointsAReprendre String?
+  /// null = en préparation ; sinon date de fin de la séance.
+  termineeLe       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  ortho   User?   @relation(fields: [orthoId], references: [id], onDelete: SetNull)
+  patient  Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  ortho    User?           @relation(fields: [orthoId], references: [id], onDelete: SetNull)
+  elements ElementSeance[]
 
   @@index([patientId, date])
   @@map("seance")
+}
+
+/// Exercice d'une séance au cabinet, au niveau choisi.
+/// Proposé par les règles (`retenu` faux tant que l'orthophoniste ne l'a pas accepté),
+/// ajouté depuis la bibliothèque, ou copié d'une séance passée.
+model ElementSeance {
+  id         String             @id @default(cuid())
+  seanceId   String
+  exerciceId String
+  niveau     Int
+  ordre      Int                @default(0)
+  origine    OrigineElement
+  /// Raison de la proposition (origine PROPOSITION seulement).
+  raison     RaisonProposition?
+  /// Faux : proposé, en attente de l'avis de l'orthophoniste. Vrai : fait partie de la séance.
+  retenu     Boolean            @default(true)
+  createdAt  DateTime           @default(now())
+
+  seance   Seance   @relation(fields: [seanceId], references: [id], onDelete: Cascade)
+  exercice Exercice @relation(fields: [exerciceId], references: [id], onDelete: Restrict)
+
+  /// Un exercice n'apparaît qu'une fois dans une séance.
+  @@unique([seanceId, exerciceId])
+  @@index([exerciceId])
+  @@map("element_seance")
 }
 
 model Bilan {
