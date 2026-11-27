@@ -24,7 +24,10 @@ Code : `apps/mobile/src/`. Textes : bloc `mobile` de `packages/shared/i18n/fr.js
 Exercices prévus ce jour (heure de Paris), puis « À placer dans la semaine » (exercices sans jour
 fixé). Chaque carte montre l'aperçu (image en `https`, sinon un symbole de la catégorie), le titre,
 **Niv. 1/2/3**, la durée, la consigne courte, le matériel et **le mot de l'orthophoniste**. Tirer vers
-le bas recharge. La réalisation d'un exercice viendra en tâche 7.
+le bas recharge. Toucher un exercice l'ouvre : voir [REALISATIONS.md](./REALISATIONS.md).
+
+**Mode enfant** (enfant de moins de 15 ans, compte du parent) : un seul exercice à l'écran
+(« Exercice 1 sur 2 »), très gros bouton « C'est parti ! », étoiles à la fin.
 
 ## Onglet Messages
 

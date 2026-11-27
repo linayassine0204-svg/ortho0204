@@ -38,11 +38,11 @@ TOTP chiffré par compte (nouvelle migration).
 
 Fichier `lib/serveur/droits.ts`. Pure (sans base de données), **refus par défaut**.
 
-| Rôle          | Patients visibles                    | Actions                                              | Sections du dossier                    |
-| ------------- | ------------------------------------ | ---------------------------------------------------- | -------------------------------------- |
-| ORTHO         | ceux de **son cabinet**              | lire, modifier, supprimer, inviter ; créer (cabinet) | toutes                                 |
-| PARENT        | **ses enfants** (table `LienTuteur`) | consentir ; lire **après son consentement**          | programme, conseils, messagerie, suivi |
-| PATIENT_ADULT | **son propre dossier**               | consentir ; lire **après son consentement**          | programme, messagerie                  |
+| Rôle          | Patients visibles                    | Actions                                                   | Sections du dossier                    |
+| ------------- | ------------------------------------ | --------------------------------------------------------- | -------------------------------------- |
+| ORTHO         | ceux de **son cabinet**              | lire, modifier, supprimer, inviter ; créer (cabinet)      | toutes                                 |
+| PARENT        | **ses enfants** (table `LienTuteur`) | consentir ; lire et `realiser` **après son consentement** | programme, conseils, messagerie, suivi |
+| PATIENT_ADULT | **son propre dossier**               | consentir ; lire et `realiser` **après son consentement** | programme, messagerie                  |
 
 Pour tous : jamais un patient d'un autre cabinet ; messagerie refusée si elle est désactivée pour le
 patient (réglage du patient, sinon du cabinet). Consentement : voir [DOSSIER_PATIENT.md](./DOSSIER_PATIENT.md).
