@@ -3,12 +3,10 @@
 import { useState } from "react";
 import {
   JOURS,
-  rythme,
   t,
   type ElementEnvoye,
   type ExerciceBibliotheque,
   type Jour,
-  type Niveau,
   type PatientBibliotheque,
 } from "@app/shared";
 import {
@@ -17,15 +15,10 @@ import {
 } from "@/components/bibliotheque/BibliothequeSelecteur";
 import { IconeCategorie } from "@/components/bibliotheque/IconeCategorie";
 import { Message } from "@/components/Message";
-import { envoyerJson, type ResultatApi } from "@/lib/client/api";
+import { useProgramme, type EtatProgramme } from "./useProgramme";
 import { dateFr } from "@/lib/format";
 
-export interface EtatProgramme {
-  elements: ElementEnvoye[];
-  derniereVersion: { numero: number; envoyeLe: Date | string } | null;
-  modifieDepuisEnvoi: boolean;
-  destinataires: { id: string; prenom: string; nom: string }[];
-}
+export type { EtatProgramme } from "./useProgramme";
 
 /**
  * Écran Programme : à gauche le programme actuel, à droite la bibliothèque
@@ -42,146 +35,14 @@ export function EditeurProgramme({
   exercices: ExerciceBibliotheque[];
   categories: CategorieFiltre[];
 }) {
-  const [elements, setElements] = useState(initial.elements);
-  const [derniere, setDerniere] = useState(initial.derniereVersion);
-  const [modifie, setModifie] = useState(initial.modifieDepuisEnvoi);
-  const [message, setMessage] = useState<{ type: "erreur" | "succes"; texte: string } | null>(null);
-  const [envoi, setEnvoi] = useState(false);
-  const base = `/api/patients/${encodeURIComponent(patient.id)}/programme`;
-
-  /** Affiche l'erreur éventuelle ; renvoie true si l'appel a réussi. */
-  function reussi(r: ResultatApi<unknown>): boolean {
-    if (!r.ok) {
-      setMessage({ type: "erreur", texte: r.message });
-      return false;
-    }
-    setMessage(null);
-    if (derniere) setModifie(true);
-    return true;
-  }
-
-  /** Données de la réponse, ou null en cas d'erreur (message affiché). */
-  function traiter<T>(r: ResultatApi<T>): T | null {
-    return reussi(r) && r.ok ? r.donnees : null;
-  }
-
-  const remplacer = (el: ElementEnvoye) =>
-    setElements((liste) => liste.map((x) => (x.elementId === el.elementId ? el : x)));
-
-  async function ajouter(exercice: ExerciceBibliotheque, niveau: Niveau) {
-    const d = traiter(
-      await envoyerJson<{ element: ElementEnvoye }>(`${base}/elements`, {
-        exerciceId: exercice.id,
-        niveau,
-      }),
-    );
-    if (!d) return false;
-    setElements((liste) => [...liste, d.element]);
-    return true;
-  }
-
-  async function modifier(el: ElementEnvoye, champs: Partial<ElementEnvoye>) {
-    // Affichage immédiat (cases, listes) ; on revient en arrière si le serveur refuse.
-    if (champs.jours !== undefined || champs.foisParSemaine !== undefined) {
-      const jours = champs.jours ?? el.jours;
-      remplacer({
-        ...el,
-        ...champs,
-        foisParSemaine: rythme(champs.foisParSemaine ?? el.foisParSemaine, jours),
-      });
-    }
-    const d = traiter(
-      await envoyerJson<{ element: ElementEnvoye }>(
-        `${base}/elements/${encodeURIComponent(el.elementId)}`,
-        champs,
-        "PATCH",
-      ),
-    );
-    remplacer(d ? d.element : el);
-    return Boolean(d);
-  }
-
-  async function ajuster(el: ElementEnvoye, sens: "monter" | "baisser") {
-    const d = traiter(
-      await envoyerJson<{ element: ElementEnvoye }>(
-        `${base}/elements/${encodeURIComponent(el.elementId)}/ajuster`,
-        { sens },
-      ),
-    );
-    if (d) remplacer(d.element);
-  }
-
-  async function retirer(el: ElementEnvoye) {
-    const r = await envoyerJson(
-      `${base}/elements/${encodeURIComponent(el.elementId)}`,
-      undefined,
-      "DELETE",
-    );
-    if (reussi(r)) setElements((liste) => liste.filter((x) => x.elementId !== el.elementId));
-  }
-
-  async function deplacer(index: number, decalage: -1 | 1) {
-    const cible = index + decalage;
-    if (cible < 0 || cible >= elements.length) return;
-    const nouvel = [...elements];
-    [nouvel[index], nouvel[cible]] = [
-      nouvel[cible] as ElementEnvoye,
-      nouvel[index] as ElementEnvoye,
-    ];
-    const avant = elements;
-    setElements(nouvel); // affichage immédiat, annulé si le serveur refuse
-    const r = await envoyerJson(
-      `${base}/ordre`,
-      { elementIds: nouvel.map((e) => e.elementId) },
-      "PUT",
-    );
-    if (!reussi(r)) setElements(avant);
-  }
-
-  async function envoyer() {
-    setEnvoi(true);
-    const d = traiter(
-      await envoyerJson<{ version: { numero: number; envoyeLe: string } }>(`${base}/envoi`),
-    );
-    setEnvoi(false);
-    if (!d) return;
-    setDerniere(d.version);
-    setModifie(false);
-    setMessage({ type: "succes", texte: t("web.programme.envoiOk", { numero: d.version.numero }) });
-  }
-
-  let statut = t("web.programme.jamaisEnvoye");
-  if (derniere && modifie) statut = t("web.programme.modifie", { numero: derniere.numero });
-  else if (derniere) {
-    statut = t("web.programme.envoye", {
-      date: dateFr(derniere.envoyeLe),
-      numero: derniere.numero,
-    });
-  }
+  const programme = useProgramme(patient.id, initial);
+  const { elements, ajouter, ajuster, modifier, deplacer, retirer } = programme;
 
   return (
     <div className="programme-ecran">
       <section className="programme-actuel" aria-labelledby="titre-programme">
         <h2 id="titre-programme">{t("web.programme.actuel")}</h2>
-        <p className={`statut-envoi ${derniere && !modifie ? "statut-ok" : "statut-attente"}`}>
-          {statut}
-        </p>
-        <p className="discret">
-          {initial.destinataires.length > 0
-            ? t("web.programme.destinataires", {
-                noms: initial.destinataires.map((d) => `${d.prenom} ${d.nom}`).join(", "),
-              })
-            : t("web.programme.aucunDestinataire")}
-        </p>
-        <button
-          type="button"
-          className="bouton-envoyer"
-          disabled={envoi || elements.length === 0 || Boolean(derniere && !modifie)}
-          onClick={envoyer}
-        >
-          {derniere ? t("web.programme.renvoyer") : t("web.programme.envoyer")}
-        </button>
-        {message && <Message type={message.type} texte={message.texte} />}
+        <EtatEnvoi programme={programme} destinataires={initial.destinataires} />
 
         {elements.length === 0 ? (
           <p className="carte">{t("web.programme.vide")}</p>
@@ -360,5 +221,47 @@ function ElementProgramme({
         </button>
       </div>
     </li>
+  );
+}
+
+/** État de l'envoi à la famille, destinataires et bouton « Envoyer » (Programme et Préparation). */
+export function EtatEnvoi({
+  programme,
+  destinataires,
+}: {
+  programme: ReturnType<typeof useProgramme>;
+  destinataires: EtatProgramme["destinataires"];
+}) {
+  const { derniere, modifie, envoi, elements, message, envoyer } = programme;
+  let statut = t("web.programme.jamaisEnvoye");
+  if (derniere && modifie) statut = t("web.programme.modifie", { numero: derniere.numero });
+  else if (derniere) {
+    statut = t("web.programme.envoye", {
+      date: dateFr(derniere.envoyeLe),
+      numero: derniere.numero,
+    });
+  }
+  return (
+    <>
+      <p className={`statut-envoi ${derniere && !modifie ? "statut-ok" : "statut-attente"}`}>
+        {statut}
+      </p>
+      <p className="discret">
+        {destinataires.length > 0
+          ? t("web.programme.destinataires", {
+              noms: destinataires.map((d) => `${d.prenom} ${d.nom}`).join(", "),
+            })
+          : t("web.programme.aucunDestinataire")}
+      </p>
+      <button
+        type="button"
+        className="bouton-envoyer"
+        disabled={envoi || elements.length === 0 || Boolean(derniere && !modifie)}
+        onClick={envoyer}
+      >
+        {derniere ? t("web.programme.renvoyer") : t("web.programme.envoyer")}
+      </button>
+      {message && <Message type={message.type} texte={message.texte} />}
+    </>
   );
 }
