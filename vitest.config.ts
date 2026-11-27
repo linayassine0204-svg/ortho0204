@@ -17,8 +17,16 @@ export default defineConfig({
         test: {
           name: "unitaires",
           include: ["{apps,packages}/*/{src,lib,app}/**/*.test.{ts,tsx}"],
-          exclude: ["**/node_modules/**", "**/.next/**", "**/*.int.test.ts"],
+          exclude: ["**/node_modules/**", "**/.next/**", "**/*.int.test.ts", "**/*.test.tsx"],
           environment: "node",
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "composants",
+          include: ["apps/web/{components,app}/**/*.test.tsx"],
+          environment: "jsdom",
         },
       },
       {

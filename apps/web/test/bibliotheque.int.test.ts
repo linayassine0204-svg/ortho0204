@@ -30,7 +30,8 @@ let marque: string;
 
 const url = (params: Record<string, string>) =>
   `http://localhost:3000/api/exercices?${new URLSearchParams(params).toString()}`;
-const ids = (r: { corps: { exercices: { id: string }[] } }) => r.corps.exercices.map((e) => e.id);
+const ids = (r: { corps: Record<string, unknown> }) =>
+  (r.corps.exercices as { id: string }[]).map((e) => e.id);
 
 function corpsExercice(champs: Record<string, unknown> = {}) {
   return {

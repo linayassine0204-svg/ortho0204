@@ -9,7 +9,7 @@ export type ResultatApi<T> = { ok: true; donnees: T } | { ok: false; message: st
 export async function envoyerJson<T = unknown>(
   url: string,
   corps?: unknown,
-  methode: "POST" | "PATCH" | "DELETE" = "POST",
+  methode: "POST" | "PUT" | "PATCH" | "DELETE" = "POST",
 ): Promise<ResultatApi<T>> {
   const estFormulaire = corps instanceof FormData;
   let corpsRequete: BodyInit | undefined;

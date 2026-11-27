@@ -137,7 +137,9 @@
       "demoTitre": "Essai du mode sélection",
       "demoTexte": "Page de démonstration avec un patient fictif. Elle n'existe pas en production.",
       "demoAjouts": "Exercices ajoutés",
-      "demoAucun": "Aucun pour l'instant : choisissez un exercice et un niveau, puis « Ajouter »."
+      "demoAucun": "Aucun pour l'instant : choisissez un exercice et un niveau, puis « Ajouter ».",
+      "estFavori": "(favori)",
+      "ageConseille": "Âge conseillé"
     },
     "nouveauPatient": {
       "titre": "Nouveau patient",
