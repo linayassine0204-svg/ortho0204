@@ -1,7 +1,8 @@
-import { jourLocal, planJour } from "@app/shared";
+import { jourLocal, planJour, planSemaine, type ElementEnvoye } from "@app/shared";
 import { ErreurApi, ErreurReseau, type ClientApi } from "../api/client";
 import type { ProgrammeEnvoye } from "../session/types";
 import type { Cache } from "./cache";
+import type { FaitLocal } from "./realisations";
 
 /** Copie locale (chiffrée) du programme envoyé, pour l'afficher sans réseau. */
 interface ProgrammeEnCache {
@@ -71,4 +72,55 @@ export async function chargerProgramme(
 export function exercicesDuJour(programme: ProgrammeEnvoye | null, maintenant = new Date()) {
   const { date } = jourLocal(maintenant);
   return planJour(programme?.elements ?? [], date);
+}
+
+/** Un exercice de l'écran « Aujourd'hui », avec ce qui a déjà été fait. */
+export interface ExerciceDuJour {
+  element: ElementEnvoye;
+  /** Déjà fait aujourd'hui (sur ce téléphone). */
+  faitAujourdhui: boolean;
+  /** Exercice sans jour fixé : fois restantes cette semaine (sinon null). */
+  restantSemaine: number | null;
+}
+
+/**
+ * Exercices du jour et de la semaine, croisés avec les réalisations notées sur le
+ * téléphone. Sert à la liste (vue adulte) et à la file « un exercice à la fois »
+ * (mode enfant).
+ */
+export function etatDuJour(
+  programme: ProgrammeEnvoye | null,
+  faits: readonly FaitLocal[],
+  maintenant = new Date(),
+): { duJour: ExerciceDuJour[]; dansLaSemaine: ExerciceDuJour[] } {
+  const elements = programme?.elements ?? [];
+  const { date } = jourLocal(maintenant);
+  const semaine = planSemaine(elements, date);
+  const faitLe = (e: ElementEnvoye, jour: string) =>
+    faits.some((f) => f.elementId === e.elementId && f.date === jour);
+  const faitsSemaine = (e: ElementEnvoye) =>
+    faits.filter(
+      (f) => f.elementId === e.elementId && f.date >= semaine.debut && f.date <= semaine.fin,
+    ).length;
+  const plan = planJour(elements, date);
+  return {
+    duJour: plan.elements.map((element) => ({
+      element,
+      faitAujourdhui: faitLe(element, date),
+      restantSemaine: null,
+    })),
+    dansLaSemaine: plan.sansJourFixe.map((element) => ({
+      element,
+      faitAujourdhui: faitLe(element, date),
+      restantSemaine: Math.max(0, element.foisParSemaine - faitsSemaine(element)),
+    })),
+  };
+}
+
+/** Mode enfant : les exercices encore à faire aujourd'hui, dans l'ordre du programme. */
+export function fileEnfant(etat: ReturnType<typeof etatDuJour>): ElementEnvoye[] {
+  return [
+    ...etat.duJour.filter((x) => !x.faitAujourdhui),
+    ...etat.dansLaSemaine.filter((x) => !x.faitAujourdhui && (x.restantSemaine ?? 0) > 0),
+  ].map((x) => x.element);
 }

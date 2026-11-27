@@ -1,5 +1,6 @@
 import { ErreurReseau, type ClientApi } from "../api/client";
-import type { PatientFamille, Utilisateur } from "../session/types";
+import { estModeEnfant } from "../session/profils";
+import type { PatientApi, PatientFamille, Utilisateur } from "../session/types";
 import type { Cache } from "./cache";
 
 /** Compte connecté et patients reliés (copie chiffrée pour démarrer sans réseau). */
@@ -14,6 +15,7 @@ const CLE = "session.infos";
 export async function chargerInfosSession(
   client: ClientApi,
   cache: Cache,
+  maintenant = new Date(),
 ): Promise<InfosSession & { horsLigne: boolean }> {
   try {
     const { utilisateur } = await client.get<{ utilisateur: Utilisateur }>("/auth/moi");
@@ -21,13 +23,19 @@ export async function chargerInfosSession(
     const patients =
       utilisateur.role === "ORTHO"
         ? []
-        : (await client.get<{ patients: PatientFamille[] }>("/patients")).patients;
+        : (await client.get<{ patients: PatientApi[] }>("/patients")).patients;
     const infos: InfosSession = {
       utilisateur: { id: utilisateur.id, prenom: utilisateur.prenom, role: utilisateur.role },
-      patients: patients.map((p) =>
+      patients: patients.map((p): PatientFamille =>
         p.consentementRequis
           ? { id: p.id, prenom: p.prenom, consentementRequis: true }
-          : { id: p.id, prenom: p.prenom, messagerieActivee: p.messagerieActivee },
+          : {
+              id: p.id,
+              prenom: p.prenom,
+              messagerieActivee: p.messagerieActivee,
+              accordAudio: p.accordAudio === true,
+              modeEnfant: estModeEnfant(utilisateur.role, p.dateNaissance, maintenant),
+            },
       ),
     };
     await cache.enregistrer(CLE, infos);
