@@ -92,7 +92,52 @@
       "texte": "Cette partie arrive dans une prochaine version."
     },
     "bibliotheque": {
-      "titre": "Bibliothèque d'exercices"
+      "titre": "Bibliothèque d'exercices",
+      "titreSelection": "Exercices pour {{prenom}}",
+      "filtresPatient": "Filtres réglés pour {{prenom}} ({{age}} ans). Vous pouvez les changer.",
+      "recherche": "Rechercher un exercice",
+      "rechercheAide": "Titre, son, matériel… ex. sons ch / j",
+      "pathologie": "Pathologie",
+      "toutes": "Toutes",
+      "age": "Âge du patient",
+      "tousAges": "Tous âges",
+      "niveau": "Niveau",
+      "tousNiveaux": "Tous",
+      "duree": "Durée",
+      "toutesDurees": "Toutes",
+      "dureeMax": "{{minutes}} min au plus",
+      "mesExercices": "Mes exercices",
+      "favoris": "Favoris",
+      "effacer": "Effacer les filtres",
+      "resultats": "{{n}} exercices",
+      "resultat": "{{n}} exercice",
+      "aucun": "Aucun exercice ne correspond.",
+      "liste": "Exercices",
+      "apercu": "Aperçu",
+      "choisir": "Choisissez un exercice pour voir son aperçu.",
+      "materiel": "Matériel",
+      "aucunMateriel": "Aucun matériel",
+      "minutes": "{{minutes}} min",
+      "ages": "{{min}} à {{max}} ans",
+      "agesPlus": "À partir de {{min}} ans",
+      "niveauCourt": "Niv. {{niveau}}",
+      "niveaux": "Niveaux",
+      "consigneNiveau": "Consigne du niveau {{niveau}}",
+      "aValider": "Exemple — à valider par un {{terme.professionnel}}",
+      "aValiderAide": "Contenu d'exemple : il n'a pas été vérifié médicalement.",
+      "perso": "Mon exercice",
+      "ajouter": "Ajouter",
+      "ajoute": "« {{titre}} » ajouté (niveau {{niveau}}).",
+      "favoriAjouter": "Ajouter aux favoris",
+      "favoriRetirer": "Retirer des favoris",
+      "nouvel": "Nouvel exercice",
+      "modifier": "Modifier",
+      "supprimer": "Supprimer",
+      "confirmerSuppression": "Supprimer définitivement cet exercice ?",
+      "demoTitre": "Essai du mode sélection",
+      "demoTexte": "Page de démonstration avec un patient fictif. Elle n'existe pas en production.",
+      "demoAjouts": "Exercices ajoutés",
+      "demoAucun": "Aucun pour l'instant : choisissez un exercice et un niveau, puis « Ajouter »."
     },
     "nouveauPatient": {
       "titre": "Nouveau patient",
@@ -143,6 +188,22 @@
       "enregistrer": "Enregistrer",
       "enregistre": "Modifications enregistrées.",
       "modifier": "Modifier"
+    },
+    "exercice": {
+      "titreNouveau": "Nouvel exercice",
+      "titreModifier": "Modifier l'exercice",
+      "titre": "Titre",
+      "description": "Description courte",
+      "categorie": "Pathologie",
+      "ageMin": "Âge minimum",
+      "ageMax": "Âge maximum",
+      "duree": "Durée (minutes)",
+      "materiel": "Matériel (un élément par ligne)",
+      "apercuConsigne": "Consigne courte (aperçu)",
+      "niveaux": "Les 3 niveaux",
+      "consigneNiveau": "Consigne du niveau {{niveau}}",
+      "enregistrer": "Enregistrer l'exercice",
+      "annuler": "Annuler"
     }
   },
   "mobile": {
@@ -166,7 +227,8 @@
     "consentementRequis": "Votre consentement est nécessaire avant de voir ce dossier.",
     "documentTypeRefuse": "Ce type de fichier n'est pas accepté (PDF, PNG ou JPEG).",
     "documentTropGros": "Ce fichier est trop volumineux (10 Mo au maximum).",
-    "pathologieInconnue": "Une pathologie choisie n'existe pas."
+    "pathologieInconnue": "Une pathologie choisie n'existe pas.",
+    "exerciceUtilise": "Cet exercice est utilisé dans un programme : il ne peut pas être supprimé."
   },
   "consentement": {
     "donneesSante": {
