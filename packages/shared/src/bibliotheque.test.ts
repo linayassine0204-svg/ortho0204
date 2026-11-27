@@ -17,6 +17,7 @@ function exercice(partiel: Partial<ExerciceBibliotheque> & { id: string }): Exer
     apercuImage: null,
     materiel: [],
     dureeMinutes: 10,
+    scoreMax: null,
     ageMin: 4,
     ageMax: 10,
     categorie: { id: "c1", nom: "Articulation et parole", slug: "articulation" },

@@ -18,6 +18,7 @@ function exercice(
     apercuImage: null,
     materiel: ["Miroir"],
     dureeMinutes: 10,
+    scoreMax: null,
     ageMin: 4,
     ageMax: 9,
     categorie: articulation,

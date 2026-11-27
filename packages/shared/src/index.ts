@@ -6,3 +6,4 @@ export * from "./schemas/patient.ts";
 export * from "./consentement.ts";
 export * from "./bibliotheque.ts";
 export * from "./programme.ts";
+export * from "./realisation.ts";

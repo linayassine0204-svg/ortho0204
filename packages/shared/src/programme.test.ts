@@ -25,6 +25,7 @@ function source(p: Partial<ElementSource> & { id: string; ordre: number }): Elem
       apercuImage: null,
       materiel: ["Miroir"],
       dureeMinutes: 10,
+      scoreMax: 10,
       aValider: true,
       categorie: { nom: "Articulation", slug: "articulation" },
       niveaux: [

@@ -307,6 +307,12 @@ export function BibliothequeSelecteur(props: BibliothequeSelecteurProps) {
                 </dd>
                 <dt>{t("web.bibliotheque.duree")}</dt>
                 <dd>{t("web.bibliotheque.minutes", { minutes: choisi.dureeMinutes })}</dd>
+                <dt>{t("web.bibliotheque.score")}</dt>
+                <dd>
+                  {choisi.scoreMax
+                    ? t("web.bibliotheque.scoreSur", { max: choisi.scoreMax })
+                    : t("web.bibliotheque.sansScore")}
+                </dd>
                 <dt>{t("web.bibliotheque.ageConseille")}</dt>
                 <dd>
                   {choisi.ageMax >= 99

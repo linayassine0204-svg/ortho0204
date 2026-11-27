@@ -19,6 +19,8 @@ export interface ExerciceBibliotheque {
   apercuImage: string | null;
   materiel: string[];
   dureeMinutes: number;
+  /** Score « sur N » prévu par l'exercice (ex. 10). null = pas de score. */
+  scoreMax: number | null;
   ageMin: number;
   ageMax: number;
   categorie: { id: string; nom: string; slug: string };
@@ -148,6 +150,11 @@ export const exerciceSchema = z
     dureeMinutes: z.coerce.number().int().min(1).max(240),
     materiel: z.array(z.string().trim().min(1).max(100)).max(20).default([]),
     apercuConsigne: z.string().trim().min(1).max(300),
+    /** Score « sur N » (1 à 100). Vide = l'exercice ne prévoit pas de score. */
+    scoreMax: z.preprocess(
+      (v) => (v === "" || v === undefined ? null : v),
+      z.coerce.number().int().min(1).max(100).nullable(),
+    ),
     /** Exactement 3 niveaux : consignes des niveaux 1, 2 et 3. */
     niveaux: z.tuple([
       z.string().trim().min(1).max(1000),

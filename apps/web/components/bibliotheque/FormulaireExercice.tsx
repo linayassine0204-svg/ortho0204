@@ -33,6 +33,7 @@ export function FormulaireExercice({
       ageMin: texte("ageMin"),
       ageMax: texte("ageMax"),
       dureeMinutes: texte("dureeMinutes"),
+      scoreMax: texte("scoreMax"),
       apercuConsigne: texte("apercuConsigne"),
       materiel: texte("materiel")
         .split("\n")
@@ -127,6 +128,14 @@ export function FormulaireExercice({
           max={240}
           defaultValue={exercice?.dureeMinutes ?? 10}
           required
+        />
+        <Champ
+          libelle={t("web.exercice.scoreMax")}
+          name="scoreMax"
+          type="number"
+          min={1}
+          max={100}
+          defaultValue={exercice?.scoreMax ?? ""}
         />
       </div>
       <label className="champ">

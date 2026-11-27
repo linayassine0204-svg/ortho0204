@@ -30,6 +30,7 @@ function versBibliotheque(e: ExerciceCharge, acteur: Acteur): ExerciceBibliotheq
     apercuImage: e.apercuImage,
     materiel: e.materiel,
     dureeMinutes: e.dureeMinutes,
+    scoreMax: e.scoreMax,
     ageMin: e.ageMin,
     ageMax: e.ageMax,
     categorie: e.categorie,
@@ -91,6 +92,7 @@ const champsExercice = (d: NouvelExercice) => ({
   ageMin: d.ageMin,
   ageMax: d.ageMax,
   dureeMinutes: d.dureeMinutes,
+  scoreMax: d.scoreMax,
   materiel: d.materiel,
   apercuConsigne: d.apercuConsigne,
 });

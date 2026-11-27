@@ -139,7 +139,10 @@
       "demoAjouts": "Exercices ajoutés",
       "demoAucun": "Aucun pour l'instant : choisissez un exercice et un niveau, puis « Ajouter ».",
       "estFavori": "(favori)",
-      "ageConseille": "Âge conseillé"
+      "ageConseille": "Âge conseillé",
+      "score": "Score",
+      "scoreSur": "sur {{max}}",
+      "sansScore": "Pas de score"
     },
     "nouveauPatient": {
       "titre": "Nouveau patient",
@@ -205,7 +208,8 @@
       "niveaux": "Les 3 niveaux",
       "consigneNiveau": "Consigne du niveau {{niveau}}",
       "enregistrer": "Enregistrer l'exercice",
-      "annuler": "Annuler"
+      "annuler": "Annuler",
+      "scoreMax": "Score sur… (facultatif, ex. 10 pour « 7 sur 10 »)"
     },
     "programme": {
       "titre": "Programme à la maison",
@@ -361,6 +365,13 @@
       "requisPour": "Votre consentement est nécessaire pour voir le suivi de {{prenom}}.",
       "donne": "Consentement donné le {{date}} (version {{version}}).",
       "retire": "Consentement retiré."
+    },
+    "enregistrementAudio": {
+      "titre": "Enregistrer la voix pendant les exercices",
+      "texte": "Pendant les exercices, vous pouvez enregistrer la voix (la vôtre ou celle de votre enfant) pour que votre {{terme.professionnel}} l'écoute et suive les progrès.\n\nLes enregistrements sont envoyés par une connexion chiffrée et conservés chez l'hébergeur certifié pour les données de santé (HDS), en France. Seul le cabinet de votre {{terme.professionnel}} peut les écouter. Ils ne sont transmis à aucun autre service.\n\nCet accord est facultatif : sans lui, les exercices restent disponibles, sans enregistrement. Vous pouvez le retirer à tout moment.",
+      "bouton": "J'accepte l'enregistrement de la voix",
+      "plusTard": "Pas maintenant",
+      "retirer": "Retirer mon accord pour l'enregistrement"
     }
   }
 }

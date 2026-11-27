@@ -28,6 +28,8 @@ export interface ElementEnvoye {
   apercuImage: string | null;
   materiel: string[];
   dureeMinutes: number;
+  /** Score « sur N » prévu (absent dans les versions envoyées avant la tâche 7). */
+  scoreMax?: number | null;
   categorie: { nom: string; slug: string };
   niveau: Niveau;
   /** Consigne du niveau choisi. */
@@ -56,6 +58,7 @@ export interface ElementSource {
     apercuImage: string | null;
     materiel: string[];
     dureeMinutes: number;
+    scoreMax: number | null;
     aValider: boolean;
     categorie: { nom: string; slug: string };
     niveaux: readonly { niveau: number; consigne: string }[];
@@ -75,6 +78,7 @@ export function contenuProgramme(elements: readonly ElementSource[]): ElementEnv
       apercuImage: e.exercice.apercuImage,
       materiel: [...e.exercice.materiel],
       dureeMinutes: e.exercice.dureeMinutes,
+      scoreMax: e.exercice.scoreMax,
       categorie: { nom: e.exercice.categorie.nom, slug: e.exercice.categorie.slug },
       niveau: e.niveau as Niveau,
       consigne: e.exercice.niveaux.find((n) => n.niveau === e.niveau)?.consigne ?? "",

@@ -16,6 +16,7 @@ function exercice(id: string, titre: string): ExerciceBibliotheque {
     apercuImage: null,
     materiel: [],
     dureeMinutes: 10,
+    scoreMax: null,
     ageMin: 4,
     ageMax: 9,
     categorie,
