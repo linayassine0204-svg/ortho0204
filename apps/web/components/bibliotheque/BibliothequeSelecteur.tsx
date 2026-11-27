@@ -40,7 +40,10 @@ interface PropsComplet extends PropsCommunes {
 interface PropsSelection extends PropsCommunes {
   mode: "selection";
   patient: PatientBibliotheque;
-  onAjouter: (exercice: ExerciceBibliotheque, niveau: Niveau) => void;
+  /** Renvoyer false (ou Promise<false>) si l'ajout a échoué : pas de message « ajouté ». */
+  onAjouter: (exercice: ExerciceBibliotheque, niveau: Niveau) => unknown;
+  /** Libellé du bouton (ex. « Ajouter au programme »). Par défaut : « Ajouter ». */
+  libelleAjouter?: string;
 }
 
 export type BibliothequeSelecteurProps = PropsComplet | PropsSelection;
@@ -340,14 +343,14 @@ export function BibliothequeSelecteur(props: BibliothequeSelecteurProps) {
                 <button
                   type="button"
                   className="bouton-ajouter"
-                  onClick={() => {
-                    props.onAjouter(choisi, niveauChoisi);
+                  onClick={async () => {
+                    if ((await props.onAjouter(choisi, niveauChoisi)) === false) return;
                     setAnnonce(
                       t("web.bibliotheque.ajoute", { titre: choisi.titre, niveau: niveauChoisi }),
                     );
                   }}
                 >
-                  {t("web.bibliotheque.ajouter")} —{" "}
+                  {props.libelleAjouter ?? t("web.bibliotheque.ajouter")} —{" "}
                   {t("web.bibliotheque.niveauCourt", { niveau: niveauChoisi })}
                 </button>
               )}

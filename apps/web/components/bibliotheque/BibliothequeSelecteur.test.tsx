@@ -136,7 +136,7 @@ describe("<BibliothequeSelecteur> mode sélection", () => {
     ).toBeTruthy();
   });
 
-  it("« Ajouter » appelle onAjouter avec l'exercice et le niveau choisi", () => {
+  it("« Ajouter » appelle onAjouter avec l'exercice et le niveau choisi", async () => {
     const onAjouter = vi.fn();
     render(
       <BibliothequeSelecteur
@@ -154,12 +154,12 @@ describe("<BibliothequeSelecteur> mode sélection", () => {
     );
     expect(onAjouter).toHaveBeenCalledTimes(1);
     expect(onAjouter).toHaveBeenCalledWith(chJ, 2);
-    expect(screen.getByRole("status").textContent).toBe(
+    expect((await screen.findByRole("status")).textContent).toBe(
       t("web.bibliotheque.ajoute", { titre: chJ.titre, niveau: 2 }),
     );
   });
 
-  it("le niveau 3 choisi est bien celui transmis", () => {
+  it("le niveau 3 choisi est bien celui transmis", async () => {
     const onAjouter = vi.fn();
     render(
       <BibliothequeSelecteur
@@ -175,5 +175,24 @@ describe("<BibliothequeSelecteur> mode sélection", () => {
       screen.getByRole("button", { name: new RegExp(`^${t("web.bibliotheque.ajouter")}`) }),
     );
     expect(onAjouter).toHaveBeenCalledWith(r, 3);
+  });
+
+  it("si onAjouter renvoie false (échec), aucun message « ajouté »", async () => {
+    const onAjouter = vi.fn().mockResolvedValue(false);
+    render(
+      <BibliothequeSelecteur
+        mode="selection"
+        patient={patient}
+        onAjouter={onAjouter}
+        exercices={exercices}
+        categories={categories}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: new RegExp(`^${t("web.bibliotheque.ajouter")}`) }),
+    );
+    await Promise.resolve();
+    expect(onAjouter).toHaveBeenCalled();
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });

@@ -6,7 +6,10 @@ import { listerCategories } from "@/lib/serveur/categories";
 import { db } from "@/lib/serveur/db";
 import { SECTIONS_PATIENT, type SectionPatient } from "@/lib/serveur/droits";
 import { patientDePage } from "@/lib/serveur/dossier-page";
-import { lireFiche } from "@/lib/serveur/patients";
+import { listerExercices } from "@/lib/serveur/exercices";
+import { lireFiche, patientPourBibliotheque } from "@/lib/serveur/patients";
+import { lireBrouillon } from "@/lib/serveur/programme";
+import { EditeurProgramme } from "@/components/programme/EditeurProgramme";
 
 function estSection(valeur: string): valeur is SectionPatient {
   return (SECTIONS_PATIENT as readonly string[]).includes(valeur);
@@ -25,6 +28,28 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
       listerCategories(db()),
     ]);
     return <Fiche fiche={fiche} categories={categories} />;
+  }
+
+  if (section === "programme") {
+    const { utilisateur } = await patientDePage(id);
+    // lireBrouillon vérifie le droit de composer et journalise la lecture « programme ».
+    const brouillon = await lireBrouillon(db(), utilisateur, id);
+    const [patient, exercices, categories] = await Promise.all([
+      patientPourBibliotheque(db(), id),
+      listerExercices(db(), utilisateur),
+      listerCategories(db()),
+    ]);
+    return (
+      <main className="contenu contenu-large">
+        <h1>{t("web.programme.titre")}</h1>
+        <EditeurProgramme
+          patient={patient}
+          initial={brouillon}
+          exercices={exercices}
+          categories={categories}
+        />
+      </main>
+    );
   }
 
   await patientDePage(id, section);

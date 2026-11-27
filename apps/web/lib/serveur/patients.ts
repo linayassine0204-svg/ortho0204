@@ -1,5 +1,10 @@
 import type { Prisma, PrismaClient } from "@app/db";
-import type { ModificationPatient, NouveauPatient, RecherchePatients } from "@app/shared";
+import type {
+  ModificationPatient,
+  NouveauPatient,
+  PatientBibliotheque,
+  RecherchePatients,
+} from "@app/shared";
 import {
   can,
   type Acteur,
@@ -300,6 +305,34 @@ export async function lireFiche(prisma: PrismaClient, acteur: Acteur, patientId:
   };
 }
 export type Fiche = Awaited<ReturnType<typeof lireFiche>>;
+
+/**
+ * Patient réduit à ce qu'il faut pour pré-régler la bibliothèque (âge, pathologies).
+ * À appeler APRÈS la vérification des droits sur ce patient.
+ */
+export async function patientPourBibliotheque(
+  prisma: PrismaClient,
+  patientId: string,
+): Promise<PatientBibliotheque> {
+  const p = await prisma.patient.findUniqueOrThrow({
+    where: { id: patientId },
+    select: {
+      id: true,
+      prenom: true,
+      dateNaissance: true,
+      pathologies: { select: { categorie: { select: { slug: true, nom: true } } } },
+    },
+  });
+  return {
+    id: p.id,
+    prenom: p.prenom,
+    age: ageEnAnnees(p.dateNaissance),
+    pathologies: p.pathologies
+      .map((x) => x.categorie)
+      .sort((a, b) => a.nom.localeCompare(b.nom, "fr"))
+      .map((c) => c.slug),
+  };
+}
 
 /** Âge en années révolues. */
 export function ageEnAnnees(naissance: Date, aujourdhui = new Date()): number {

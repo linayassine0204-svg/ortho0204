@@ -143,10 +143,11 @@ describe("composition du programme", () => {
   it("réordonne et retire (retrait doux : la ligne reste en base)", async () => {
     const { patient } = await famille();
     const ids: string[] = [];
+    const id = (i: number) => ids[i] as string;
     for (const exerciceId of exercices) {
       ids.push((await ajout(patient.id, { exerciceId, niveau: 1 })).corps.element.elementId);
     }
-    const nouvelOrdre = [ids[2], ids[0], ids[1]];
+    const nouvelOrdre = [id(2), id(0), id(1)];
     const r = await appeler(ordre, {
       methode: "PUT",
       cookie: cookieOrtho,
@@ -159,14 +160,14 @@ describe("composition du programme", () => {
       methode: "PUT",
       cookie: cookieOrtho,
       params: { id: patient.id },
-      corps: { elementIds: [ids[0]] },
+      corps: { elementIds: [id(0)] },
     });
     expect(incomplet.status).toBe(400);
 
     const d = await appeler(retirer, {
       methode: "DELETE",
       cookie: cookieOrtho,
-      params: { id: patient.id, elementId: ids[0] },
+      params: { id: patient.id, elementId: id(0) },
     });
     expect(d.status).toBe(204);
     const b = await appeler(brouillon, { cookie: cookieOrtho, params: { id: patient.id } });
@@ -174,7 +175,7 @@ describe("composition du programme", () => {
       ids[2],
       ids[1],
     ]);
-    expect(await db().elementProgramme.count({ where: { id: ids[0] } })).toBe(1);
+    expect(await db().elementProgramme.count({ where: { id: id(0) } })).toBe(1);
   });
 
   it("ÉCHEC : exercice d'un autre cabinet, ou inexistant", async () => {
