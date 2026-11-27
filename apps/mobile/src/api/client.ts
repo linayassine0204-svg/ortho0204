@@ -35,6 +35,8 @@ interface JetonsRanges {
 const CLE_JETONS = "session.jetons";
 /** Marge avant expiration pour renouveler sans attendre un refus. */
 const MARGE_MS = 30_000;
+/** Au-delà, on considère le serveur injoignable (au lieu d'attendre sans fin). */
+export const DELAI_MAX_MS = 15_000;
 
 export interface ClientApi {
   connexion(email: string, motDePasse: string): Promise<void>;
@@ -50,8 +52,10 @@ export function creerClientApi(dependances: {
   coffre: Coffre;
   fetch?: typeof fetch;
   maintenant?: () => number;
+  delaiMaxMs?: number;
 }): ClientApi {
   const { baseUrl, coffre } = dependances;
+  const delaiMaxMs = dependances.delaiMaxMs ?? DELAI_MAX_MS;
   const fetcher = dependances.fetch ?? ((...a: Parameters<typeof fetch>) => fetch(...a));
   const maintenant = dependances.maintenant ?? Date.now;
   let renouvellementEnCours: Promise<JetonsRanges | null> | null = null;
@@ -77,13 +81,19 @@ export function creerClientApi(dependances: {
   }
 
   async function appel(chemin: string, init: RequestInit = {}): Promise<Response> {
+    const abandon = new AbortController();
+    const minuteur = setTimeout(() => abandon.abort(), delaiMaxMs);
     try {
       return await fetcher(`${baseUrl}${chemin}`, {
         ...init,
         headers: { Accept: "application/json", ...(init.headers ?? {}) },
+        signal: abandon.signal,
       });
     } catch {
+      // Pas de réseau, serveur injoignable ou trop lent : même traitement (cache possible).
       throw new ErreurReseau();
+    } finally {
+      clearTimeout(minuteur);
     }
   }
 

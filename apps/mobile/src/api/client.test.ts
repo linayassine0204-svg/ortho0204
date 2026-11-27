@@ -88,4 +88,18 @@ describe("client API mobile", () => {
     expect(await client.estConnecte()).toBe(false);
     expect(serveur.etat.appels).toContain("POST /auth/deconnexion");
   });
+
+  it("serveur qui ne répond pas : abandon après le délai maximal (ErreurReseau)", async () => {
+    const jamais = (_u: RequestInfo | URL, init?: RequestInit) =>
+      new Promise<Response>((_, refuser) => {
+        init?.signal?.addEventListener("abort", () => refuser(new Error("abandon")));
+      });
+    const client = creerClientApi({
+      baseUrl: "https://api.exemple.test/api",
+      coffre: coffreMemoire(),
+      fetch: jamais as typeof fetch,
+      delaiMaxMs: 20,
+    });
+    await expect(client.connexion(parent.email, MOT_DE_PASSE)).rejects.toBeInstanceOf(ErreurReseau);
+  });
 });
