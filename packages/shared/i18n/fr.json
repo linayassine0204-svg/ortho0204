@@ -258,7 +258,77 @@
   "mobile": {
     "accueil": {
       "titre": "Bienvenue",
-      "sousTitre": "Application des parents et des patients."
+      "sousTitre": "Les exercices de votre {{terme.professionnel}}, à la maison.",
+      "invitation": "J'ai reçu une invitation",
+      "connexion": "J'ai déjà un compte"
+    },
+    "commun": {
+      "retour": "Retour",
+      "chargement": "Chargement…",
+      "reessayer": "Réessayer",
+      "deconnexion": "Se déconnecter"
+    },
+    "invitation": {
+      "titre": "Activer mon compte",
+      "explication": "Collez le lien reçu de votre {{terme.professionnel}}, puis choisissez votre mot de passe.",
+      "lien": "Lien d'invitation",
+      "lienInvalide": "Ce lien n'est pas reconnu. Copiez le lien complet reçu de votre {{terme.professionnel}}.",
+      "prenom": "Prénom",
+      "nom": "Nom",
+      "motDePasse": "Mot de passe (12 caractères au moins)",
+      "dejaUnCompte": "Vous avez déjà un compte parent ? Laissez le prénom et le nom vides et saisissez votre mot de passe actuel.",
+      "bouton": "Activer mon compte",
+      "succes": "Votre compte est prêt. Connectez-vous avec votre adresse e-mail et votre mot de passe."
+    },
+    "connexion": {
+      "titre": "Connexion",
+      "email": "Adresse e-mail",
+      "motDePasse": "Mot de passe",
+      "bouton": "Se connecter",
+      "reserveeFamilles": "Cette application est réservée aux parents et aux patients. Utilisez le logiciel web."
+    },
+    "profil": {
+      "titre": "Qui fait les exercices ?",
+      "aucun": "Aucun enfant n'est encore relié à votre compte. Demandez une invitation à votre {{terme.professionnel}}.",
+      "consentementRequis": "Votre accord est nécessaire avant de voir ce programme. Donnez-le depuis votre espace sur le site web.",
+      "choisir": "Choisir {{prenom}}",
+      "changer": "Changer d'enfant"
+    },
+    "onglets": {
+      "aujourdhui": "Aujourd'hui",
+      "conseils": "Conseils",
+      "messages": "Messages"
+    },
+    "aujourdhui": {
+      "titre": "Aujourd'hui",
+      "bonjour": "Bonjour {{prenom}} !",
+      "aucunExercice": "Pas d'exercice prévu aujourd'hui. Profitez-en !",
+      "aucunProgramme": "Votre {{terme.professionnel}} n'a pas encore envoyé de programme.",
+      "dansLaSemaine": "À placer dans la semaine",
+      "foisParSemaine": "{{n}} fois cette semaine",
+      "horsLigne": "Hors connexion. Programme enregistré le {{date}}.",
+      "horsLigneSansCache": "Pas de connexion internet et aucun programme enregistré sur ce téléphone.",
+      "erreur": "Le programme n'a pas pu être chargé."
+    },
+    "exercice": {
+      "niveau": "Niv. {{n}}",
+      "niveauLong": "Niveau {{n}} sur 3",
+      "duree": "{{n}} min",
+      "dureeLongue": "{{n}} minutes",
+      "materiel": "Matériel : {{liste}}",
+      "motPro": "Le mot de votre {{terme.professionnel}}",
+      "aValider": "Exemple à valider"
+    },
+    "conseils": {
+      "titre": "Conseils",
+      "vide": "Les conseils de votre {{terme.professionnel}} apparaîtront ici."
+    },
+    "messages": {
+      "titre": "Messages",
+      "bientot": "La messagerie arrive bientôt."
+    },
+    "erreurs": {
+      "reseau": "Pas de connexion internet. Vérifiez votre réseau puis réessayez."
     }
   },
   "erreurs": {
