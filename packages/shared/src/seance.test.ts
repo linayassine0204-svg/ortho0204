@@ -323,7 +323,7 @@ describe("résumé de la maison", () => {
     const r = resumeMaison({
       depuis: "2026-11-23",
       aujourdhui: "2026-11-24",
-      elements: [elements[0]!],
+      elements: elements.slice(0, 1),
       realisations: [
         { elementId: "e1", jour: "2026-11-23", ...fait },
         { elementId: "e1", jour: "2026-11-23", ...fait },

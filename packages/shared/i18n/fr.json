@@ -589,8 +589,7 @@
     "audioTropGros": "Cet enregistrement est trop long.",
     "datePassee": "La date choisie est déjà passée.",
     "dejaDansSeance": "Cet exercice est déjà dans la séance.",
-    "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus.",
-    "seanceVide": "Aucun exercice retenu dans la séance."
+    "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus."
   },
   "consentement": {
     "donneesSante": {

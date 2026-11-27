@@ -18,6 +18,10 @@ export const REALISATIONS_POUR_JUGER = 3;
 /** Score moyen à atteindre (part du « sur N ») pour des résultats « bons ». */
 export const SEUIL_SCORE_BON = 0.8;
 
+/** D'où vient un exercice de la séance. */
+export const ORIGINES_ELEMENT = ["PROPOSITION", "BIBLIOTHEQUE", "COPIE"] as const;
+export type OrigineElement = (typeof ORIGINES_ELEMENT)[number];
+
 export const RAISONS_PROPOSITION = ["NIVEAU_SUIVANT", "NIVEAU_EN_COURS", "NOUVEAU"] as const;
 export type RaisonProposition = (typeof RAISONS_PROPOSITION)[number];
 

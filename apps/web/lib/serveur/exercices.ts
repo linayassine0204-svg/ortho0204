@@ -46,7 +46,7 @@ function versBibliotheque(e: ExerciceCharge, acteur: Acteur): ExerciceBibliotheq
  * que le composant <BibliothequeSelecteur>. Double contrôle : filtre en base, puis `can()`.
  */
 export async function listerExercices(
-  prisma: PrismaClient,
+  prisma: PrismaClient | Prisma.TransactionClient,
   acteur: Acteur,
   filtres: FiltresBibliotheque = FILTRES_VIDES,
 ): Promise<ExerciceBibliotheque[]> {

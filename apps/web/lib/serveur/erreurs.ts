@@ -37,6 +37,9 @@ export const erreurs = {
   /** Date d'envoi d'un conseil avant aujourd'hui. */
   datePassee: () => new ErreurApi(400, "date_passee", "erreurs.datePassee"),
   audioTropGros: () => new ErreurApi(413, "audio_trop_gros", "erreurs.audioTropGros"),
+  dejaDansSeance: () => new ErreurApi(409, "deja_dans_seance", "erreurs.dejaDansSeance"),
+  /** Une séance terminée ne se modifie plus (ses notes restent consultables). */
+  seanceTerminee: () => new ErreurApi(409, "seance_terminee", "erreurs.seanceTerminee"),
 };
 
 export function corpsErreur(erreur: ErreurApi) {
