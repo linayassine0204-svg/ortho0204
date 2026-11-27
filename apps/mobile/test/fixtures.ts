@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ElementEnvoye } from "@app/shared";
+import type { ConseilRecu, ElementEnvoye } from "@app/shared";
 import type { EnregistreurVoix } from "../src/audio/types";
 import type { Profil, ProgrammeEnvoye } from "../src/session/types";
 
@@ -125,8 +125,29 @@ export const comptes: Compte[] = [
  * Faux serveur (remplace `fetch`) : connexion mobile, renouvellement, compte, patients,
  * programme. `horsLigne = true` simule l'absence de réseau.
  */
-export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvoye | null> } = {}) {
+/** Conseil reçu fictif (proche du seed : « Lire ensemble chaque soir »). */
+export function conseilRecu(partiel: Partial<ConseilRecu> = {}): ConseilRecu {
+  return {
+    envoiId: "env-lecture",
+    conseilId: "c-lecture",
+    titre: "Lire ensemble chaque soir",
+    aFaire: ["Lisez une courte histoire ensemble.", "Laissez-le lire un mot sur deux."],
+    aEviter: ["Prolonger la lecture quand il est fatigué."],
+    aValider: true,
+    envoyeLe: "2026-11-24T09:00:00.000Z",
+    luLe: null,
+    ...partiel,
+  };
+}
+
+export function fauxServeur(
+  options: {
+    programmes?: Record<string, ProgrammeEnvoye | null>;
+    conseils?: Record<string, ConseilRecu[]>;
+  } = {},
+) {
   const programmes = options.programmes ?? { "p-lea": programmeLea, "p-paul": programmeLea };
+  const conseils = options.conseils ?? { "p-lea": [conseilRecu()] };
   const sessions = new Map<string, Compte>();
   const renouvellements = new Map<string, Compte>();
   let n = 0;
@@ -248,6 +269,23 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
       r.voix += 1;
       return reponse(201, { enregistrement: { id: "v" } });
     }
+    const recus = /^\/patients\/([^/]+)\/conseils\/recus$/.exec(chemin);
+    if (recus) {
+      const p = patientDe(recus[1]);
+      // Comme le vrai serveur : conseils réservés aux parents.
+      if (!p || compte.utilisateur.role !== "PARENT") return erreur(404, "introuvable");
+      if (p.consentementRequis) return erreur(403, "consentement_requis");
+      return reponse(200, { conseils: conseils[p.id] ?? [] });
+    }
+    const lu = /^\/patients\/([^/]+)\/conseils\/envois\/([^/]+)\/lu$/.exec(chemin);
+    if (lu) {
+      const c = (conseils[lu[1] ?? ""] ?? []).find((x) => x.envoiId === lu[2]);
+      if (!patientDe(lu[1]) || !c || compte.utilisateur.role !== "PARENT") {
+        return erreur(404, "introuvable");
+      }
+      c.luLe ??= "2026-11-27T09:05:00.000Z";
+      return reponse(200, { luLe: c.luLe });
+    }
     const m = /^\/patients\/([^/]+)\/programme\/semaine$/.exec(chemin);
     if (m) {
       const p = compte.patients.find((x) => x.id === m[1]);
@@ -258,7 +296,7 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
     return erreur(404, "introuvable");
   };
 
-  return { fetch: fetch as typeof globalThis.fetch, etat, sessions };
+  return { fetch: fetch as typeof globalThis.fetch, etat, sessions, conseils };
 }
 
 /** Enregistreur de voix fictif (pas de micro en test) : 5 secondes « enregistrées ». */

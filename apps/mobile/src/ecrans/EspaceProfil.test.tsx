@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { profil, programmeLea, VENDREDI } from "../../test/fixtures";
+import { conseilRecu, profil, programmeLea, VENDREDI } from "../../test/fixtures";
 import type { ChargementProgramme } from "../donnees/programme";
 import { EspaceProfil } from "./EspaceProfil";
 
@@ -37,11 +37,31 @@ describe("<EspaceProfil> : barre d'onglets", () => {
     expect(screen.queryByRole("tab", { name: "Messages" })).toBeNull();
   });
 
-  it("l'onglet Conseils est vide pour l'instant", async () => {
-    afficher(false);
+  it("onglet Conseils : la liste des conseils reçus", async () => {
+    render(
+      <EspaceProfil
+        profil={profil({ messagerieActivee: false })}
+        chargerProgramme={charger}
+        chargerConseils={async () => ({ etat: "ok", conseils: [conseilRecu()] })}
+        onDeconnexion={vi.fn()}
+        maintenant={() => VENDREDI}
+      />,
+    );
     fireEvent.click(screen.getByRole("tab", { name: "Conseils" }));
-    expect(
-      await screen.findByText("Les conseils de votre orthophoniste apparaîtront ici."),
-    ).toBeTruthy();
+    expect(await screen.findByText("Lire ensemble chaque soir")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "J'ai compris" })).toBeTruthy();
+  });
+
+  it("patient adulte sans messagerie : ni Conseils ni barre d'onglets", () => {
+    render(
+      <EspaceProfil
+        profil={profil({ messagerieActivee: false })}
+        role="PATIENT_ADULT"
+        chargerProgramme={charger}
+        onDeconnexion={vi.fn()}
+        maintenant={() => VENDREDI}
+      />,
+    );
+    expect(screen.queryByRole("tab")).toBeNull();
   });
 });

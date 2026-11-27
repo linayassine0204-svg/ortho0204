@@ -4,18 +4,25 @@ import { t, type ElementEnvoye } from "@app/shared";
 import type { EnregistreurVoix } from "../audio/types";
 import { BarreOnglets } from "../composants/BarreOnglets";
 import { Bouton } from "../composants/Bouton";
+import type { ChargementConseils } from "../donnees/conseils";
 import type { ChargementProgramme } from "../donnees/programme";
 import type { AudioLocal, FaitLocal, ServiceRealisations } from "../donnees/realisations";
 import { ongletActif, ongletsVisibles, type Onglet } from "../navigation/onglets";
 import type { Profil } from "../session/types";
 import { palette } from "../theme";
 import { EcranAujourdhui } from "./EcranAujourdhui";
+import { EcranConseils } from "./EcranConseils";
 import { EcranExercice } from "./EcranExercice";
 import { EcranVide } from "./EcranVide";
 
 interface Props {
   profil: Profil;
   chargerProgramme: () => Promise<ChargementProgramme>;
+  /** Compte connecté : un parent voit l'onglet Conseils, pas le patient adulte. */
+  role?: "PARENT" | "PATIENT_ADULT";
+  chargerConseils?: () => Promise<ChargementConseils>;
+  /** « J'ai compris » sur un conseil reçu (renvoie la date de lecture). */
+  marquerConseilLu?: (envoiId: string) => Promise<string>;
   /** Parent : revenir à « Qui fait les exercices ? ». Absent pour un patient adulte. */
   onChangerProfil?: () => void;
   onDeconnexion: () => void;
@@ -40,6 +47,9 @@ const enregistreurAbsent: EnregistreurVoix = {
 export function EspaceProfil({
   profil,
   chargerProgramme,
+  role = "PARENT",
+  chargerConseils = async () => ({ etat: "ok", conseils: [] }),
+  marquerConseilLu = async () => new Date().toISOString(),
   onChangerProfil,
   onDeconnexion,
   maintenant,
@@ -49,7 +59,7 @@ export function EspaceProfil({
   donnerAccordAudio = async () => undefined,
   versionSynchro = 0,
 }: Props) {
-  const onglets = ongletsVisibles(profil);
+  const onglets = ongletsVisibles({ messagerieActivee: profil.messagerieActivee, role });
   const [choix, setChoix] = useState<Onglet>("aujourdhui");
   const actif = ongletActif(choix, onglets);
   const [ouvert, setOuvert] = useState<{ exercice: ElementEnvoye; suite: ElementEnvoye[] } | null>(
@@ -150,13 +160,13 @@ export function EspaceProfil({
             {...(maintenant ? { maintenant } : {})}
           />
         ) : actif === "conseils" ? (
-          <EcranVide titre={t("mobile.conseils.titre")} texte={t("mobile.conseils.vide")} />
+          <EcranConseils charger={chargerConseils} marquerLu={marquerConseilLu} />
         ) : (
           // Messagerie : tâche 11. L'onglet n'existe que si elle est activée.
           <EcranVide titre={t("mobile.messages.titre")} texte={t("mobile.messages.bientot")} />
         )}
       </View>
-      <BarreOnglets onglets={onglets} actif={actif} onChoisir={setChoix} />
+      {onglets.length > 1 && <BarreOnglets onglets={onglets} actif={actif} onChoisir={setChoix} />}
     </View>
   );
 }

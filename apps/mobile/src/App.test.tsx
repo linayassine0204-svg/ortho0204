@@ -98,7 +98,23 @@ describe("parcours dans l'application", () => {
     expect(await screen.findByText("Bonjour Paul !")).toBeTruthy();
     expect(screen.queryByText("Qui fait les exercices ?")).toBeNull();
     expect(screen.queryByRole("tab", { name: "Messages" })).toBeNull();
-    expect(screen.getByRole("tab", { name: "Conseils" })).toBeTruthy();
+    // Conseils réservés aux parents (CLAUDE.md) : pas d'onglet pour le patient adulte.
+    expect(screen.queryByRole("tab", { name: "Conseils" })).toBeNull();
+  });
+
+  it("parent : onglet Conseils, « J'ai compris », le serveur enregistre la lecture", async () => {
+    const tel = telephone();
+    render(<App dependances={tel.dependances()} />);
+    await seConnecter("parent.lea@exemple.test");
+    fireEvent.click(await screen.findByRole("button", { name: "Choisir Léa" }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Conseils" }));
+    expect(await screen.findByText("Lire ensemble chaque soir")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "J'ai compris" }));
+    expect(await screen.findByText("Lu ✓")).toBeTruthy();
+    expect(tel.serveur.etat.appels).toContain(
+      "POST /patients/p-lea/conseils/envois/env-lecture/lu",
+    );
+    expect(tel.serveur.conseils["p-lea"]?.[0]?.luLe).toBeTruthy();
   });
 
   it("mauvais mot de passe : message d'erreur, reste sur la connexion", async () => {

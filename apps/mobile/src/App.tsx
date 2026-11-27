@@ -6,6 +6,7 @@ import { t } from "@app/shared";
 import { ErreurApi } from "./api/client";
 import { messageErreur } from "./api/erreurs";
 import { dependancesTelephone, type Dependances } from "./dependances";
+import { chargerConseils, marquerConseilLu } from "./donnees/conseils";
 import { chargerProgramme } from "./donnees/programme";
 import { chargerInfosSession, type InfosSession } from "./donnees/session";
 import { EcranAccueil } from "./ecrans/EcranAccueil";
@@ -134,6 +135,22 @@ export default function App({ dependances }: { dependances?: Dependances }) {
       throw e;
     }
   }, [client, cache, maintenant, profil, quitter]);
+  const conseils = useCallback(async () => {
+    if (!profil) throw new Error("profil absent");
+    try {
+      return await chargerConseils(client, profil.patientId);
+    } catch (e) {
+      if (e instanceof ErreurApi && e.status === 401) await quitter(t("erreurs.nonConnecte"));
+      throw e;
+    }
+  }, [client, profil, quitter]);
+  const conseilLu = useCallback(
+    (envoiId: string) => {
+      if (!profil) throw new Error("profil absent");
+      return marquerConseilLu(client, profil.patientId, envoiId);
+    },
+    [client, profil],
+  );
 
   return (
     <SafeAreaProvider>
@@ -194,6 +211,9 @@ export default function App({ dependances }: { dependances?: Dependances }) {
             key={etat.profil.patientId}
             profil={etat.profil}
             chargerProgramme={charger}
+            role={infos.utilisateur.role === "PATIENT_ADULT" ? "PATIENT_ADULT" : "PARENT"}
+            chargerConseils={conseils}
+            marquerConseilLu={conseilLu}
             maintenant={maintenant}
             realisations={realisations}
             enregistreur={enregistreur}
