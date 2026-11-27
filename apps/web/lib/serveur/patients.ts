@@ -75,7 +75,7 @@ export async function patientAutorise(
       ...ressource,
       consentementIds: [...ressource.consentementIds, acteur.id],
     };
-    if (action === "lire" && can(acteur, "lire", avecConsentement)) {
+    if ((action === "lire" || action === "realiser") && can(acteur, action, avecConsentement)) {
       throw erreurs.consentementRequis();
     }
     throw erreurs.introuvable();
@@ -125,6 +125,8 @@ export type PatientListe =
       pathologies?: { id: string; nom: string; slug: string }[];
       /** Familles seulement : le mobile affiche l'onglet Messages si `true`. */
       messagerieActivee?: boolean;
+      /** Familles seulement : accord de CE compte pour enregistrer la voix. */
+      accordAudio?: boolean;
     }
   | { id: string; prenom: string; consentementRequis: true };
 
@@ -133,7 +135,8 @@ export type PatientListe =
  * Double contrôle : filtre en base, puis `can()` sur chaque ligne.
  * Une famille sans consentement ne reçoit que le prénom (pour l'écran de consentement).
  * Une famille reçoit aussi `messagerieActivee` (onglet Messages du mobile ; l'API de
- * messagerie revérifie de toute façon avec `can()`).
+ * messagerie revérifie de toute façon avec `can()`) et `accordAudio` (son propre accord
+ * pour l'enregistrement de la voix).
  */
 export async function listerPatientsVisibles(
   prisma: PrismaClient,
@@ -148,6 +151,23 @@ export async function listerPatientsVisibles(
     },
     orderBy: [{ prenom: "asc" }, { nom: "asc" }],
   });
+  // Accords « enregistrement de la voix » de ce compte (familles seulement).
+  const accordsAudio =
+    acteur.role === "ORTHO"
+      ? new Set<string>()
+      : new Set(
+          (
+            await prisma.consentement.findMany({
+              where: {
+                userId: acteur.id,
+                type: "ENREGISTREMENT_AUDIO",
+                retire: false,
+                patientId: { in: patients.map((p) => p.id) },
+              },
+              select: { patientId: true },
+            })
+          ).map((c) => c.patientId),
+        );
   const resultat: PatientListe[] = [];
   for (const p of patients) {
     const ressource = ressourcePatient(p);
@@ -170,6 +190,7 @@ export async function listerPatientsVisibles(
               prenom: p.prenom,
               dateNaissance: p.dateNaissance,
               messagerieActivee: messagerieActivee(p),
+              accordAudio: accordsAudio.has(p.id),
             },
       );
     } else if (can(acteur, "consentir", ressource)) {

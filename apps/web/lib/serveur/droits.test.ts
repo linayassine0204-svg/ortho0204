@@ -156,6 +156,32 @@ describe("can() — consentement de la famille", () => {
   });
 });
 
+describe("can() — faire un exercice du programme (réalisation)", () => {
+  const programme = (r: RessourcePatient) => section(r, "programme");
+
+  it("le parent relié, avec son consentement, peut enregistrer une réalisation", () => {
+    expect(can(parent, "realiser", programme(enfant))).toBe(true);
+  });
+
+  it("le patient adulte, pour son propre programme", () => {
+    expect(can(adulte, "realiser", programme(dossierAdulte))).toBe(true);
+  });
+
+  it("ÉCHEC : un autre parent, un autre patient, un autre cabinet", () => {
+    expect(can(autreParent, "realiser", programme(enfant))).toBe(false);
+    expect(can(autreAdulte, "realiser", programme(dossierAdulte))).toBe(false);
+    expect(can(adulte, "realiser", programme(enfant))).toBe(false);
+    expect(can(parent, "realiser", programme({ ...enfant, cabinetId: "cab-b" }))).toBe(false);
+  });
+
+  it("ÉCHEC : sans consentement, hors du programme, ou pour l'orthophoniste", () => {
+    expect(can(parent, "realiser", programme({ ...enfant, consentementIds: [] }))).toBe(false);
+    expect(can(parent, "realiser", enfant)).toBe(false);
+    expect(can(parent, "realiser", section(enfant, "suivi"))).toBe(false);
+    expect(can(ortho, "realiser", programme(enfant))).toBe(false);
+  });
+});
+
 describe("can() — messagerie désactivée", () => {
   it("refuse la messagerie à tout le monde, y compris l'orthophoniste", () => {
     const sansMessagerie = { ...enfant, messagerieActivee: false, section: "messagerie" as const };

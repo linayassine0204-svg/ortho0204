@@ -14,9 +14,11 @@ export interface Acteur {
  * - lire, modifier, supprimer : sur un patient ;
  * - inviter : envoyer un lien d'invitation pour un patient ;
  * - consentir : donner ou retirer son propre consentement pour un patient ;
- * - creer : créer un patient dans un cabinet.
+ * - creer : créer un patient dans un cabinet ;
+ * - realiser : enregistrer qu'un exercice du programme a été fait (famille seulement).
  */
-export type Action = "lire" | "modifier" | "supprimer" | "inviter" | "consentir" | "creer";
+export type Action =
+  "lire" | "modifier" | "supprimer" | "inviter" | "consentir" | "creer" | "realiser";
 
 /** Sous-parties du dossier patient (/patients/[id]/[section]). */
 export const SECTIONS_PATIENT = [
@@ -88,8 +90,8 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
 
   switch (acteur.role) {
     case "ORTHO":
-      // L'orthophoniste ne consent pas à la place de la famille.
-      return action !== "consentir" && action !== "creer";
+      // L'orthophoniste ne consent pas et ne fait pas les exercices à la place de la famille.
+      return action !== "consentir" && action !== "creer" && action !== "realiser";
     case "PARENT":
     case "PATIENT_ADULT": {
       const lie =
@@ -98,8 +100,10 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
           : patient.compteUserId === acteur.id;
       if (!lie) return false;
       if (action === "consentir") return true;
-      if (action !== "lire") return false;
       if (!patient.consentementIds.includes(acteur.id)) return false;
+      // Faire un exercice : seulement sur le programme, avec le consentement.
+      if (action === "realiser") return patient.section === "programme";
+      if (action !== "lire") return false;
       return (
         patient.section === undefined || SECTIONS_FAMILLE[acteur.role].includes(patient.section)
       );

@@ -10,7 +10,7 @@ export async function journaliserAcces(
   entree: {
     userId: string;
     patientId: string;
-    section?: SectionPatient | "resume" | "documents";
+    section?: SectionPatient | "resume" | "documents" | "enregistrement";
     action?: ActionAcces;
   },
 ): Promise<void> {

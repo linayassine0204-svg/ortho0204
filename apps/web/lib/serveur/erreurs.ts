@@ -30,6 +30,11 @@ export const erreurs = {
   programmeVide: () => new ErreurApi(400, "programme_vide", "erreurs.programmeVide"),
   exerciceUtilise: () => new ErreurApi(409, "exercice_utilise", "erreurs.exerciceUtilise"),
   documentTropGros: () => new ErreurApi(413, "document_trop_gros", "erreurs.documentTropGros"),
+  /** Enregistrement de la voix sans l'accord facultatif du compte. */
+  consentementAudioRequis: () =>
+    new ErreurApi(403, "consentement_audio_requis", "erreurs.consentementAudioRequis"),
+  audioTypeRefuse: () => new ErreurApi(415, "audio_type_refuse", "erreurs.audioTypeRefuse"),
+  audioTropGros: () => new ErreurApi(413, "audio_trop_gros", "erreurs.audioTropGros"),
 };
 
 export function corpsErreur(erreur: ErreurApi) {

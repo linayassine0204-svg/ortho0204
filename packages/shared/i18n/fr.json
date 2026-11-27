@@ -353,7 +353,10 @@
     "pathologieInconnue": "Une pathologie choisie n'existe pas.",
     "exerciceUtilise": "Cet exercice est utilisé dans un programme : il ne peut pas être supprimé.",
     "niveauLimite": "Ce niveau ne peut pas aller plus loin (niveaux 1 à 3).",
-    "programmeVide": "Ajoutez au moins un exercice avant d'envoyer le programme."
+    "programmeVide": "Ajoutez au moins un exercice avant d'envoyer le programme.",
+    "consentementAudioRequis": "Votre accord est nécessaire avant d'enregistrer la voix.",
+    "audioTypeRefuse": "Ce format d'enregistrement n'est pas accepté.",
+    "audioTropGros": "Cet enregistrement est trop long."
   },
   "consentement": {
     "donneesSante": {
