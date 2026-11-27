@@ -148,8 +148,35 @@ describe("seed : données fictives", () => {
       where: { estModele: true },
       include: { etiquettes: true },
     });
-    expect(modeles.length).toBeGreaterThan(0);
-    for (const m of modeles) expect(m.etiquettes.length).toBeGreaterThan(0);
+    expect(modeles.length).toBeGreaterThanOrEqual(15);
+    for (const m of modeles) {
+      expect(m.etiquettes.length, m.titre).toBeGreaterThan(0);
+      // Deux blocs remplis, et jamais présentés comme validés médicalement.
+      expect(m.aFaire.length, m.titre).toBeGreaterThan(0);
+      expect(m.aEviter.length, m.titre).toBeGreaterThan(0);
+      expect(m.aValider, m.titre).toBe(true);
+      expect(m.ageMin ?? m.ageMax, m.titre).not.toBeNull();
+    }
+  });
+
+  it("couvre chaque pathologie par au moins un conseil pré-fait", async () => {
+    const categories = await prisma.categorie.findMany({
+      include: { etiquettes: { where: { conseil: { estModele: true } } } },
+    });
+    for (const c of categories) expect(c.etiquettes.length, c.slug).toBeGreaterThan(0);
+  });
+
+  it("envoie des conseils fictifs : Léa chaque semaine (un lu), Tom une fois (pas lu)", async () => {
+    const lea = await prisma.envoiConseil.findMany({
+      where: { patientId: ids.patients.lea },
+      orderBy: { envoyeLe: "asc" },
+    });
+    expect(lea.map((e) => [e.repetition, e.luParId])).toEqual([
+      ["HEBDOMADAIRE", ids.parents.lea],
+      ["HEBDOMADAIRE", null],
+    ]);
+    const tom = await prisma.envoiConseil.findMany({ where: { patientId: ids.patients.tom } });
+    expect(tom.map((e) => [e.repetition, e.luLe])).toEqual([["UNE_FOIS", null]]);
   });
 
   it("peut être relancé et donne toujours le même résultat", async () => {

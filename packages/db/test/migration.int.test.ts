@@ -27,6 +27,7 @@ const TABLES_ATTENDUES = [
   "patient",
   "patient_pathologie",
   "piece_jointe",
+  "plan_conseil",
   "programme",
   "realisation",
   "reglage_patient",
@@ -118,6 +119,34 @@ describe("contraintes", () => {
     ).rejects.toThrow();
   });
 
+  it("refuse un conseil sans aucune ligne « À faire » ni « À éviter »", async () => {
+    const conseil = await prisma.conseil.findFirstOrThrow({ where: { estModele: true } });
+    await expect(
+      prisma.conseil.update({ where: { id: conseil.id }, data: { aFaire: [], aEviter: [] } }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse une répétition de conseil autre que « une fois » ou « chaque semaine »", async () => {
+    const plan = await prisma.planConseil.findFirstOrThrow();
+    await expect(
+      prisma.planConseil.update({ where: { id: plan.id }, data: { repetition: "QUOTIDIENNE" } }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse deux fois la même occurrence d'une répétition de conseil", async () => {
+    const envoi = await prisma.envoiConseil.findFirstOrThrow({ where: { planId: { not: null } } });
+    await expect(
+      prisma.envoiConseil.create({
+        data: {
+          conseilId: envoi.conseilId,
+          patientId: envoi.patientId,
+          planId: envoi.planId,
+          envoyeLe: envoi.envoyeLe,
+        },
+      }),
+    ).rejects.toThrow();
+  });
+
   it("refuse un âge maximum inférieur à l'âge minimum", async () => {
     const exercice = await prisma.exercice.findFirstOrThrow();
     await expect(
@@ -179,6 +208,7 @@ describe("suppressions", () => {
       "seance",
       "bilan",
       "envoi_conseil",
+      "plan_conseil",
       "lien_tuteur",
       "patient_pathologie",
     ]) {

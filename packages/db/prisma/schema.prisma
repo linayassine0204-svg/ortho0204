@@ -122,6 +122,8 @@ model User {
   programmesCrees   Programme[]
   realisations      Realisation[]
   conseilsEnvoyes   EnvoiConseil[]
+  conseilsLus       EnvoiConseil[]     @relation("ConseilsLus")
+  plansConseil      PlanConseil[]
   seances           Seance[]
   bilans            Bilan[]
   messages          Message[]
@@ -217,6 +219,7 @@ model Patient {
   consentements Consentement[]
   programmes    Programme[]
   envoisConseil EnvoiConseil[]
+  plansConseil  PlanConseil[]
   conseils      Conseil[]
   seances       Seance[]
   bilans        Bilan[]
@@ -491,20 +494,30 @@ model Enregistrement {
 
 // ─── Conseils ────────────────────────────────────────────────────────────────
 
-/// Modèle pré-fait (estModele = true, étiquettes pathologie + âge) ou conseil personnalisé pour un patient.
+/// Modèle pré-fait (estModele = true, étiquettes pathologie + tranche d'âge) ou conseil
+/// propre à un patient (copie figée de ce qui a été envoyé : tel quel, modifié, ou écrit de zéro).
 model Conseil {
   id             String   @id @default(cuid())
   titre          String
-  contenu        String
+  /// Bloc « À faire » : une idée par ligne.
+  aFaire         String[]
+  /// Bloc « À éviter » : une idée par ligne.
+  aEviter        String[]
   estModele      Boolean  @default(false)
+  /// Contenu d'exemple NON vérifié médicalement (« à valider par un orthophoniste »).
+  /// Reste vrai sur un conseil adapté d'un exemple.
+  aValider       Boolean  @default(false)
+  /// Tranche d'âge (en années) d'un modèle. null = pas de limite.
   ageMin         Int?
   ageMax         Int?
   /// null = modèle commun ; sinon propre à un cabinet.
   cabinetId      String?
-  /// Rempli pour un conseil personnalisé.
+  /// Rempli pour un conseil propre à un patient.
   patientId      String?
-  /// Modèle dont ce conseil a été adapté.
+  /// Modèle dont ce conseil a été copié (tel quel ou modifié).
   modeleSourceId String?
+  /// Vrai si le texte a été changé par rapport au modèle avant l'envoi.
+  modifie        Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -514,6 +527,7 @@ model Conseil {
   adaptations  Conseil[]          @relation("Adaptation")
   etiquettes   ConseilEtiquette[]
   envois       EnvoiConseil[]
+  plans        PlanConseil[]
 
   @@index([estModele])
   @@index([patientId])
@@ -534,19 +548,51 @@ model ConseilEtiquette {
   @@map("conseil_etiquette")
 }
 
+/// Planification de l'envoi d'un conseil : une fois (maintenant ou à une date choisie)
+/// ou chaque semaine. Les envois dus sont créés à la lecture (voir docs/CONSEILS.md).
+model PlanConseil {
+  id            String     @id @default(cuid())
+  conseilId     String
+  patientId     String
+  creeParId     String?
+  /// UNE_FOIS ou HEBDOMADAIRE.
+  repetition    Repetition
+  /// Prochain envoi prévu. null = plus rien à envoyer (terminé ou arrêté).
+  prochainEnvoi DateTime?
+  arreteLe      DateTime?
+  createdAt     DateTime   @default(now())
+
+  conseil Conseil        @relation(fields: [conseilId], references: [id], onDelete: Cascade)
+  patient Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  creePar User?          @relation(fields: [creeParId], references: [id], onDelete: SetNull)
+  envois  EnvoiConseil[]
+
+  @@index([patientId, prochainEnvoi])
+  @@index([conseilId])
+  @@map("plan_conseil")
+}
+
+/// Un envoi d'un conseil à la famille (un par occurrence d'une répétition), lu ou non.
 model EnvoiConseil {
   id          String     @id @default(cuid())
   conseilId   String
   patientId   String
+  planId      String?
   envoyeParId String?
   repetition  Repetition @default(UNE_FOIS)
   envoyeLe    DateTime   @default(now())
+  /// « J'ai compris » : quand, et par quel compte famille.
   luLe        DateTime?
+  luParId     String?
 
-  conseil   Conseil @relation(fields: [conseilId], references: [id], onDelete: Cascade)
-  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  envoyePar User?   @relation(fields: [envoyeParId], references: [id], onDelete: SetNull)
+  conseil   Conseil      @relation(fields: [conseilId], references: [id], onDelete: Cascade)
+  patient   Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  plan      PlanConseil? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  envoyePar User?        @relation(fields: [envoyeParId], references: [id], onDelete: SetNull)
+  luPar     User?        @relation("ConseilsLus", fields: [luParId], references: [id], onDelete: SetNull)
 
+  /// Une occurrence d'un plan n'est créée qu'une fois (lectures simultanées).
+  @@unique([planId, envoyeLe])
   @@index([patientId, envoyeLe])
   @@index([conseilId])
   @@map("envoi_conseil")

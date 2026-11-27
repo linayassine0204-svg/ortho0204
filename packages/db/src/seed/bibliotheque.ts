@@ -313,46 +313,266 @@ export const EXERCICES: ExerciceFictif[] = [
   },
 ];
 
+/**
+ * Conseil pré-fait pour les familles. Tranche d'âge en années (null = pas de limite).
+ * EXEMPLES NON VALIDÉS MÉDICALEMENT : ils sont tous marqués « à valider par un
+ * orthophoniste » (aValider) et doivent être relus par un professionnel avant usage réel.
+ */
 export interface ConseilFictif {
   cle: string;
   titre: string;
-  contenu: string;
+  aFaire: string[];
+  aEviter: string[];
   ageMin: number | null;
   ageMax: number | null;
   categories: SlugCategorie[];
 }
 
 export const CONSEILS_MODELES: ConseilFictif[] = [
+  // ── Langage oral ──
   {
-    cle: "lecture-partagee",
-    titre: "Lire ensemble chaque soir",
-    contenu: "Lisez une courte histoire avec votre enfant. Laissez-le lire un mot sur deux.",
-    ageMin: 5,
-    ageMax: 10,
-    categories: ["langage-ecrit"],
-  },
-  {
-    cle: "temps-de-parole",
-    titre: "Laisser le temps de parler",
-    contenu: "Ne finissez pas les phrases de votre enfant. Gardez un débit calme vous-même.",
-    ageMin: 3,
-    ageMax: 12,
-    categories: ["begaiement"],
+    cle: "parler-en-jouant",
+    titre: "Parler en jouant",
+    aFaire: [
+      "Mettez des mots sur ce que fait votre enfant pendant le jeu.",
+      "Attendez quelques secondes pour lui laisser le temps de répondre.",
+      "Proposez des jeux de « faire semblant » (dînette, garage, poupées).",
+    ],
+    aEviter: [
+      "Poser trop de questions à la suite.",
+      "Laisser la télévision allumée en fond pendant les moments de jeu.",
+    ],
+    ageMin: 2,
+    ageMax: 4,
+    categories: ["langage-oral"],
   },
   {
     cle: "reformuler",
     titre: "Reformuler sans corriger",
-    contenu: "Répétez correctement la phrase de votre enfant, sans lui demander de la redire.",
+    aFaire: [
+      "Répétez correctement la phrase de votre enfant, d'un ton naturel.",
+      "Ajoutez un petit mot ou une idée à ce qu'il a dit (« Oui, le gros chien noir court »).",
+    ],
+    aEviter: [
+      "Lui demander de répéter la phrase « comme il faut ».",
+      "Dire « non, on ne dit pas comme ça ».",
+    ],
     ageMin: 3,
     ageMax: 8,
     categories: ["langage-oral", "articulation"],
   },
   {
+    cle: "raconter-sa-journee",
+    titre: "Raconter sa journée",
+    aFaire: [
+      "Chaque soir, demandez-lui de raconter un moment de sa journée.",
+      "Aidez-le avec des mots pour le temps : « d'abord », « après », « à la fin ».",
+      "Montrez l'exemple en racontant aussi un moment de votre journée.",
+    ],
+    aEviter: [
+      "Finir ses phrases à sa place.",
+      "Transformer le moment en interrogatoire sur l'école.",
+    ],
+    ageMin: 5,
+    ageMax: 10,
+    categories: ["langage-oral"],
+  },
+  {
+    cle: "jeux-de-mots",
+    titre: "Enrichir le vocabulaire au quotidien",
+    aFaire: [
+      "Jouez à trouver des mots d'une même famille (fruits, animaux, outils…).",
+      "Expliquez les mots nouveaux rencontrés dans une histoire ou un dessin animé.",
+      "Faites des devinettes : « C'est un animal, il a une trompe… ».",
+    ],
+    aEviter: [
+      "Lui faire réciter des listes de mots sans jeu.",
+      "Vous moquer d'un mot mal employé.",
+    ],
+    ageMin: 6,
+    ageMax: 11,
+    categories: ["langage-oral"],
+  },
+  {
+    cle: "expliquer-avec-ses-mots",
+    titre: "Expliquer avec ses mots",
+    aFaire: [
+      "Demandez-lui de vous expliquer un sujet qu'il aime (jeu, sport, série).",
+      "Posez des questions ouvertes : « Comment ça marche ? », « Pourquoi ? ».",
+    ],
+    aEviter: [
+      "Corriger chaque erreur pendant qu'il parle.",
+      "Parler à sa place devant d'autres personnes.",
+    ],
+    ageMin: 12,
+    ageMax: 18,
+    categories: ["langage-oral"],
+  },
+  // ── Langage écrit ──
+  {
+    cle: "lecture-partagee",
+    titre: "Lire ensemble chaque soir",
+    aFaire: [
+      "Lisez une courte histoire ensemble, 10 minutes suffisent.",
+      "Laissez-le lire un mot sur deux, ou une ligne sur deux.",
+      "Laissez-le choisir le livre.",
+    ],
+    aEviter: [
+      "Prolonger la lecture quand il est fatigué.",
+      "Comparer sa lecture à celle de ses frères, sœurs ou camarades.",
+    ],
+    ageMin: 5,
+    ageMax: 10,
+    categories: ["langage-ecrit"],
+  },
+  {
+    cle: "devoirs-sans-tension",
+    titre: "Des devoirs sans tension",
+    aFaire: [
+      "Gardez un moment court et régulier, dans un endroit calme.",
+      "Lisez-lui les consignes à voix haute s'il en a besoin.",
+      "Félicitez l'effort, pas seulement le résultat.",
+    ],
+    aEviter: [
+      "Faire recopier un texte plusieurs fois à cause des fautes.",
+      "Des séances de devoirs de plus de 30 minutes d'affilée.",
+    ],
+    ageMin: 7,
+    ageMax: 12,
+    categories: ["langage-ecrit"],
+  },
+  {
+    cle: "lecture-au-college",
+    titre: "Faciliter la lecture au collège",
+    aFaire: [
+      "Proposez des livres audio en plus des livres papier.",
+      "Aidez-le à découper un long texte en petites parties.",
+    ],
+    aEviter: [
+      "Imposer la lecture à voix haute devant la famille.",
+      "Présenter la lecture comme une punition.",
+    ],
+    ageMin: 11,
+    ageMax: 18,
+    categories: ["langage-ecrit"],
+  },
+  // ── Articulation et parole ──
+  {
+    cle: "jouer-avec-la-bouche",
+    titre: "Jouer avec la bouche",
+    aFaire: [
+      "Faites des grimaces ensemble devant le miroir.",
+      "Soufflez sur des bulles, des plumes ou une paille.",
+    ],
+    aEviter: [
+      "Lui faire répéter un son qu'il n'arrive pas encore à dire.",
+      "Faire remarquer ses erreurs de prononciation devant d'autres personnes.",
+    ],
+    ageMin: 3,
+    ageMax: 7,
+    categories: ["articulation"],
+  },
+  // ── Bégaiement et fluence ──
+  {
+    cle: "temps-de-parole",
+    titre: "Laisser le temps de parler",
+    aFaire: [
+      "Gardez un débit calme et posé quand vous lui parlez.",
+      "Regardez-le pendant qu'il parle, montrez que vous écoutez.",
+      "Prévoyez un petit moment par jour où il a toute votre attention.",
+    ],
+    aEviter: [
+      "Finir ses phrases ou souffler les mots.",
+      "Lui dire « respire » ou « parle moins vite ».",
+    ],
+    ageMin: 3,
+    ageMax: 12,
+    categories: ["begaiement"],
+  },
+  {
+    cle: "parler-du-begaiement",
+    titre: "Pouvoir parler du bégaiement",
+    aFaire: [
+      "Laissez-le parler de son bégaiement s'il le souhaite, sans dramatiser.",
+      "Valorisez ce qu'il dit plutôt que la façon dont il le dit.",
+    ],
+    aEviter: [
+      "Éviter le sujet comme s'il était honteux.",
+      "Répondre à sa place au téléphone ou dans les magasins.",
+    ],
+    ageMin: 12,
+    ageMax: null,
+    categories: ["begaiement"],
+  },
+  // ── Voix ──
+  {
+    cle: "voix-enfant",
+    titre: "Protéger la voix de son enfant",
+    aFaire: [
+      "Proposez de l'eau régulièrement dans la journée.",
+      "Allez le voir pour lui parler plutôt que de l'appeler d'une pièce à l'autre.",
+    ],
+    aEviter: [
+      "Les jeux où il faut crier longtemps.",
+      "Parler fort par-dessus le bruit (télévision, musique).",
+    ],
+    ageMin: 5,
+    ageMax: 11,
+    categories: ["voix"],
+  },
+  {
     cle: "hydratation-voix",
     titre: "Prendre soin de sa voix",
-    contenu: "Buvez de l'eau régulièrement et évitez de forcer la voix dans le bruit.",
+    aFaire: [
+      "Buvez de l'eau régulièrement dans la journée.",
+      "Faites des pauses de voix après une longue période de parole.",
+    ],
+    aEviter: ["Forcer la voix dans le bruit.", "Chuchoter longtemps : cela fatigue aussi la voix."],
     ageMin: 12,
     ageMax: null,
     categories: ["voix"],
+  },
+  // ── Déglutition et oralité ──
+  {
+    cle: "repas-sans-pression",
+    titre: "Des repas sans pression",
+    aFaire: [
+      "Proposez les nouveaux aliments plusieurs fois, en petite quantité.",
+      "Laissez-le toucher et sentir les aliments.",
+      "Mangez ensemble, dans le calme.",
+    ],
+    aEviter: ["Forcer à finir l'assiette.", "Les écrans pendant le repas."],
+    ageMin: 1,
+    ageMax: 6,
+    categories: ["deglutition"],
+  },
+  {
+    cle: "manger-en-securite",
+    titre: "Manger dans de bonnes conditions",
+    aFaire: [
+      "Mangez assis, bien droit, sans vous presser.",
+      "Prenez de petites bouchées et de petites gorgées.",
+    ],
+    aEviter: ["Parler en mangeant.", "Manger allongé ou très fatigué."],
+    ageMin: 18,
+    ageMax: null,
+    categories: ["deglutition"],
+  },
+  // ── Cognition mathématique ──
+  {
+    cle: "nombres-au-quotidien",
+    titre: "Les nombres au quotidien",
+    aFaire: [
+      "Comptez ensemble les objets de la vie courante (couverts, marches, fruits).",
+      "Jouez à des jeux de société avec un dé.",
+      "Faites-le participer aux courses : comparer, peser, compter la monnaie.",
+    ],
+    aEviter: [
+      "Les fiches de calcul répétitives à la maison.",
+      "Montrer de l'agacement quand il compte sur ses doigts.",
+    ],
+    ageMin: 5,
+    ageMax: 11,
+    categories: ["cognition-mathematique"],
   },
 ];

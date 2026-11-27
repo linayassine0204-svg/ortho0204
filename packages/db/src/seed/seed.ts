@@ -131,8 +131,11 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     const cree = await prisma.conseil.create({
       data: {
         titre: c.titre,
-        contenu: c.contenu,
+        aFaire: c.aFaire,
+        aEviter: c.aEviter,
         estModele: true,
+        // Exemple non vérifié médicalement : étiquette « à valider par un orthophoniste ».
+        aValider: true,
         ageMin: c.ageMin,
         ageMax: c.ageMax,
         etiquettes: { create: c.categories.map((s) => ({ categorieId: cat(s) })) },
@@ -388,17 +391,37 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     })),
   });
 
-  // ── Conseils ──
-  const lecturePartagee = modeles.get("lecture-partagee");
-  const tempsDeParole = modeles.get("temps-de-parole");
-  if (!lecturePartagee || !tempsDeParole) throw new Error("Modèles de conseil manquants.");
+  // ── Conseils envoyés ──
+  // Chaque envoi porte sur une COPIE propre au patient (texte figé au moment de l'envoi).
+  const modele = async (cle: string) => {
+    const id = modeles.get(cle);
+    if (!id) throw new Error(`Modèle de conseil manquant : ${cle}`);
+    return prisma.conseil.findUniqueOrThrow({ where: { id } });
+  };
+  const lecturePartagee = await modele("lecture-partagee");
+  const tempsDeParole = await modele("temps-de-parole");
+
+  // Léa : « Lire ensemble » adapté, ré-envoyé chaque semaine (2 envois, le 1er lu).
   const conseilLea = await prisma.conseil.create({
     data: {
-      titre: "Lire ensemble chaque soir",
-      contenu: "Lisez une courte histoire avec Léa. Montrez les rimes en fin de ligne.",
+      titre: lecturePartagee.titre,
+      aFaire: [...lecturePartagee.aFaire, "Montrez les mots qui riment en fin de ligne."],
+      aEviter: lecturePartagee.aEviter,
+      aValider: true,
+      modifie: true,
       patientId: lea.id,
       cabinetId: cabinet.id,
-      modeleSourceId: lecturePartagee,
+      modeleSourceId: lecturePartagee.id,
+    },
+  });
+  const debutPlanLea = moinsJours(aujourdhui, 10);
+  const planLea = await prisma.planConseil.create({
+    data: {
+      conseilId: conseilLea.id,
+      patientId: lea.id,
+      creeParId: ortho.id,
+      repetition: "HEBDOMADAIRE",
+      prochainEnvoi: new Date(debutPlanLea.getTime() + 14 * JOUR_MS),
     },
   });
   await prisma.envoiConseil.createMany({
@@ -406,19 +429,54 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
       {
         conseilId: conseilLea.id,
         patientId: lea.id,
+        planId: planLea.id,
         envoyeParId: ortho.id,
         repetition: "HEBDOMADAIRE",
-        envoyeLe: moinsJours(aujourdhui, 20),
-        luLe: moinsJours(aujourdhui, 19),
+        envoyeLe: debutPlanLea,
+        luLe: moinsJours(aujourdhui, 9),
+        luParId: parentLea.id,
       },
       {
-        conseilId: tempsDeParole,
-        patientId: tom.id,
+        conseilId: conseilLea.id,
+        patientId: lea.id,
+        planId: planLea.id,
         envoyeParId: ortho.id,
-        repetition: "UNE_FOIS",
-        envoyeLe: moinsJours(aujourdhui, 5),
+        repetition: "HEBDOMADAIRE",
+        envoyeLe: new Date(debutPlanLea.getTime() + 7 * JOUR_MS),
       },
     ],
+  });
+
+  // Tom : « Laisser le temps de parler » envoyé tel quel, une fois, pas encore lu.
+  const conseilTom = await prisma.conseil.create({
+    data: {
+      titre: tempsDeParole.titre,
+      aFaire: tempsDeParole.aFaire,
+      aEviter: tempsDeParole.aEviter,
+      aValider: true,
+      patientId: tom.id,
+      cabinetId: cabinet.id,
+      modeleSourceId: tempsDeParole.id,
+    },
+  });
+  const planTom = await prisma.planConseil.create({
+    data: {
+      conseilId: conseilTom.id,
+      patientId: tom.id,
+      creeParId: ortho.id,
+      repetition: "UNE_FOIS",
+      prochainEnvoi: null,
+    },
+  });
+  await prisma.envoiConseil.create({
+    data: {
+      conseilId: conseilTom.id,
+      patientId: tom.id,
+      planId: planTom.id,
+      envoyeParId: ortho.id,
+      repetition: "UNE_FOIS",
+      envoyeLe: moinsJours(aujourdhui, 5),
+    },
   });
 
   // ── Séances et bilans ──
