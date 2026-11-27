@@ -8,3 +8,4 @@ export * from "./bibliotheque.ts";
 export * from "./programme.ts";
 export * from "./realisation.ts";
 export * from "./conseils.ts";
+export * from "./seance.ts";

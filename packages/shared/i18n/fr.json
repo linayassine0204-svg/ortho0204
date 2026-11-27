@@ -320,6 +320,116 @@
       "renvoyer": "Ré-envoyer",
       "destinataires": "Visibles par : {{noms}}.",
       "aucunDestinataire": "Personne ne peut encore voir les conseils : aucun parent relié n'a donné son consentement. (Les conseils sont destinés aux parents.)"
+    },
+    "preparation": {
+      "titre": "Préparer la séance",
+      "seanceDu": "Séance du {{date}}",
+      "resume": {
+        "titre": "Avant la séance",
+        "maison": "À la maison depuis la dernière séance",
+        "periode": "Du {{depuis}} au {{jusqua}}",
+        "aucuneSeance": "Pas encore de séance terminée : les 14 derniers jours sont comptés.",
+        "taux": "{{faites}} sur {{prevues}} faits ({{pourcent}} %)",
+        "tauxInconnu": "Rien n'était prévu sur cette période.",
+        "pasDeProgramme": "Pas de programme à la maison pour l'instant.",
+        "ressentis": "Ressenti : {{facile}} facile, {{moyen}} moyen, {{difficile}} difficile",
+        "scoreMoyen": "score moyen {{pourcent}} %",
+        "dernierScore": "dernier : {{score}} sur {{max}}",
+        "notes": "Notes de la dernière séance ({{date}})",
+        "points": "Points à reprendre",
+        "aucuneNote": "Aucune note.",
+        "aucunPoint": "Aucun point noté."
+      },
+      "seance": {
+        "titre": "Séance en construction",
+        "proposee": "Séance proposée",
+        "proposeeAide": "Proposée par des règles simples : exercices de la pathologie et de l'âge du patient, au niveau suivant si les derniers résultats sont bons, au niveau en cours sinon.",
+        "aucuneProposition": "Aucune proposition : renseignez les pathologies du patient dans la Fiche, ou choisissez dans la bibliothèque.",
+        "raisons": {
+          "NIVEAU_SUIVANT": "Niveau suivant : derniers résultats bons",
+          "NIVEAU_EN_COURS": "Niveau en cours",
+          "NOUVEAU": "Nouvel exercice"
+        },
+        "accepter": "Accepter",
+        "toutAccepter": "Tout accepter",
+        "changer": "Changer",
+        "retirer": "Retirer",
+        "recalculer": "Proposer à nouveau",
+        "remplacerPar": "Remplacer par",
+        "choisirExercice": "— choisir un exercice —",
+        "remplacer": "Remplacer",
+        "annuler": "Annuler",
+        "niveau": "Niveau",
+        "retenus": "Exercices de la séance",
+        "vide": "Aucun exercice retenu. Acceptez une proposition ou ajoutez un exercice depuis la bibliothèque.",
+        "duree": "Durée totale : {{minutes}} min",
+        "origines": {
+          "PROPOSITION": "Proposé",
+          "BIBLIOTHEQUE": "Bibliothèque",
+          "COPIE": "Copié"
+        },
+        "ajouter": "Ajouter à la séance",
+        "dejaDansSeance": "Cet exercice est déjà dans la séance."
+      },
+      "materiel": {
+        "titre": "Matériel à préparer",
+        "aucun": "Aucun matériel pour les exercices retenus.",
+        "pour": "pour : {{exercices}}",
+        "enPlus": "Matériel en plus",
+        "enPlusAide": "Écrit à la main, ajouté à la fiche de séance."
+      },
+      "programme": {
+        "titre": "Programme à la maison",
+        "aide": "Ajustement rapide. Pour le rythme et le mot à la famille : écran Programme.",
+        "ouvrir": "Ouvrir le programme complet"
+      },
+      "notes": {
+        "titre": "Notes de séance",
+        "objectifs": "Objectifs",
+        "notes": "Notes",
+        "notesAide": "Pendant ou après la séance.",
+        "points": "Points à reprendre la prochaine fois",
+        "enregistrer": "Enregistrer les notes",
+        "enregistrees": "Notes enregistrées.",
+        "dicter": "Dicter",
+        "arreter": "Arrêter la dictée",
+        "ecoute": "Dictée en cours…",
+        "installer": "Installer la dictée sur cet ordinateur",
+        "installation": "Installation de la dictée…",
+        "dicteeLocale": "La voix est reconnue sur cet ordinateur : rien n'est envoyé ailleurs.",
+        "dicteeIndisponible": "Dictée indisponible : ce navigateur ne sait pas reconnaître la voix sans l'envoyer à un service externe. Saisissez les notes au clavier.",
+        "dicteeErreur": "La dictée s'est arrêtée. Vous pouvez réessayer."
+      },
+      "pdf": {
+        "exporter": "Exporter la fiche (PDF)",
+        "titre": "Fiche de séance",
+        "patient": "Patient : {{nom}} — {{age}}",
+        "date": "Date : {{date}}",
+        "professionnel": "{{terme.professionnelMajuscule}} : {{nom}}",
+        "objectifs": "Objectifs",
+        "points": "À reprendre (séance du {{date}})",
+        "exercices": "Exercices ({{n}}) — {{minutes}} min",
+        "ligneExercice": "{{numero}}. {{titre}} — niveau {{niveau}} — {{minutes}} min",
+        "materielExercice": "Matériel : {{materiel}}",
+        "aValider": "Exemple à valider par un {{terme.professionnel}}.",
+        "materiel": "Matériel à préparer",
+        "materielEnPlus": "En plus : {{texte}}",
+        "aucunMateriel": "Aucun matériel.",
+        "aucunExercice": "Aucun exercice retenu.",
+        "notes": "Notes",
+        "pied": "Document confidentiel (données de santé) — page {{page}} sur {{total}}"
+      },
+      "reutiliser": {
+        "titre": "Séances passées",
+        "aucune": "Aucune séance passée.",
+        "copier": "Copier dans la séance",
+        "copiee": "{{n}} exercice(s) copié(s) dans la séance.",
+        "rienACopier": "Tous ces exercices sont déjà dans la séance."
+      },
+      "terminer": "Terminer la séance",
+      "terminerConfirmer": "Terminer la séance ? Ses notes et points à reprendre serviront à préparer la suivante.",
+      "terminee": "Séance terminée. Une nouvelle préparation est prête.",
+      "bibliotheque": "Bibliothèque"
     }
   },
   "mobile": {
@@ -477,7 +587,10 @@
     "consentementAudioRequis": "Votre accord est nécessaire avant d'enregistrer la voix.",
     "audioTypeRefuse": "Ce format d'enregistrement n'est pas accepté.",
     "audioTropGros": "Cet enregistrement est trop long.",
-    "datePassee": "La date choisie est déjà passée."
+    "datePassee": "La date choisie est déjà passée.",
+    "dejaDansSeance": "Cet exercice est déjà dans la séance.",
+    "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus.",
+    "seanceVide": "Aucun exercice retenu dans la séance."
   },
   "consentement": {
     "donneesSante": {
