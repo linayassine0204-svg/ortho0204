@@ -78,6 +78,8 @@ pnpm dev:mobile
 ```
 
 Scanner le QR code avec l'application Expo Go, ou appuyer sur `a` (Android) / `i` (iOS).
+Sur un vrai téléphone, l'adresse de l'API doit être celle de l'ordinateur : voir
+[`docs/MOBILE.md`](./docs/MOBILE.md).
 
 ## Vérifications
 
