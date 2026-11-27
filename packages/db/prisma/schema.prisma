@@ -434,6 +434,8 @@ model ElementProgramme {
   jours          JourSemaine[]
   motFamille     String?
   ordre          Int           @default(0)
+  /// Retiré du programme (retrait doux) : l'historique des réalisations est conservé.
+  retireLe       DateTime?
 
   programme    Programme     @relation(fields: [programmeId], references: [id], onDelete: Cascade)
   exercice     Exercice      @relation(fields: [exerciceId], references: [id], onDelete: Restrict)
