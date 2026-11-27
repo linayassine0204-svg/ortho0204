@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { t, type ElementEnvoye } from "@app/shared";
 import { fontSizes, palette, police, rayon } from "../theme";
 
@@ -16,34 +16,53 @@ const SYMBOLES: Record<string, string> = {
 /** Seules les images en https sont affichées (pas de schéma inattendu). */
 const imageAffichable = (url: string | null): url is string => !!url && url.startsWith("https://");
 
+/** Image d'aperçu de l'exercice, ou symbole de sa catégorie. */
+export function Vignette({ exercice, taille = 72 }: { exercice: ElementEnvoye; taille?: number }) {
+  const dimensions = { width: taille, height: taille };
+  return imageAffichable(exercice.apercuImage) ? (
+    <Image
+      source={{ uri: exercice.apercuImage }}
+      style={[styles.image, dimensions]}
+      accessibilityIgnoresInvertColors
+      accessible={false}
+    />
+  ) : (
+    <View style={[styles.image, dimensions]} accessible={false}>
+      <Text style={[styles.symbole, { fontSize: taille / 2 }]}>
+        {SYMBOLES[exercice.categorie.slug] ?? "⭐"}
+      </Text>
+    </View>
+  );
+}
+
 interface Props {
   exercice: ElementEnvoye;
   /** Affiché pour les exercices « à placer dans la semaine ». */
   frequence?: boolean;
+  /** Ouvre l'écran de l'exercice. */
+  onOuvrir?: () => void;
+  faitAujourdhui?: boolean;
+  /** Exercices sans jour fixé : fois restantes cette semaine. */
+  restantSemaine?: number | null;
 }
 
 /**
  * Aperçu d'un exercice du programme : image, titre, niveau, durée, consigne courte,
  * matériel et mot de l'orthophoniste. (La réalisation de l'exercice : tâche 7.)
  */
-export function CarteExercice({ exercice, frequence = false }: Props) {
+export function CarteExercice({
+  exercice,
+  frequence = false,
+  onOuvrir,
+  faitAujourdhui = false,
+  restantSemaine = null,
+}: Props) {
   const niveau = t("mobile.exercice.niveau", { n: exercice.niveau });
   const duree = t("mobile.exercice.duree", { n: exercice.dureeMinutes });
-  return (
-    <View style={styles.carte} testID={`exercice-${exercice.elementId}`}>
+  const contenu = (
+    <>
       <View style={styles.entete}>
-        {imageAffichable(exercice.apercuImage) ? (
-          <Image
-            source={{ uri: exercice.apercuImage }}
-            style={styles.image}
-            accessibilityIgnoresInvertColors
-            accessible={false}
-          />
-        ) : (
-          <View style={styles.image} accessible={false}>
-            <Text style={styles.symbole}>{SYMBOLES[exercice.categorie.slug] ?? "⭐"}</Text>
-          </View>
-        )}
+        <Vignette exercice={exercice} />
         <View style={styles.titreBloc}>
           <Text accessibilityRole="header" style={styles.titre}>
             {exercice.titre}
@@ -86,7 +105,35 @@ export function CarteExercice({ exercice, frequence = false }: Props) {
       {exercice.aValider ? (
         <Text style={styles.aValider}>{t("mobile.exercice.aValider")}</Text>
       ) : null}
-    </View>
+      {faitAujourdhui ? (
+        <Text style={styles.fait}>{t("mobile.exercice.faitAujourdhui")}</Text>
+      ) : null}
+      {restantSemaine !== null && !faitAujourdhui ? (
+        <Text style={styles.fait}>
+          {restantSemaine > 0
+            ? t("mobile.exercice.restant", { n: restantSemaine })
+            : t("mobile.exercice.termineSemaine")}
+        </Text>
+      ) : null}
+    </>
+  );
+  if (!onOuvrir) {
+    return (
+      <View style={styles.carte} testID={`exercice-${exercice.elementId}`}>
+        {contenu}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t("mobile.exercice.faire", { titre: exercice.titre })}
+      onPress={onOuvrir}
+      style={({ pressed }) => [styles.carte, pressed && styles.appuye]}
+      testID={`exercice-${exercice.elementId}`}
+    >
+      {contenu}
+    </Pressable>
   );
 }
 
@@ -110,6 +157,14 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   symbole: { fontSize: 36 },
+  appuye: { opacity: 0.85 },
+  fait: {
+    fontFamily: police,
+    fontSize: fontSizes.corps,
+    fontWeight: "700",
+    color: palette.vertFonce,
+    marginTop: 8,
+  },
   titreBloc: { flex: 1 },
   titre: {
     fontFamily: police,

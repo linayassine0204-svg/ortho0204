@@ -1,13 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { programmeLea, VENDREDI } from "../../test/fixtures";
+import { profil, programmeLea, VENDREDI } from "../../test/fixtures";
 import type { ChargementProgramme } from "../donnees/programme";
 import { EcranAujourdhui } from "./EcranAujourdhui";
 
-const profil = { patientId: "p-lea", prenom: "Léa", messagerieActivee: true };
+const profilLea = profil();
 const afficher = (resultat: ChargementProgramme) =>
   render(
-    <EcranAujourdhui profil={profil} charger={async () => resultat} maintenant={() => VENDREDI} />,
+    <EcranAujourdhui
+      profil={profilLea}
+      charger={async () => resultat}
+      maintenant={() => VENDREDI}
+    />,
   );
 
 describe("<EcranAujourdhui>", () => {

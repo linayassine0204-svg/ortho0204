@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { programmeLea, VENDREDI } from "../../test/fixtures";
+import { profil, programmeLea, VENDREDI } from "../../test/fixtures";
 import type { ChargementProgramme } from "../donnees/programme";
 import { EspaceProfil } from "./EspaceProfil";
 
@@ -13,7 +13,7 @@ const charger = async (): Promise<ChargementProgramme> => ({
 function afficher(messagerieActivee: boolean) {
   return render(
     <EspaceProfil
-      profil={{ patientId: "p-lea", prenom: "Léa", messagerieActivee }}
+      profil={profil({ messagerieActivee })}
       chargerProgramme={charger}
       onDeconnexion={vi.fn()}
       maintenant={() => VENDREDI}

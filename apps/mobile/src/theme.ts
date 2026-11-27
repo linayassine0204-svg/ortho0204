@@ -20,6 +20,8 @@ export const fontSizes = {
   corps: MIN_MOBILE_FONT_SIZE,
   intermediaire: 20,
   titre: 28,
+  /** Mode enfant : textes encore plus gros. */
+  enfant: 26,
 } as const;
 
 /**
@@ -31,6 +33,8 @@ export const police = undefined;
 
 /** Hauteur minimale d'une zone tactile (gros boutons). */
 export const TAILLE_TACTILE = 56;
+/** Mode enfant : très gros boutons. */
+export const TAILLE_TACTILE_ENFANT = 88;
 
 export const espace = { s: 8, m: 16, l: 24 } as const;
 export const rayon = 12;

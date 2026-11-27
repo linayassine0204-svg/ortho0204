@@ -8,8 +8,20 @@ describe("<EcranChoixProfil> « Qui fait les exercices ? »", () => {
     render(
       <EcranChoixProfil
         patients={[
-          { id: "p-lea", prenom: "Léa", messagerieActivee: true },
-          { id: "p-tom", prenom: "Tom", messagerieActivee: false },
+          {
+            id: "p-lea",
+            prenom: "Léa",
+            messagerieActivee: true,
+            accordAudio: false,
+            modeEnfant: true,
+          },
+          {
+            id: "p-tom",
+            prenom: "Tom",
+            messagerieActivee: false,
+            accordAudio: true,
+            modeEnfant: true,
+          },
         ]}
         onChoisir={onChoisir}
         onDeconnexion={vi.fn()}
@@ -21,6 +33,8 @@ describe("<EcranChoixProfil> « Qui fait les exercices ? »", () => {
       patientId: "p-lea",
       prenom: "Léa",
       messagerieActivee: true,
+      accordAudio: false,
+      modeEnfant: true,
     });
     expect(screen.getByRole("button", { name: "Choisir Tom" })).toBeTruthy();
   });

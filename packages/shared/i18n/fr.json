@@ -312,7 +312,8 @@
       "foisParSemaine": "{{n}} fois cette semaine",
       "horsLigne": "Hors connexion. Programme enregistré le {{date}}.",
       "horsLigneSansCache": "Pas de connexion internet et aucun programme enregistré sur ce téléphone.",
-      "erreur": "Le programme n'a pas pu être chargé."
+      "erreur": "Le programme n'a pas pu être chargé.",
+      "enAttente": "Réalisations en attente d'envoi : {{n}}. Elles partiront dès le retour du réseau."
     },
     "exercice": {
       "niveau": "Niv. {{n}}",
@@ -321,7 +322,26 @@
       "dureeLongue": "{{n}} minutes",
       "materiel": "Matériel : {{liste}}",
       "motPro": "Le mot de votre {{terme.professionnel}}",
-      "aValider": "Exemple à valider"
+      "aValider": "Exemple à valider",
+      "faire": "Faire l'exercice : {{titre}}",
+      "consigne": "Consigne",
+      "cestFait": "C'est fait !",
+      "ressentiTitre": "Comment ça s'est passé ?",
+      "ressentiEnfant": "C'était comment ?",
+      "facile": "Facile",
+      "moyen": "Moyen",
+      "difficile": "Difficile",
+      "score": "Score (facultatif)",
+      "scoreSur": "{{n}} sur {{max}}",
+      "scoreChoisir": "Score {{n}} sur {{max}}",
+      "valider": "Valider",
+      "enregistree": "Réalisation enregistrée.",
+      "envoyee": "Elle a été envoyée à votre {{terme.professionnel}}.",
+      "enAttente": "Pas de réseau pour l'instant : elle sera envoyée automatiquement dès le retour de la connexion.",
+      "retour": "Retour au programme",
+      "faitAujourdhui": "Fait aujourd'hui ✓",
+      "restant": "Encore {{n}} fois cette semaine",
+      "termineSemaine": "Fait pour cette semaine ✓"
     },
     "conseils": {
       "titre": "Conseils",
@@ -333,6 +353,31 @@
     },
     "erreurs": {
       "reseau": "Pas de connexion internet. Vérifiez votre réseau puis réessayez."
+    },
+    "voix": {
+      "titre": "Enregistrer la voix",
+      "demarrer": "Enregistrer",
+      "arreter": "Arrêter",
+      "enCours": "Enregistrement en cours : {{duree}}",
+      "enregistree": "Voix enregistrée ({{duree}})",
+      "effacer": "Effacer et recommencer",
+      "proposer": "Enregistrer la voix pendant l'exercice ?",
+      "micRefuse": "L'accès au micro est refusé. Vous pouvez l'autoriser dans les réglages du téléphone.",
+      "erreur": "L'enregistrement n'a pas pu démarrer.",
+      "permissionSysteme": "Le micro sert à enregistrer la voix pendant les exercices, seulement si vous le décidez."
+    },
+    "enfant": {
+      "cestParti": "C'est parti !",
+      "exerciceNumero": "Exercice {{n}} sur {{total}}",
+      "etoilesGagnees": "Tu as gagné {{n}} étoiles !",
+      "bravoFacile": "Super ! C'était facile pour toi.",
+      "bravoMoyen": "Bien joué ! Tu progresses.",
+      "bravoDifficile": "Bravo d'avoir essayé ! C'est en s'entraînant qu'on progresse.",
+      "suivant": "Exercice suivant",
+      "terminer": "Terminer",
+      "toutFait": "Bravo, tout est fait pour aujourd'hui !",
+      "etoilesDuJour": "{{n}} étoiles gagnées aujourd'hui",
+      "rien": "Pas d'exercice aujourd'hui. À bientôt !"
     }
   },
   "erreurs": {

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Linking, StyleSheet } from "react-native";
+import { AppState, Linking, StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { t } from "@app/shared";
 import { ErreurApi } from "./api/client";
@@ -30,17 +30,50 @@ const estLienInvitation = (url: string | null | undefined): url is string =>
 
 export default function App({ dependances }: { dependances?: Dependances }) {
   const deps = useMemo(() => dependances ?? dependancesTelephone(), [dependances]);
-  const { client, cache, maintenant } = deps;
+  const { client, cache, maintenant, realisations } = deps;
+  const enregistreur = deps.useEnregistreurVoix();
   const [etat, setEtat] = useState<Etat>({ ecran: "demarrage" });
+  const [versionSynchro, setVersionSynchro] = useState(0);
 
   const quitter = useCallback(
     async (message?: string) => {
+      // Dernière tentative d'envoi des réalisations en attente avant de tout effacer.
+      await realisations.synchroniser().catch(() => undefined);
       await client.deconnexion();
       await cache.toutEffacer();
+      await deps.effacerVoix().catch(() => undefined);
       setEtat(message ? { ecran: "accueil", message } : { ecran: "accueil" });
     },
-    [client, cache],
+    [client, cache, realisations, deps],
   );
+
+  // Synchronisation des réalisations gardées sur le téléphone.
+  const connecte = etat.ecran === "connecte";
+  useEffect(() => {
+    if (!connecte) return;
+    const synchroniser = () => {
+      realisations
+        .synchroniser()
+        .catch(() => undefined)
+        .then(() => setVersionSynchro((v) => v + 1));
+    };
+    synchroniser();
+    // Dès le retour du réseau, au retour dans l'application, et toutes les minutes.
+    const desabonner = deps.surRetourReseau(synchroniser);
+    const appli = AppState.addEventListener("change", (e) => {
+      if (e === "active") synchroniser();
+    });
+    const minuteur = setInterval(() => {
+      realisations.enAttente().then((n) => {
+        if (n > 0) synchroniser();
+      });
+    }, 60_000);
+    return () => {
+      desabonner();
+      appli.remove();
+      clearInterval(minuteur);
+    };
+  }, [connecte, deps, realisations]);
 
   const ouvrirSession = useCallback(async () => {
     const infos = await chargerInfosSession(client, cache);
@@ -162,6 +195,22 @@ export default function App({ dependances }: { dependances?: Dependances }) {
             profil={etat.profil}
             chargerProgramme={charger}
             maintenant={maintenant}
+            realisations={realisations}
+            enregistreur={enregistreur}
+            supprimerVoix={(audio) => void deps.supprimerVoix(audio.uri)}
+            versionSynchro={versionSynchro}
+            donnerAccordAudio={async () => {
+              const patientId = etat.profil?.patientId ?? "";
+              await client.post(`/patients/${encodeURIComponent(patientId)}/consentement/audio`);
+              const patients = infos.patients.map((p) =>
+                p.id === patientId && !p.consentementRequis ? { ...p, accordAudio: true } : p,
+              );
+              setEtat({
+                ecran: "connecte",
+                infos: { ...infos, patients },
+                profil: etat.profil ? { ...etat.profil, accordAudio: true } : null,
+              });
+            }}
             {...(infos.utilisateur.role === "PARENT"
               ? { onChangerProfil: () => setEtat({ ecran: "connecte", infos, profil: null }) }
               : {})}
