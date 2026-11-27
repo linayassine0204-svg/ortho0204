@@ -37,12 +37,17 @@ const CLE_JETONS = "session.jetons";
 const MARGE_MS = 30_000;
 /** Au-delà, on considère le serveur injoignable (au lieu d'attendre sans fin). */
 export const DELAI_MAX_MS = 15_000;
+/** Envoi d'un enregistrement de la voix (fichier de quelques Mo). */
+export const DELAI_MAX_FICHIER_MS = 120_000;
 
 export interface ClientApi {
   connexion(email: string, motDePasse: string): Promise<void>;
   accepterInvitation(donnees: AcceptationInvitation): Promise<{ role: string }>;
   get<T>(chemin: string): Promise<T>;
   post<T>(chemin: string, corps?: unknown): Promise<T>;
+  /** Envoi d'un fichier (multipart). Délai plus long que les autres requêtes. */
+  postFormulaire<T>(chemin: string, formulaire: FormData): Promise<T>;
+  delete(chemin: string): Promise<void>;
   estConnecte(): Promise<boolean>;
   deconnexion(): Promise<void>;
 }
@@ -80,9 +85,13 @@ export function creerClientApi(dependances: {
     return ranges;
   }
 
-  async function appel(chemin: string, init: RequestInit = {}): Promise<Response> {
+  async function appel(
+    chemin: string,
+    init: RequestInit = {},
+    delai = delaiMaxMs,
+  ): Promise<Response> {
     const abandon = new AbortController();
-    const minuteur = setTimeout(() => abandon.abort(), delaiMaxMs);
+    const minuteur = setTimeout(() => abandon.abort(), delai);
     try {
       return await fetcher(`${baseUrl}${chemin}`, {
         ...init,
@@ -149,10 +158,14 @@ export function creerClientApi(dependances: {
     return neufs;
   }
 
-  async function protege<T>(chemin: string, init: RequestInit = {}): Promise<T> {
+  async function protege<T>(chemin: string, init: RequestInit = {}, delai?: number): Promise<T> {
     let jetons = await jetonValide();
     const avec = (j: JetonsRanges) =>
-      appel(chemin, { ...init, headers: { ...init.headers, Authorization: `Bearer ${j.acces}` } });
+      appel(
+        chemin,
+        { ...init, headers: { ...init.headers, Authorization: `Bearer ${j.acces}` } },
+        delai,
+      );
     let reponse = await avec(jetons);
     if (reponse.status === 401) {
       // Jeton d'accès refusé (expiré plus tôt que prévu) : un seul nouvel essai.
@@ -176,6 +189,9 @@ export function creerClientApi(dependances: {
 
     get: (chemin) => protege(chemin),
     post: (chemin, corps) => protege(chemin, json(corps)),
+    postFormulaire: (chemin, formulaire) =>
+      protege(chemin, { method: "POST", body: formulaire }, DELAI_MAX_FICHIER_MS),
+    delete: (chemin) => protege(chemin, { method: "DELETE" }),
 
     async estConnecte() {
       return (await lireJetons()) !== null;

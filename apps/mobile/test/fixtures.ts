@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { ElementEnvoye } from "@app/shared";
-import type { ProgrammeEnvoye } from "../src/session/types";
+import type { EnregistreurVoix } from "../src/audio/types";
+import type { Profil, ProgrammeEnvoye } from "../src/session/types";
 
 // Données FICTIVES pour les tests (proches du seed : Léa, programme « Sons et syllabes »).
 
@@ -32,7 +34,7 @@ export const programmeLea: ProgrammeEnvoye = {
   version: 1,
   envoyeLe: "2026-10-16T08:00:00.000Z",
   elements: [
-    exercice(),
+    exercice({ scoreMax: 10 }),
     exercice({
       elementId: "el-syllabes",
       exerciceId: "ex-syllabes",
@@ -65,9 +67,36 @@ interface Compte {
   patients: {
     id: string;
     prenom: string;
+    dateNaissance?: string;
     messagerieActivee?: boolean;
+    accordAudio?: boolean;
     consentementRequis?: true;
   }[];
+}
+
+/** Réalisation reçue par le faux serveur. */
+export interface RealisationRecue {
+  id: string;
+  patientId: string;
+  saisieParId: string;
+  idClient: string;
+  elementId: string;
+  faitLe: string;
+  ressenti: string | null;
+  score: number | null;
+  voix: number;
+}
+
+/** Profil de test (mode enfant et accord audio désactivés par défaut). */
+export function profil(partiel: Partial<Profil> = {}): Profil {
+  return {
+    patientId: "p-lea",
+    prenom: "Léa",
+    messagerieActivee: true,
+    accordAudio: false,
+    modeEnfant: false,
+    ...partiel,
+  };
 }
 
 export const MOT_DE_PASSE = "motdepasse-fictif-dev";
@@ -78,7 +107,7 @@ export const comptes: Compte[] = [
     motDePasse: MOT_DE_PASSE,
     utilisateur: { id: "u-julie", prenom: "Julie", role: "PARENT" },
     patients: [
-      { id: "p-lea", prenom: "Léa", messagerieActivee: true },
+      { id: "p-lea", prenom: "Léa", dateNaissance: "2019-09-28", messagerieActivee: true },
       { id: "p-sacha", prenom: "Sacha", consentementRequis: true },
     ],
   },
@@ -86,7 +115,9 @@ export const comptes: Compte[] = [
     email: "paul@exemple.test",
     motDePasse: MOT_DE_PASSE,
     utilisateur: { id: "u-paul", prenom: "Paul", role: "PATIENT_ADULT" },
-    patients: [{ id: "p-paul", prenom: "Paul", messagerieActivee: false }],
+    patients: [
+      { id: "p-paul", prenom: "Paul", dateNaissance: "1992-03-10", messagerieActivee: false },
+    ],
   },
 ];
 
@@ -99,7 +130,14 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
   const sessions = new Map<string, Compte>();
   const renouvellements = new Map<string, Compte>();
   let n = 0;
-  const etat = { horsLigne: false, appels: [] as string[] };
+  const etat = {
+    horsLigne: false,
+    appels: [] as string[],
+    /** Le serveur enregistre, mais la réponse se perd en route (coupure). */
+    perdreLaReponse: false,
+    realisations: [] as RealisationRecue[],
+    accordsAudio: new Set<string>(),
+  };
 
   const reponse = (status: number, corps?: unknown) =>
     new Response(corps === undefined ? null : JSON.stringify(corps), {
@@ -126,7 +164,7 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
     const url = new URL(String(entree));
     const chemin = url.pathname.replace(/^\/api/, "");
     etat.appels.push(`${init.method ?? "GET"} ${chemin}`);
-    const corps = init.body ? JSON.parse(String(init.body)) : {};
+    const corps = typeof init.body === "string" ? JSON.parse(init.body) : {};
     const entetes = new Headers(init.headers);
     const compte = sessions.get((entetes.get("Authorization") ?? "").replace("Bearer ", ""));
 
@@ -148,7 +186,68 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
     if (!compte) return erreur(401, "non_connecte");
     if (chemin === "/auth/deconnexion") return reponse(204);
     if (chemin === "/auth/moi") return reponse(200, { utilisateur: compte.utilisateur });
-    if (chemin === "/patients") return reponse(200, { patients: compte.patients });
+    if (chemin === "/patients") {
+      return reponse(200, {
+        patients: compte.patients.map((p) =>
+          p.consentementRequis
+            ? p
+            : { ...p, accordAudio: etat.accordsAudio.has(`${compte.utilisateur.id}:${p.id}`) },
+        ),
+      });
+    }
+    const patientDe = (id: string | undefined) => compte.patients.find((x) => x.id === id);
+    const accord = /^\/patients\/([^/]+)\/consentement\/audio$/.exec(chemin);
+    if (accord) {
+      if (!patientDe(accord[1])) return erreur(404, "introuvable");
+      etat.accordsAudio.add(`${compte.utilisateur.id}:${accord[1]}`);
+      return reponse(201, { consentement: { version: "2026-11-v1" } });
+    }
+    const real = /^\/patients\/([^/]+)\/realisations$/.exec(chemin);
+    if (real) {
+      const p = patientDe(real[1]);
+      if (!p || p.consentementRequis) return erreur(404, "introuvable");
+      const elementOk = (programmes[p.id]?.elements ?? []).some(
+        (e) => e.elementId === corps.elementId,
+      );
+      if (!elementOk) return erreur(404, "introuvable");
+      let r = etat.realisations.find(
+        (x) => x.elementId === corps.elementId && x.idClient === corps.idClient,
+      );
+      const cree = !r;
+      if (!r) {
+        r = {
+          id: `r-${etat.realisations.length + 1}`,
+          patientId: p.id,
+          saisieParId: compte.utilisateur.id,
+          idClient: corps.idClient,
+          elementId: corps.elementId,
+          faitLe: corps.faitLe,
+          ressenti: corps.ressenti,
+          score: corps.score,
+          voix: 0,
+        };
+        etat.realisations.push(r);
+      }
+      if (etat.perdreLaReponse) {
+        etat.perdreLaReponse = false;
+        throw new TypeError("Network request failed");
+      }
+      return reponse(cree ? 201 : 200, { realisation: { id: r.id } });
+    }
+    const voix = /^\/patients\/([^/]+)\/realisations\/([^/]+)\/enregistrement$/.exec(chemin);
+    if (voix) {
+      const r = etat.realisations.find((x) => x.id === voix[2] && x.patientId === voix[1]);
+      if (!r || r.saisieParId !== compte.utilisateur.id) return erreur(404, "introuvable");
+      if (!etat.accordsAudio.has(`${compte.utilisateur.id}:${r.patientId}`)) {
+        return erreur(403, "consentement_audio_requis");
+      }
+      if (!(init.body instanceof FormData) || !init.body.get("audio")) {
+        return erreur(400, "donnees_invalides");
+      }
+      if (r.voix > 0) return reponse(200, { enregistrement: { id: "v" } });
+      r.voix += 1;
+      return reponse(201, { enregistrement: { id: "v" } });
+    }
     const m = /^\/patients\/([^/]+)\/programme\/semaine$/.exec(chemin);
     if (m) {
       const p = compte.patients.find((x) => x.id === m[1]);
@@ -160,4 +259,21 @@ export function fauxServeur(options: { programmes?: Record<string, ProgrammeEnvo
   };
 
   return { fetch: fetch as typeof globalThis.fetch, etat, sessions };
+}
+
+/** Enregistreur de voix fictif (pas de micro en test) : 5 secondes « enregistrées ». */
+export function useEnregistreurFictif(): EnregistreurVoix {
+  const [enCours, setEnCours] = useState(false);
+  return {
+    enCours,
+    dureeMs: enCours ? 5000 : 0,
+    demarrer: async () => {
+      setEnCours(true);
+      return true;
+    },
+    arreter: async () => {
+      setEnCours(false);
+      return { uri: "file:///appli/voix/fictive.m4a", dureeSecondes: 5 };
+    },
+  };
 }
