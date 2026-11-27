@@ -15,10 +15,21 @@ export interface Acteur {
  * - inviter : envoyer un lien d'invitation pour un patient ;
  * - consentir : donner ou retirer son propre consentement pour un patient ;
  * - creer : créer un patient dans un cabinet ;
- * - realiser : enregistrer qu'un exercice du programme a été fait (famille seulement).
+ * - realiser : enregistrer qu'un exercice du programme a été fait (famille seulement) ;
+ * - confirmerLecture : « J'ai compris » sur un conseil reçu (famille seulement).
  */
 export type Action =
-  "lire" | "modifier" | "supprimer" | "inviter" | "consentir" | "creer" | "realiser";
+  | "lire"
+  | "modifier"
+  | "supprimer"
+  | "inviter"
+  | "consentir"
+  | "creer"
+  | "realiser"
+  | "confirmerLecture";
+
+/** Actions propres à la famille : l'orthophoniste ne les fait jamais à sa place. */
+const ACTIONS_FAMILLE: readonly Action[] = ["consentir", "realiser", "confirmerLecture"];
 
 /** Sous-parties du dossier patient (/patients/[id]/[section]). */
 export const SECTIONS_PATIENT = [
@@ -90,8 +101,9 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
 
   switch (acteur.role) {
     case "ORTHO":
-      // L'orthophoniste ne consent pas et ne fait pas les exercices à la place de la famille.
-      return action !== "consentir" && action !== "creer" && action !== "realiser";
+      // L'orthophoniste ne consent pas, ne fait pas les exercices et ne marque pas un
+      // conseil comme lu à la place de la famille.
+      return action !== "creer" && !ACTIONS_FAMILLE.includes(action);
     case "PARENT":
     case "PATIENT_ADULT": {
       const lie =
@@ -103,10 +115,12 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
       if (!patient.consentementIds.includes(acteur.id)) return false;
       // Faire un exercice : seulement sur le programme, avec le consentement.
       if (action === "realiser") return patient.section === "programme";
+      const sectionVisible =
+        patient.section === undefined || SECTIONS_FAMILLE[acteur.role].includes(patient.section);
+      // « J'ai compris » : sur les conseils, si la famille peut les voir (parents seulement).
+      if (action === "confirmerLecture") return patient.section === "conseils" && sectionVisible;
       if (action !== "lire") return false;
-      return (
-        patient.section === undefined || SECTIONS_FAMILLE[acteur.role].includes(patient.section)
-      );
+      return sectionVisible;
     }
     default:
       return false;

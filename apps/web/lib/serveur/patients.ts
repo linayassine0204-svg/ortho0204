@@ -75,7 +75,9 @@ export async function patientAutorise(
       ...ressource,
       consentementIds: [...ressource.consentementIds, acteur.id],
     };
-    if ((action === "lire" || action === "realiser") && can(acteur, action, avecConsentement)) {
+    const actionFamille =
+      action === "lire" || action === "realiser" || action === "confirmerLecture";
+    if (actionFamille && can(acteur, action, avecConsentement)) {
       throw erreurs.consentementRequis();
     }
     throw erreurs.introuvable();

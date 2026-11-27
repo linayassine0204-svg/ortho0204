@@ -182,6 +182,47 @@ describe("can() — faire un exercice du programme (réalisation)", () => {
   });
 });
 
+describe("can() — conseils (lecture et « J'ai compris »)", () => {
+  const conseils = (r: RessourcePatient) => section(r, "conseils");
+
+  it("l'orthophoniste du cabinet lit et envoie les conseils", () => {
+    expect(can(ortho, "lire", conseils(enfant))).toBe(true);
+    expect(can(ortho, "modifier", conseils(enfant))).toBe(true);
+    expect(can(orthoAutreCabinet, "lire", conseils(enfant))).toBe(false);
+    expect(can(orthoAutreCabinet, "modifier", conseils(enfant))).toBe(false);
+  });
+
+  it("le parent relié, avec son consentement, lit et marque « J'ai compris »", () => {
+    expect(can(parent, "lire", conseils(enfant))).toBe(true);
+    expect(can(parent, "confirmerLecture", conseils(enfant))).toBe(true);
+  });
+
+  it("ÉCHEC : le parent ne peut pas envoyer ni modifier un conseil", () => {
+    expect(can(parent, "modifier", conseils(enfant))).toBe(false);
+  });
+
+  it("ÉCHEC : un autre parent, sans consentement, un autre cabinet, hors des conseils", () => {
+    expect(can(autreParent, "confirmerLecture", conseils(enfant))).toBe(false);
+    expect(can(parent, "confirmerLecture", conseils({ ...enfant, consentementIds: [] }))).toBe(
+      false,
+    );
+    expect(can(parent, "confirmerLecture", conseils({ ...enfant, cabinetId: "cab-b" }))).toBe(
+      false,
+    );
+    expect(can(parent, "confirmerLecture", section(enfant, "programme"))).toBe(false);
+    expect(can(parent, "confirmerLecture", enfant)).toBe(false);
+  });
+
+  it("ÉCHEC : le patient adulte ne voit pas les conseils (réservés aux parents)", () => {
+    expect(can(adulte, "lire", conseils(dossierAdulte))).toBe(false);
+    expect(can(adulte, "confirmerLecture", conseils(dossierAdulte))).toBe(false);
+  });
+
+  it("ÉCHEC : l'orthophoniste ne marque pas un conseil comme lu à la place de la famille", () => {
+    expect(can(ortho, "confirmerLecture", conseils(enfant))).toBe(false);
+  });
+});
+
 describe("can() — messagerie désactivée", () => {
   it("refuse la messagerie à tout le monde, y compris l'orthophoniste", () => {
     const sansMessagerie = { ...enfant, messagerieActivee: false, section: "messagerie" as const };
