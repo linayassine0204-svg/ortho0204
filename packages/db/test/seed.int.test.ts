@@ -87,8 +87,23 @@ describe("seed : données fictives", () => {
     for (const e of exercices) {
       expect(e.niveaux.map((n) => n.niveau).sort()).toEqual([1, 2, 3]);
       expect(e.apercuConsigne.length).toBeGreaterThan(0);
-      expect(e.apercuImage).not.toBeNull();
     }
+  });
+
+  it("crée une vingtaine d'exercices d'exemple, TOUS étiquetés « à valider »", async () => {
+    const exercices = await prisma.exercice.findMany();
+    expect(exercices.length).toBeGreaterThanOrEqual(18);
+    expect(exercices.length).toBeLessThanOrEqual(25);
+    // Le contenu d'exemple n'est jamais présenté comme validé médicalement.
+    expect(exercices.every((e) => e.aValider)).toBe(true);
+    expect(exercices.every((e) => e.cabinetId === null)).toBe(true);
+  });
+
+  it("répartit les exercices dans toutes les catégories", async () => {
+    const categories = await prisma.categorie.findMany({
+      include: { _count: { select: { exercices: true } } },
+    });
+    for (const c of categories) expect(c._count.exercices).toBeGreaterThan(0);
   });
 
   it("crée des réalisations réparties sur les 6 dernières semaines", async () => {

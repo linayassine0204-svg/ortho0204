@@ -128,6 +128,8 @@ model User {
   sessions          Session[]
   invitationsCreees Invitation[]   @relation("InvitationsCreees")
   documents         Document[]
+  exercicesCrees    Exercice[]     @relation("ExercicesCrees")
+  favoris           Favori[]
 
   @@index([cabinetId, role])
   @@map("utilisateur")
@@ -331,17 +333,38 @@ model Exercice {
   /// Aperçu visible sans ouvrir la fiche : image + consigne courte (+ matériel ci-dessus).
   apercuImage    String?
   apercuConsigne String
+  /// Étiquette interne : contenu d'exemple NON vérifié médicalement
+  /// (« à valider par un orthophoniste »). Toujours affichée tant qu'elle est vraie.
+  aValider       Boolean  @default(false)
+  /// Orthophoniste qui a créé l'exercice (exercices du cabinet).
+  auteurId       String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   categorie Categorie          @relation(fields: [categorieId], references: [id], onDelete: Restrict)
   cabinet   Cabinet?           @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  auteur    User?              @relation("ExercicesCrees", fields: [auteurId], references: [id], onDelete: SetNull)
   niveaux   NiveauExercice[]
   elements  ElementProgramme[]
+  favoris   Favori[]
 
   @@index([categorieId])
   @@index([cabinetId])
   @@map("exercice")
+}
+
+/// Exercice marqué comme favori par un orthophoniste.
+model Favori {
+  userId     String
+  exerciceId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercice Exercice @relation(fields: [exerciceId], references: [id], onDelete: Cascade)
+
+  @@id([userId, exerciceId])
+  @@index([exerciceId])
+  @@map("favori")
 }
 
 /// 3 niveaux par exercice (1, 2, 3), chacun avec sa consigne.

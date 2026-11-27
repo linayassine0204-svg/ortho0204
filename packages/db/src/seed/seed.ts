@@ -107,7 +107,8 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
         dureeMinutes: e.dureeMinutes,
         materiel: e.materiel,
         apercuConsigne: e.apercuConsigne,
-        apercuImage: `fictif/exercices/${e.cle}.png`,
+        // Exemple non vérifié médicalement : étiquette « à valider par un orthophoniste ».
+        aValider: true,
         niveaux: {
           create: e.niveaux.map((consigne, i) => ({ niveau: i + 1, consigne })),
         },

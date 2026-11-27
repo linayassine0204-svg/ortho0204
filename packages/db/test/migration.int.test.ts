@@ -17,6 +17,7 @@ const TABLES_ATTENDUES = [
   "enregistrement",
   "envoi_conseil",
   "exercice",
+  "favori",
   "fil_messages",
   "invitation",
   "journal_acces",
