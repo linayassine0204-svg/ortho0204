@@ -14,8 +14,14 @@ vi.mock("expo-secure-store", () => ({
 }));
 vi.mock("expo-crypto", () => ({
   getRandomBytes: (n: number) => crypto.getRandomValues(new Uint8Array(n)),
+  randomUUID: () => crypto.randomUUID(),
 }));
 vi.mock("@react-native-async-storage/async-storage", () => ({ default: {} }));
+vi.mock("@react-native-community/netinfo", () => ({
+  default: { addEventListener: () => () => undefined },
+}));
+vi.mock("expo-audio", () => ({}));
+vi.mock("expo-file-system", () => ({}));
 vi.mock("react-native-safe-area-context", async () => {
   const { View } = await import("react-native");
   return { SafeAreaProvider: View, SafeAreaView: View };

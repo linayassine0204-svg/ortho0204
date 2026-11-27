@@ -56,12 +56,21 @@ importers:
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))
+      '@react-native-community/netinfo':
+        specifier: 12.0.1
+        version: 12.0.1(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)
       expo:
         specifier: ^58.0.26
         version: 58.0.26(@babel/core@7.29.13)(@expo/dom-webview@58.0.2)(react-dom@19.3.0(react@19.3.0))(react-native-web@0.21.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
+      expo-audio:
+        specifier: ~58.0.12
+        version: 58.0.12(expo-asset@58.0.21(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)(typescript@6.0.3))(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)
       expo-crypto:
         specifier: ~58.0.9
         version: 58.0.9(expo@58.0.26)
+      expo-file-system:
+        specifier: ~58.0.14
+        version: 58.0.14(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))
       expo-secure-store:
         specifier: ~58.0.3
         version: 58.0.3(expo@58.0.26)
@@ -1315,6 +1324,12 @@ packages:
     peerDependencies:
       react-native: ^0.0.0-0 || >=0.65 <1.0
 
+  '@react-native-community/netinfo@12.0.1':
+    resolution: {integrity: sha512-P/3caXIvfYSJG8AWJVefukg+ZGRPs+M4Lp3pNJtgcTYoJxCjWrKQGNnCkj/Cz//zWa/avGed0i/wzm0T8vV2IQ==}
+    peerDependencies:
+      react: '*'
+      react-native: '>=0.59'
+
   '@react-native/asset-utils@0.88.1':
     resolution: {integrity: sha512-BLb5FF7NgggGYiCsA7KKkK2qFhn0K+6iGXOI+4Ucd+G7Robzw9Gt4WsWwxLt+Od+G+/hyqfz8ASokyWFZ6VcLw==}
     engines: {node: ^22.13.0 || ^24.3.0 || >= 26.0.0}
@@ -2337,6 +2352,14 @@ packages:
     resolution: {integrity: sha512-qaJmuTtswggXdBQfiUdpxrVGM7l+tH8iEDHwVDMuxyCF/kAau8sUGVuWrDKYNW4yAx7Z8ncgsT8s27pXjRH5GA==}
     peerDependencies:
       expo: '*'
+      react: '*'
+      react-native: '*'
+
+  expo-audio@58.0.12:
+    resolution: {integrity: sha512-PNVqGyxZET+hSQ/JfX29VPzdj+W5qo7zRSQabN4T/0+EmnnMvyPf5u6FbaGWQuerXKMvKIy7RwSc13ldaye1RA==}
+    peerDependencies:
+      expo: '*'
+      expo-asset: '*'
       react: '*'
       react-native: '*'
 
@@ -5566,6 +5589,11 @@ snapshots:
       merge-options: 3.0.4
       react-native: 0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0)
 
+  '@react-native-community/netinfo@12.0.1(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      react-native: 0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0)
+
   '@react-native/asset-utils@0.88.1': {}
 
   '@react-native/babel-plugin-codegen@0.88.1(@babel/core@7.29.13)':
@@ -6670,6 +6698,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  expo-audio@58.0.12(expo-asset@58.0.21(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)(typescript@6.0.3))(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0):
+    dependencies:
+      expo: 58.0.26(@babel/core@7.29.13)(@expo/dom-webview@58.0.2)(react-dom@19.3.0(react@19.3.0))(react-native-web@0.21.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
+      expo-asset: 58.0.21(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
+      react: 19.3.0
+      react-native: 0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0)
 
   expo-constants@58.0.16(expo@58.0.26)(react-native@0.88.1(@babel/core@7.29.13)(@types/react@19.3.2)(react@19.3.0))(typescript@6.0.3):
     dependencies:
