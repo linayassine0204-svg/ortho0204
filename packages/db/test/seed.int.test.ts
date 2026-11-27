@@ -90,6 +90,17 @@ describe("seed : données fictives", () => {
     }
   });
 
+  it("envoie les 2 programmes à la famille (version 1, avec niveau et consigne)", async () => {
+    const versions = await prisma.versionProgramme.findMany();
+    expect(versions).toHaveLength(2);
+    for (const v of versions) {
+      expect(v.numero).toBe(1);
+      const contenu = v.contenu as { niveau: number; consigne: string }[];
+      expect(contenu.length).toBeGreaterThan(0);
+      for (const e of contenu) expect(e.consigne.length).toBeGreaterThan(0);
+    }
+  });
+
   it("crée une vingtaine d'exercices d'exemple, TOUS étiquetés « à valider »", async () => {
     const exercices = await prisma.exercice.findMany();
     expect(exercices.length).toBeGreaterThanOrEqual(18);

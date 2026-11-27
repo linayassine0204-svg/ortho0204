@@ -34,6 +34,7 @@ const TABLES_ATTENDUES = [
   "session",
   "tentative_connexion",
   "utilisateur",
+  "version_programme",
 ];
 
 async function compter(table: string, colonne: string, valeur: string): Promise<number> {

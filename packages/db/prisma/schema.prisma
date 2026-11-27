@@ -114,9 +114,9 @@ model User {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  cabinet           Cabinet        @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
+  cabinet           Cabinet            @relation(fields: [cabinetId], references: [id], onDelete: Restrict)
   /// Pour un PATIENT_ADULT : son propre dossier patient.
-  dossierPatient    Patient?       @relation("CompteDuPatient")
+  dossierPatient    Patient?           @relation("CompteDuPatient")
   enfants           LienTuteur[]
   consentements     Consentement[]
   programmesCrees   Programme[]
@@ -126,10 +126,11 @@ model User {
   bilans            Bilan[]
   messages          Message[]
   sessions          Session[]
-  invitationsCreees Invitation[]   @relation("InvitationsCreees")
+  invitationsCreees Invitation[]       @relation("InvitationsCreees")
   documents         Document[]
-  exercicesCrees    Exercice[]     @relation("ExercicesCrees")
+  exercicesCrees    Exercice[]         @relation("ExercicesCrees")
   favoris           Favori[]
+  versionsEnvoyees  VersionProgramme[] @relation("VersionsEnvoyees")
 
   @@index([cabinetId, role])
   @@map("utilisateur")
@@ -390,15 +391,38 @@ model Programme {
   dateDebut DateTime  @db.Date
   dateFin   DateTime? @db.Date
   actif     Boolean   @default(true)
+  /// Dernière modification du contenu (exercices, niveaux, rythme, mots). Comparée au
+  /// dernier envoi pour savoir s'il y a des changements non envoyés.
+  modifieLe DateTime  @default(now())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   patient  Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
   auteur   User?              @relation(fields: [auteurId], references: [id], onDelete: SetNull)
   elements ElementProgramme[]
+  versions VersionProgramme[]
 
   @@index([patientId, actif])
   @@map("programme")
+}
+
+/// Version ENVOYÉE d'un programme : copie figée de son contenu au moment de l'envoi.
+/// La famille voit toujours la dernière version ; l'orthophoniste peut continuer à
+/// modifier le programme, les changements ne sont visibles qu'après un nouvel envoi.
+model VersionProgramme {
+  id          String   @id @default(cuid())
+  programmeId String
+  numero      Int
+  envoyeLe    DateTime @default(now())
+  envoyeParId String?
+  /// Contenu figé (type ElementEnvoye[] de packages/shared/src/programme.ts).
+  contenu     Json
+
+  programme Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  envoyePar User?     @relation("VersionsEnvoyees", fields: [envoyeParId], references: [id], onDelete: SetNull)
+
+  @@unique([programmeId, numero])
+  @@map("version_programme")
 }
 
 model ElementProgramme {

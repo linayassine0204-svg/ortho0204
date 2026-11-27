@@ -4,6 +4,7 @@
 
 import type { PrismaClient } from "../generated/prisma/client.ts";
 import { JourSemaine, Ressenti, Role } from "../generated/prisma/enums.ts";
+import { contenuProgramme } from "@app/shared";
 import { hashPassword } from "../password.ts";
 import { CATEGORIES, CONSEILS_MODELES, EXERCICES, type SlugCategorie } from "./bibliotheque.ts";
 
@@ -295,6 +296,33 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     },
     include: { elements: true },
   });
+
+  // ── Envoi des programmes à la famille (version 1, copie figée) ──
+  for (const programme of [programmeLea, programmeTom]) {
+    const complet = await prisma.programme.findUniqueOrThrow({
+      where: { id: programme.id },
+      include: {
+        elements: {
+          include: {
+            exercice: { include: { categorie: true, niveaux: true } },
+          },
+        },
+      },
+    });
+    await prisma.programme.update({
+      where: { id: programme.id },
+      data: { modifieLe: debutProgrammes },
+    });
+    await prisma.versionProgramme.create({
+      data: {
+        programmeId: programme.id,
+        numero: 1,
+        envoyeLe: debutProgrammes,
+        envoyeParId: ortho.id,
+        contenu: JSON.parse(JSON.stringify(contenuProgramme(complet.elements))),
+      },
+    });
+  }
 
   // ── Réalisations sur 6 semaines ──
   const ressentis = [Ressenti.FACILE, Ressenti.MOYEN, Ressenti.DIFFICILE];
