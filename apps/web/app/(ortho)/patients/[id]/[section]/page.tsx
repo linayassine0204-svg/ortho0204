@@ -12,6 +12,8 @@ import { lireBrouillon } from "@/lib/serveur/programme";
 import { EditeurProgramme } from "@/components/programme/EditeurProgramme";
 import { EcranConseils } from "@/components/conseils/EcranConseils";
 import { lireConseilsPatient } from "@/lib/serveur/conseils";
+import { EcranPreparation } from "@/components/preparation/EcranPreparation";
+import { lirePreparation } from "@/lib/serveur/seances";
 
 function estSection(valeur: string): valeur is SectionPatient {
   return (SECTIONS_PATIENT as readonly string[]).includes(valeur);
@@ -47,6 +49,30 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
         <EditeurProgramme
           patient={patient}
           initial={brouillon}
+          exercices={exercices}
+          categories={categories}
+        />
+      </main>
+    );
+  }
+
+  if (section === "preparation") {
+    const { utilisateur } = await patientDePage(id);
+    // lirePreparation vérifie le droit de préparer et journalise la lecture « preparation ».
+    const preparation = await lirePreparation(db(), utilisateur, id);
+    const [brouillon, patient, exercices, categories] = await Promise.all([
+      lireBrouillon(db(), utilisateur, id),
+      patientPourBibliotheque(db(), id),
+      listerExercices(db(), utilisateur),
+      listerCategories(db()),
+    ]);
+    return (
+      <main className="contenu contenu-large">
+        <h1>{t("web.preparation.titre")}</h1>
+        <EcranPreparation
+          patient={patient}
+          initial={preparation}
+          programme={brouillon}
           exercices={exercices}
           categories={categories}
         />

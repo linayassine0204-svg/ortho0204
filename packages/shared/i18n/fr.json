@@ -381,7 +381,8 @@
       "programme": {
         "titre": "Programme à la maison",
         "aide": "Ajustement rapide. Pour le rythme et le mot à la famille : écran Programme.",
-        "ouvrir": "Ouvrir le programme complet"
+        "ouvrir": "Ouvrir le programme complet",
+        "rythmeLibre": "{{fois}} fois par semaine, jours libres"
       },
       "notes": {
         "titre": "Notes de séance",

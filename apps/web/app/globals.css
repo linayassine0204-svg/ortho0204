@@ -1232,3 +1232,254 @@ legend {
 .tableau-conseils .bouton-secondaire-vert {
   margin-top: 0;
 }
+
+/* ─── Préparation de séance ────────────────────────────────────────────── */
+
+.preparation-ecran {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.resume-seance h2,
+.seance-construction h2,
+.programme-rapide h2,
+.seances-passees h2 {
+  margin: 0 0 0.5rem;
+}
+
+.resume-colonnes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.resume-colonnes h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.resume-taux {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--vert-fonce);
+  margin: 0.25rem 0;
+}
+
+.resume-lignes {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.texte-libre {
+  white-space: pre-wrap;
+  margin-top: 0;
+}
+
+.points-a-reprendre {
+  background: #fdf3e1;
+  border-left: 4px solid var(--ambre);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.3rem;
+}
+
+.preparation-zones {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.preparation-zones .panneau-selection {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 70rem) {
+  .preparation-zones,
+  .resume-colonnes {
+    grid-template-columns: 1fr;
+  }
+  .preparation-zones .panneau-selection {
+    position: static;
+    max-height: none;
+  }
+}
+
+.preparation-centre {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.seance-construction,
+.programme-rapide,
+.seances-passees {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.entete-seance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.seance-construction h3 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.bloc-propose {
+  background: var(--menthe);
+  border-radius: var(--rayon);
+  padding: 1rem;
+}
+
+.bloc-propose .aide {
+  margin-top: 0;
+}
+
+.liste-seance {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.element-seance {
+  background: #fff;
+  border: 1px solid var(--bordure);
+  border-left: 5px solid var(--vert);
+  border-radius: var(--rayon);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.element-propose {
+  border-left-color: var(--ambre);
+  border-style: dashed solid dashed solid;
+}
+
+.element-seance .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.element-seance .bouton-secondaire-vert {
+  margin-top: 0;
+}
+
+.badge-raison {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vert-fonce);
+}
+
+.bouton-accepter {
+  background: var(--vert);
+  color: #fff;
+}
+
+.changer-exercice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  border-top: 1px solid var(--bordure);
+  padding-top: 0.5rem;
+}
+
+.liste-materiel {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.bouton-exporter {
+  align-self: flex-start;
+  background: var(--marine);
+  color: #fff;
+  text-decoration: none;
+}
+
+.bloc-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--bordure);
+  padding-top: 0.75rem;
+}
+
+.champ-notes textarea {
+  width: 100%;
+}
+
+.dictee {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.bouton-dictee {
+  background: #fff;
+  color: var(--vert-fonce);
+  border: 2px solid var(--vert);
+}
+
+.bouton-dictee.actif {
+  background: #8a1c13;
+  border-color: #8a1c13;
+  color: #fff;
+}
+
+.bouton-terminer {
+  align-self: flex-start;
+  background: var(--vert-fonce);
+  color: #fff;
+}
+
+.liste-passees {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.liste-passees .carte {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+}
+
+.liste-passees .bouton-secondaire-vert {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.actions-ajout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bouton-ajouter-secondaire {
+  width: 100%;
+  background: #fff;
+  color: var(--vert-fonce);
+  border: 2px solid var(--vert);
+  font-size: 1.1rem;
+}
