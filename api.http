@@ -111,6 +111,14 @@ Content-Type: application/json
 
 { "email": "parent.lea@exemple.test", "motDePasse": "{{motDePasse}}" }
 
+### 14b. Programme de la semaine de Léa (version envoyée, plan du lundi au dimanche)
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/programme/semaine
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
+### 14c. Programme du jour (ajouter ?date=AAAA-MM-JJ pour un autre jour)
+GET {{api}}/patients/{{patientsOrtho.response.body.$.patients[0].id}}/programme/jour
+Authorization: Bearer {{parent.response.body.jetonAcces}}
+
 ### 15. Ses patients : seulement Léa
 GET {{api}}/patients
 Authorization: Bearer {{parent.response.body.jetonAcces}}

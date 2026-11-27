@@ -76,12 +76,13 @@ erDiagram
 
 ### Programme et suivi à la maison
 
-| Table                | Ce qu'elle contient                                                                                                                                      |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Programme**        | Le programme d'exercices d'un patient (titre, dates, actif ou non, auteur).                                                                              |
-| **ElementProgramme** | Une ligne du programme : quel exercice, quel niveau (1 à 3), combien de fois par semaine (1 à 7), quels jours, et le mot pour la famille.                |
-| **Realisation**      | Une fois où l'exercice a été fait (ou non) : date, fait oui/non, ressenti (facile, moyen, difficile), score (0 à 100).                                   |
-| **Enregistrement**   | Un fichier audio lié à une réalisation. La base ne garde que la **référence** du fichier, pas le fichier lui-même (il sera stocké chez l'hébergeur HDS). |
+| Table                | Ce qu'elle contient                                                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Programme**        | Le programme d'exercices d'un patient (titre, dates, actif ou non, auteur).                                                                                                                       |
+| **ElementProgramme** | Une ligne du programme : quel exercice, quel niveau (1 à 3), combien de fois par semaine (1 à 7), quels jours, le mot pour la famille, et la date de retrait éventuelle (l'historique est gardé). |
+| **VersionProgramme** | Une version **envoyée** du programme : copie figée de son contenu (numéro, date, auteur). La famille voit la dernière.                                                                            |
+| **Realisation**      | Une fois où l'exercice a été fait (ou non) : date, fait oui/non, ressenti (facile, moyen, difficile), score (0 à 100).                                                                            |
+| **Enregistrement**   | Un fichier audio lié à une réalisation. La base ne garde que la **référence** du fichier, pas le fichier lui-même (il sera stocké chez l'hébergeur HDS).                                          |
 
 ### Conseils
 
@@ -130,7 +131,7 @@ erDiagram
 - 1 cabinet fictif (messagerie activée) et 1 orthophoniste ;
 - 3 patients : **Léa, 7 ans** (1 parent), **Tom, 9 ans** (2 parents), **Paul, adulte** avec son propre compte (messagerie désactivée pour lui) ;
 - 7 catégories, 21 exercices d'exemple à 3 niveaux (tous « à valider par un orthophoniste »), 4 modèles de conseil ;
-- 2 programmes (Léa et Tom) et leurs réalisations sur les **6 dernières semaines** ;
+- 2 programmes (Léa et Tom), déjà envoyés (version 1), et leurs réalisations sur les **6 dernières semaines** ;
 - quelques séances, bilans, consentements, messages et entrées du journal d'accès.
 
 Tous les comptes ont des e-mails en `@exemple.test` (domaine réservé, jamais réel) et le mot de passe défini par `SEED_PASSWORD` dans `.env`. Le seed refuse de tourner si `NODE_ENV=production`.
