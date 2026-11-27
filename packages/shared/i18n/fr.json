@@ -206,6 +206,53 @@
       "consigneNiveau": "Consigne du niveau {{niveau}}",
       "enregistrer": "Enregistrer l'exercice",
       "annuler": "Annuler"
+    },
+    "programme": {
+      "titre": "Programme à la maison",
+      "titreParDefaut": "Programme à la maison",
+      "actuel": "Programme actuel",
+      "vide": "Aucun exercice pour l'instant. Choisissez-en dans la bibliothèque à droite.",
+      "ajouter": "Ajouter au programme",
+      "niveau": "Niveau {{niveau}}",
+      "monter": "Passer au niveau supérieur",
+      "baisser": "Baisser d'un niveau",
+      "fois": "Fois par semaine",
+      "jours": "Jours",
+      "joursAide": "Sans jour coché : à placer librement dans la semaine.",
+      "mot": "Mot pour la famille",
+      "motAide": "Par exemple : « Faites-le après le goûter. »",
+      "enregistrerMot": "Enregistrer le mot",
+      "motEnregistre": "Mot enregistré.",
+      "monterOrdre": "Monter",
+      "descendreOrdre": "Descendre",
+      "retirer": "Retirer",
+      "envoyer": "Envoyer à la famille",
+      "renvoyer": "Envoyer les modifications",
+      "jamaisEnvoye": "Pas encore envoyé à la famille.",
+      "envoye": "Envoyé le {{date}} (version {{numero}}).",
+      "modifie": "Modifications non envoyées : la famille voit encore la version {{numero}}.",
+      "envoiOk": "Programme envoyé (version {{numero}}).",
+      "destinataires": "Visible par : {{noms}}.",
+      "aucunDestinataire": "Personne ne peut encore voir le programme : aucun parent ou patient relié n'a donné son consentement.",
+      "joursCourts": {
+        "LUNDI": "Lun",
+        "MARDI": "Mar",
+        "MERCREDI": "Mer",
+        "JEUDI": "Jeu",
+        "VENDREDI": "Ven",
+        "SAMEDI": "Sam",
+        "DIMANCHE": "Dim"
+      },
+      "joursLongs": {
+        "LUNDI": "Lundi",
+        "MARDI": "Mardi",
+        "MERCREDI": "Mercredi",
+        "JEUDI": "Jeudi",
+        "VENDREDI": "Vendredi",
+        "SAMEDI": "Samedi",
+        "DIMANCHE": "Dimanche"
+      },
+      "bibliotheque": "Bibliothèque"
     }
   },
   "mobile": {
@@ -230,7 +277,9 @@
     "documentTypeRefuse": "Ce type de fichier n'est pas accepté (PDF, PNG ou JPEG).",
     "documentTropGros": "Ce fichier est trop volumineux (10 Mo au maximum).",
     "pathologieInconnue": "Une pathologie choisie n'existe pas.",
-    "exerciceUtilise": "Cet exercice est utilisé dans un programme : il ne peut pas être supprimé."
+    "exerciceUtilise": "Cet exercice est utilisé dans un programme : il ne peut pas être supprimé.",
+    "niveauLimite": "Ce niveau ne peut pas aller plus loin (niveaux 1 à 3).",
+    "programmeVide": "Ajoutez au moins un exercice avant d'envoyer le programme."
   },
   "consentement": {
     "donneesSante": {
