@@ -11,3 +11,4 @@ export * from "./conseils.ts";
 export * from "./seance.ts";
 export * from "./bilans.ts";
 export * from "./modeles-bilans.ts";
+export * from "./messagerie.ts";

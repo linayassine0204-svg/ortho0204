@@ -39,7 +39,8 @@
       "bibliotheque": "Bibliothèque",
       "deconnexion": "Se déconnecter",
       "principal": "Menu principal",
-      "dossier": "Dossier de {{prenom}}"
+      "dossier": "Dossier de {{prenom}}",
+      "reglages": "Réglages du cabinet"
     },
     "patients": {
       "titre": "Patients",
@@ -214,6 +215,16 @@
         "aucunMateriel": "Aucun matériel.",
         "pdf": "Exporter la fiche (PDF)",
         "reutiliser": "Réutiliser cette séance"
+      },
+      "messagerie": {
+        "titre": "Messagerie de ce patient",
+        "commeCabinet": "Comme le cabinet ({{etat}})",
+        "activee": "Activée pour ce patient",
+        "desactivee": "Désactivée pour ce patient",
+        "etatActivee": "activée",
+        "etatDesactivee": "désactivée",
+        "aide": "L'historique des messages est gardé même si la messagerie est désactivée.",
+        "enregistre": "Réglage enregistré."
       }
     },
     "exercice": {
@@ -647,6 +658,53 @@
         },
         "aValider": "Modèle d'exemple : à valider par un {{terme.professionnel}}."
       }
+    },
+    "reglages": {
+      "titre": "Réglages du cabinet",
+      "messagerie": "Messagerie",
+      "messagerieCase": "Messagerie activée pour le cabinet",
+      "messagerieAide": "Désactivée, elle disparaît du logiciel et de l'application des familles, et le serveur refuse tout message. Une exception est possible patient par patient (dans la Fiche).",
+      "horaires": "Horaires de réponse (affichés aux familles)",
+      "horairesAide": "Par exemple : « Je réponds sous 48 h, du lundi au vendredi. »",
+      "enregistrer": "Enregistrer",
+      "enregistre": "Réglages enregistrés.",
+      "reponses": "Réponses rapides",
+      "reponsesAide": "Modèles de messages pour les questions qui reviennent. Ils sont partagés par le cabinet.",
+      "aucuneReponse": "Aucune réponse rapide.",
+      "titreReponse": "Titre",
+      "texteReponse": "Texte",
+      "ajouterReponse": "Ajouter la réponse rapide",
+      "modifierReponse": "Enregistrer",
+      "supprimerReponse": "Supprimer",
+      "supprimerConfirmer": "Supprimer cette réponse rapide ?"
+    },
+    "messages": {
+      "titre": "Messages",
+      "avec": "Conversation avec : {{noms}}",
+      "personne": "Aucun compte famille relié n'a donné son consentement : personne ne peut encore lire ces messages.",
+      "horaires": "Affiché aux familles : « {{texte}} »",
+      "aucunHoraire": "Aucun horaire de réponse affiché aux familles (Réglages du cabinet).",
+      "vide": "Aucun message pour l'instant.",
+      "moi": "Vous",
+      "famille": "Famille",
+      "cabinet": "Cabinet",
+      "lu": "Lu",
+      "nonLu": "Non lu",
+      "ecrire": "Votre message",
+      "envoyer": "Envoyer",
+      "reponseRapide": "Réponse rapide",
+      "choisirReponse": "— choisir —",
+      "photo": "Joindre une photo",
+      "photoJointe": "Photo jointe : {{nom}}",
+      "retirerPhoto": "Retirer la photo",
+      "vocal": "Enregistrer un message vocal",
+      "arreterVocal": "Arrêter l'enregistrement",
+      "vocalPret": "Message vocal prêt ({{secondes}} s)",
+      "retirerVocal": "Retirer le message vocal",
+      "vocalIndisponible": "Enregistrement vocal indisponible dans ce navigateur.",
+      "vocalDuree": "Message vocal, {{secondes}} s",
+      "photoAlt": "Photo envoyée dans la messagerie",
+      "limites": "Photo (JPEG, PNG) ou message vocal, 10 Mo au maximum."
     }
   },
   "mobile": {
@@ -751,7 +809,27 @@
     },
     "messages": {
       "titre": "Messages",
-      "bientot": "La messagerie arrive bientôt."
+      "vide": "Aucun message pour l'instant. Écrivez à votre {{terme.professionnel}}.",
+      "horaires": "{{texte}}",
+      "ecrire": "Votre message",
+      "envoyer": "Envoyer",
+      "photo": "Photo",
+      "vocal": "Message vocal",
+      "arreter": "Arrêter",
+      "vocalPret": "Message vocal prêt ({{secondes}} s)",
+      "retirer": "Retirer",
+      "photoPrete": "Photo prête à envoyer",
+      "vocalDuree": "Message vocal ({{secondes}} s)",
+      "ecouter": "Écouter",
+      "pause": "Pause",
+      "moi": "Vous",
+      "cabinet": "{{terme.professionnelMajuscule}}",
+      "horsLigne": "Pas de connexion : les messages s'afficheront au retour du réseau.",
+      "desactivee": "La messagerie n'est pas disponible pour ce patient.",
+      "consentement": "Donnez d'abord votre accord dans l'application pour utiliser la messagerie.",
+      "envoiImpossible": "Le message n'a pas pu être envoyé. Réessayez.",
+      "actualiser": "Actualiser",
+      "photoRefusee": "Accès aux photos refusé : vous pouvez l'autoriser dans les réglages du téléphone."
     },
     "erreurs": {
       "reseau": "Pas de connexion internet. Vérifiez votre réseau puis réessayez."
@@ -808,7 +886,11 @@
     "dejaDansSeance": "Cet exercice est déjà dans la séance.",
     "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus.",
     "documentARelire": "Pour partager ce document, toutes ses parties doivent être relues.",
-    "partieInconnue": "Cette partie n'existe pas dans le document."
+    "partieInconnue": "Cette partie n'existe pas dans le document.",
+    "messagerieDesactivee": "La messagerie est désactivée pour ce patient.",
+    "pieceJointeTypeRefuse": "Type de fichier refusé : seules les photos (JPEG, PNG) et les messages vocaux sont acceptés.",
+    "pieceJointeTropGrosse": "Fichier trop volumineux (10 Mo au maximum, 5 minutes pour un message vocal).",
+    "messageVide": "Le message est vide."
   },
   "consentement": {
     "donneesSante": {
