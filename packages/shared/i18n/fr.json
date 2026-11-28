@@ -198,7 +198,23 @@
       "notes": "Notes",
       "enregistrer": "Enregistrer",
       "enregistre": "Modifications enregistrées.",
-      "modifier": "Modifier"
+      "modifier": "Modifier",
+      "seances": {
+        "titre": "Séances",
+        "aucune": "Aucune séance passée.",
+        "seanceDu": "Séance du {{date}}",
+        "exercice": "{{titre}} (niv. {{niveau}})",
+        "aucunExercice": "Aucun exercice noté.",
+        "objectifs": "Objectifs",
+        "exercices": "Exercices faits",
+        "notes": "Notes de séance",
+        "aucuneNote": "Pas de notes.",
+        "points": "Points à reprendre",
+        "materiel": "Matériel",
+        "aucunMateriel": "Aucun matériel.",
+        "pdf": "Exporter la fiche (PDF)",
+        "reutiliser": "Réutiliser cette séance"
+      }
     },
     "exercice": {
       "titreNouveau": "Nouvel exercice",
@@ -344,7 +360,8 @@
         "notes": "Notes de la dernière séance ({{date}})",
         "points": "Points à reprendre",
         "aucuneNote": "Aucune note.",
-        "aucunPoint": "Aucun point noté."
+        "aucunPoint": "Aucun point noté.",
+        "voirSeances": "Voir les séances"
       },
       "seance": {
         "titre": "Séance en construction",
@@ -384,12 +401,6 @@
         "enPlus": "Matériel en plus",
         "enPlusAide": "Écrit à la main, ajouté à la fiche de séance."
       },
-      "programme": {
-        "titre": "Programme à la maison",
-        "aide": "Ajustement rapide. Pour le rythme et le mot à la famille : écran Programme.",
-        "ouvrir": "Ouvrir le programme complet",
-        "rythmeLibre": "{{fois}} fois par semaine, jours libres"
-      },
       "notes": {
         "titre": "Notes de séance",
         "objectifs": "Objectifs",
@@ -425,13 +436,6 @@
         "aucunExercice": "Aucun exercice retenu.",
         "notes": "Notes",
         "pied": "Document confidentiel (données de santé) — page {{page}} sur {{total}}"
-      },
-      "reutiliser": {
-        "titre": "Séances passées",
-        "aucune": "Aucune séance passée.",
-        "copier": "Copier dans la séance",
-        "copiee": "{{n}} exercice(s) copié(s) dans la séance.",
-        "rienACopier": "Tous ces exercices sont déjà dans la séance."
       },
       "terminer": "Terminer la séance",
       "terminerConfirmer": "Terminer la séance ? Ses notes et points à reprendre serviront à préparer la suivante.",

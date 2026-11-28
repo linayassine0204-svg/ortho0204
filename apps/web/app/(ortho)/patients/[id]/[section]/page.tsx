@@ -13,7 +13,7 @@ import { EditeurProgramme } from "@/components/programme/EditeurProgramme";
 import { EcranConseils } from "@/components/conseils/EcranConseils";
 import { lireConseilsPatient } from "@/lib/serveur/conseils";
 import { EcranPreparation } from "@/components/preparation/EcranPreparation";
-import { lirePreparation } from "@/lib/serveur/seances";
+import { lirePreparation, listerSeancesPassees } from "@/lib/serveur/seances";
 
 function estSection(valeur: string): valeur is SectionPatient {
   return (SECTIONS_PATIENT as readonly string[]).includes(valeur);
@@ -31,7 +31,8 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
       lireFiche(db(), utilisateur, id), // vérifie les droits et journalise « fiche »
       listerCategories(db()),
     ]);
-    return <Fiche fiche={fiche} categories={categories} />;
+    const seances = await listerSeancesPassees(db(), utilisateur, id);
+    return <Fiche fiche={fiche} categories={categories} seances={seances} />;
   }
 
   if (section === "programme") {
@@ -60,8 +61,7 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
     const { utilisateur } = await patientDePage(id);
     // lirePreparation vérifie le droit de préparer et journalise la lecture « preparation ».
     const preparation = await lirePreparation(db(), utilisateur, id);
-    const [brouillon, patient, exercices, categories] = await Promise.all([
-      lireBrouillon(db(), utilisateur, id),
+    const [patient, exercices, categories] = await Promise.all([
       patientPourBibliotheque(db(), id),
       listerExercices(db(), utilisateur),
       listerCategories(db()),
@@ -72,7 +72,6 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
         <EcranPreparation
           patient={patient}
           initial={preparation}
-          programme={brouillon}
           exercices={exercices}
           categories={categories}
         />

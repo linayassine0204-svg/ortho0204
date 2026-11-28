@@ -10,10 +10,10 @@ import {
 } from "@/app/api/patients/[id]/seances/[seanceId]/elements/[elementId]/route";
 import { POST as reproposer } from "@/app/api/patients/[id]/seances/[seanceId]/proposition/route";
 import { POST as terminer } from "@/app/api/patients/[id]/seances/[seanceId]/terminer/route";
-import { POST as copier } from "@/app/api/patients/[id]/seances/[seanceId]/copie/route";
+import { POST as reutiliser } from "@/app/api/patients/[id]/seances/[seanceId]/reutiliser/route";
 import { GET as pdf } from "@/app/api/patients/[id]/seances/[seanceId]/pdf/route";
-import { POST as ajouterAuProgramme } from "@/app/api/patients/[id]/programme/elements/route";
 import { db } from "@/lib/serveur/db";
+import { listerSeancesPassees } from "@/lib/serveur/seances";
 import {
   appeler,
   creerCabinet,
@@ -179,7 +179,8 @@ describe("séance proposée (règles simples)", () => {
     expect(r.corps.resume.maison).toMatchObject({ prevues: 3, faites: 3, taux: 1 });
     expect(r.corps.resume.maison.ressentis.FACILE).toBe(3);
     expect(r.corps.resume.maison.lignes[0].dernierScore).toEqual({ score: 9, scoreMax: 10 });
-    expect(r.corps.seancesPassees).toHaveLength(1);
+    // Les séances passées ne sont plus dans la Préparation (elles sont dans la Fiche).
+    expect(r.corps.seancesPassees).toBeUndefined();
   });
 
   it("la lecture est journalisée ; rouvrir ne crée pas une deuxième séance", async () => {
@@ -329,21 +330,6 @@ describe("ajout depuis le panneau Bibliothèque", () => {
     ).toBe(1);
   });
 
-  it("« Ajouter au programme » depuis la préparation : même programme que l'écran Programme", async () => {
-    const { patient } = await patientPrepare();
-    const r = await appeler(ajouterAuProgramme, {
-      cookie: cookieOrtho,
-      params: { id: patient.id },
-      corps: { exerciceId: exo.C, niveau: 2 },
-    });
-    expect(r.status).toBe(201);
-    const programme = await db().programme.findFirstOrThrow({
-      where: { patientId: patient.id, actif: true },
-      include: { elements: true },
-    });
-    expect(programme.elements.map((e) => [e.exerciceId, e.niveau])).toContainEqual([exo.C, 2]);
-  });
-
   it("refuse un exercice d'un autre cabinet, un niveau hors de 1 à 3", async () => {
     const { patient } = await patientPrepare();
     const { seance } = (await ouvrir(patient.id)).corps;
@@ -369,7 +355,7 @@ describe("ajout depuis le panneau Bibliothèque", () => {
   });
 });
 
-describe("notes, fin de séance et réutilisation", () => {
+describe("notes et fin de séance", () => {
   it("notes enregistrées ; après « Terminer », elles alimentent la préparation suivante", async () => {
     const { patient } = await patientPrepare();
     const { seance } = (await ouvrir(patient.id)).corps;
@@ -405,43 +391,123 @@ describe("notes, fin de séance et réutilisation", () => {
     expect(refus.status).toBe(409);
     expect(refus.corps.erreur.code).toBe("seance_terminee");
   });
+});
 
-  it("copier une séance passée : ses exercices rejoignent la séance, sans doublon", async () => {
+describe("séances passées (Fiche) et « Réutiliser cette séance »", () => {
+  async function orthoActeur() {
+    const ortho = await db().user.findFirstOrThrow({
+      where: { cabinetId: cabA.id, role: "ORTHO" },
+    });
+    return { id: ortho.id, role: ortho.role, cabinetId: ortho.cabinetId };
+  }
+
+  it("la Fiche liste les séances passées, de la plus récente à la plus ancienne", async () => {
     const { patient, passee } = await patientPrepare();
-    const { seance } = (await ouvrir(patient.id)).corps;
-    const params = { id: patient.id, seanceId: seance.id };
-    const r = await appeler(copier, {
-      cookie: cookieOrtho,
-      params,
-      corps: { depuisSeanceId: passee.id },
+    const ancienne = await db().seance.create({
+      data: {
+        patientId: patient.id,
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        termineeLe: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        notes: "Notes fictives anciennes.",
+        materiel: "Sablier",
+        elements: { create: [{ exerciceId: exiger(exo.A), niveau: 1, origine: "BIBLIOTHEQUE" }] },
+      },
     });
-    expect(r.status).toBe(200);
-    expect(r.corps.copies).toBe(1);
-    const b = r.corps.elements.find((e: { exerciceId: string }) => e.exerciceId === exo.B);
-    // B était proposé (en attente) : la copie l'accepte au niveau de la séance passée.
-    expect(b).toMatchObject({ niveau: 2, retenu: true });
-    expect(
-      r.corps.elements.filter((e: { exerciceId: string }) => e.exerciceId === exo.B),
-    ).toHaveLength(1);
-
-    const encore = await appeler(copier, {
-      cookie: cookieOrtho,
-      params,
-      corps: { depuisSeanceId: passee.id },
+    // La séance en préparation n'est pas une séance passée.
+    await ouvrir(patient.id);
+    const seances = await listerSeancesPassees(db(), await orthoActeur(), patient.id);
+    expect(seances.map((s) => s.id)).toEqual([passee.id, ancienne.id]);
+    expect(seances[0]).toMatchObject({
+      notes: "Notes fictives de la dernière séance.",
+      pointsAReprendre: "Point fictif à reprendre.",
+      exercices: [{ niveau: 2, consigne: "B : consigne 2" }],
     });
-    expect(encore.corps.copies).toBe(0);
+    expect(seances[1]?.materiel.map((m) => m.nom)).toEqual(["Cartes images", "Miroir"]);
+    expect(seances[1]?.materielEnPlus).toBe("Sablier");
   });
 
-  it("refuse de copier la séance d'un autre patient", async () => {
-    const { patient } = await patientPrepare();
-    const { passee: autre } = await patientPrepare();
+  it("la liste des séances passées vérifie les droits", async () => {
+    const { patient, parent } = await patientPrepare();
+    await expect(
+      listerSeancesPassees(db(), { id: parent.id, role: "PARENT", cabinetId: cabA.id }, patient.id),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("« Réutiliser » crée une préparation pré-remplie avec les exercices de la séance", async () => {
+    const { patient, passee } = await patientPrepare();
+    await db().seance.update({
+      where: { id: passee.id },
+      data: { objectifs: "Objectifs fictifs repris.", materiel: "Sablier" },
+    });
+    // Aucune préparation en cours.
+    expect(await db().seance.count({ where: { patientId: patient.id, termineeLe: null } })).toBe(0);
+    const r = await appeler(reutiliser, {
+      cookie: cookieOrtho,
+      params: { id: patient.id, seanceId: passee.id },
+      corps: {},
+    });
+    expect(r.status).toBe(201);
+
     const { seance } = (await ouvrir(patient.id)).corps;
-    const r = await appeler(copier, {
+    expect(seance.id).toBe(r.corps.seanceId);
+    // Pré-remplie : les exercices de la séance passée, retenus, aux mêmes niveaux ; pas de
+    // propositions ajoutées par-dessus.
+    expect(seance.elements).toEqual([
+      expect.objectContaining({ exerciceId: exo.B, niveau: 2, retenu: true, origine: "COPIE" }),
+    ]);
+    expect(seance).toMatchObject({ objectifs: "Objectifs fictifs repris.", materiel: "Sablier" });
+    // La séance passée n'est pas modifiée.
+    expect(await db().seance.findUniqueOrThrow({ where: { id: passee.id } })).toMatchObject({
+      termineeLe: expect.any(Date),
+    });
+  });
+
+  it("préparation en cours : propositions remplacées, exercices retenus et notes gardés", async () => {
+    const { patient, passee } = await patientPrepare();
+    const { seance } = (await ouvrir(patient.id)).corps;
+    await appeler(ajouter, {
       cookie: cookieOrtho,
       params: { id: patient.id, seanceId: seance.id },
-      corps: { depuisSeanceId: autre.id },
+      corps: { exerciceId: exo.Grands, niveau: 3 },
     });
-    expect(r.status).toBe(404);
+    await appeler(modifierSeance, {
+      cookie: cookieOrtho,
+      methode: "PATCH",
+      params: { id: patient.id, seanceId: seance.id },
+      corps: { notes: "Notes en cours (fictif)." },
+    });
+    const r = await appeler(reutiliser, {
+      cookie: cookieOrtho,
+      params: { id: patient.id, seanceId: passee.id },
+      corps: {},
+    });
+    expect(r.corps.seanceId).toBe(seance.id);
+    const apres = (await ouvrir(patient.id)).corps.seance;
+    expect(apres.notes).toBe("Notes en cours (fictif).");
+    expect(
+      apres.elements.map((e: { exerciceId: string; retenu: boolean }) => [e.exerciceId, e.retenu]),
+    ).toEqual([
+      [exo.Grands, true],
+      [exo.B, true],
+    ]);
+  });
+
+  it("refuse de réutiliser la séance d'un autre patient, ou une séance pas terminée", async () => {
+    const { patient } = await patientPrepare();
+    const { passee: autre } = await patientPrepare();
+    const croise = await appeler(reutiliser, {
+      cookie: cookieOrtho,
+      params: { id: patient.id, seanceId: autre.id },
+      corps: {},
+    });
+    expect(croise.status).toBe(404);
+    const { seance } = (await ouvrir(patient.id)).corps;
+    const enCours = await appeler(reutiliser, {
+      cookie: cookieOrtho,
+      params: { id: patient.id, seanceId: seance.id },
+      corps: {},
+    });
+    expect(enCours.status).toBe(404);
   });
 });
 
@@ -555,7 +621,8 @@ describe("droits", () => {
         .status,
     ).toBe(404);
     expect(
-      (await appeler(copier, { bearer, params, corps: { depuisSeanceId: passee.id } })).status,
+      (await appeler(reutiliser, { bearer, params: { id: patient.id, seanceId: passee.id } }))
+        .status,
     ).toBe(404);
 
     expect((await appeler(preparation, { params: { id: patient.id } })).status).toBe(401);

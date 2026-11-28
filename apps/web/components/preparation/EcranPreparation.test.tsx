@@ -1,10 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { contenuProgramme, t, type ExerciceBibliotheque } from "@app/shared";
+import { t, type ExerciceBibliotheque } from "@app/shared";
 import type { ElementSeanceVue, Preparation } from "@/lib/serveur/seances";
 import { EcranPreparation } from "./EcranPreparation";
 
-// Écran Préparation : résumé, séance proposée, programme et panneau Bibliothèque
+// Écran Préparation : résumé, séance proposée et panneau Bibliothèque
 // (le composant <BibliothequeSelecteur>, réutilisé). Données fictives, API simulée.
 
 const categorie = { id: "c1", nom: "Langage écrit", slug: "langage-ecrit" };
@@ -88,13 +88,6 @@ const preparation: Preparation = {
       pointsAReprendre: "Reprendre les rimes (fictif).",
     },
   },
-  seancesPassees: [
-    {
-      id: "passee1",
-      date: new Date("2026-11-20T09:00:00Z"),
-      exercices: [{ titre: "Syllabes", niveau: 2 }],
-    },
-  ],
 };
 
 let appels: { url: string; methode: string; corps: unknown }[];
@@ -123,27 +116,6 @@ beforeEach(() => {
           }),
         });
       }
-      if (url.endsWith("/copie")) {
-        return json({
-          copies: 1,
-          elements: [...preparation.seance.elements, vue(ex("e2"), 2, { origine: "COPIE" })],
-        });
-      }
-      if (url.endsWith("/programme/elements")) {
-        const e = ex(corps.exerciceId);
-        const [element] = contenuProgramme([
-          {
-            id: "pe1",
-            ordre: 1,
-            niveau: corps.niveau,
-            foisParSemaine: 3,
-            jours: [],
-            motFamille: null,
-            exercice: e,
-          },
-        ]);
-        return json({ element }, 201);
-      }
       return new Response(null, { status: 204 });
     }),
   );
@@ -158,12 +130,6 @@ function afficher() {
     <EcranPreparation
       patient={patient}
       initial={preparation}
-      programme={{
-        elements: [],
-        derniereVersion: null,
-        modifieDepuisEnvoi: false,
-        destinataires: [],
-      }}
       exercices={exercices}
       categories={[categorie]}
     />,
@@ -174,7 +140,7 @@ const panneau = () => screen.getByRole("complementary");
 const P = "web.preparation";
 
 describe("<EcranPreparation>", () => {
-  it("affiche le résumé, la séance proposée, le programme et la bibliothèque à droite", () => {
+  it("affiche le résumé, la séance proposée et la bibliothèque à droite", () => {
     afficher();
     expect(screen.getByRole("heading", { name: t(`${P}.resume.titre`) })).toBeTruthy();
     expect(screen.getByText("4 sur 5 faits (80 %)")).toBeTruthy();
@@ -183,7 +149,6 @@ describe("<EcranPreparation>", () => {
 
     const proposee = screen.getByRole("list", { name: t(`${P}.seance.proposee`) });
     expect(within(proposee).getByText(/Niveau suivant : derniers résultats bons/)).toBeTruthy();
-    expect(screen.getByRole("heading", { name: t(`${P}.programme.titre`) })).toBeTruthy();
     // Le panneau de droite est bien le composant de la bibliothèque, pré-réglé sur le patient.
     expect(within(panneau()).getByText(/Léa/)).toBeTruthy();
     expect(within(panneau()).getByRole("search")).toBeTruthy();
@@ -213,22 +178,30 @@ describe("<EcranPreparation>", () => {
     expect(within(materiel).getByText("miroir")).toBeTruthy();
   });
 
-  it("« Ajouter au programme » depuis le même panneau : même programme que l'écran Programme", async () => {
+  it("n'affiche plus de programme à la maison, ni de séances passées", () => {
+    afficher();
+    expect(screen.queryByRole("heading", { name: t("web.programme.titre") })).toBeNull();
+    expect(screen.queryByText(t("web.programme.vide"))).toBeNull();
+    expect(screen.queryByRole("button", { name: /Envoyer/ })).toBeNull();
+    expect(screen.queryByText(/Séance du 20\/11\/2026/)).toBeNull();
+    expect(screen.queryByRole("button", { name: /Réutiliser|Copier/ })).toBeNull();
+    // Le résumé renvoie vers les séances passées, dans la Fiche.
+    const lien = screen.getByRole("link", { name: t(`${P}.resume.voirSeances`) });
+    expect(lien.getAttribute("href")).toBe("/patients/p1/fiche#seances");
+  });
+
+  it("le panneau Bibliothèque n'a qu'un bouton : « Ajouter à la séance »", () => {
     afficher();
     fireEvent.click(within(panneau()).getByRole("button", { name: /Syllabes/ }));
-    fireEvent.click(
-      within(panneau()).getByLabelText(t("web.bibliotheque.niveauCourt", { niveau: 2 })),
-    );
-    fireEvent.click(
-      within(panneau()).getByRole("button", { name: new RegExp(`^${t("web.programme.ajouter")}`) }),
-    );
-    const programme = await screen.findByRole("list", { name: t(`${P}.programme.titre`) });
-    expect(within(programme).getByRole("listitem", { name: "Syllabes" })).toBeTruthy();
-    const ajout = appels.find((a) => a.url.endsWith("/programme/elements"));
-    expect(ajout).toMatchObject({
-      url: "/api/patients/p1/programme/elements",
-      corps: { exerciceId: "e2", niveau: 2 },
-    });
+    const boutons = within(panneau())
+      .getAllByRole("button")
+      .filter((b) => /^Ajouter/.test(b.textContent ?? ""));
+    expect(boutons.map((b) => b.textContent)).toEqual([
+      `${t(`${P}.seance.ajouter`)} — ${t("web.bibliotheque.niveauCourt", { niveau: 1 })}`,
+    ]);
+    expect(
+      within(panneau()).queryByRole("button", { name: new RegExp(t("web.programme.ajouter")) }),
+    ).toBeNull();
   });
 
   it("accepter une proposition la fait entrer dans la séance", async () => {
@@ -255,14 +228,8 @@ describe("<EcranPreparation>", () => {
     expect(appels.at(-1)?.methode).toBe("DELETE");
   });
 
-  it("copier une séance passée ; lien d'export PDF de la séance", async () => {
+  it("lien d'export PDF de la séance en cours", () => {
     afficher();
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(`^${t(`${P}.reutiliser.copier`)}`) }),
-    );
-    await screen.findByText(t(`${P}.reutiliser.copiee`, { n: 1 }));
-    expect(appels.at(-1)).toMatchObject({ corps: { depuisSeanceId: "passee1" } });
-
     const lien = screen.getByRole("link", { name: t(`${P}.pdf.exporter`) });
     expect(lien.getAttribute("href")).toBe("/api/patients/p1/seances/seance1/pdf");
   });

@@ -44,16 +44,6 @@ interface PropsSelection extends PropsCommunes {
   onAjouter: (exercice: ExerciceBibliotheque, niveau: Niveau) => unknown;
   /** Libellé du bouton (ex. « Ajouter au programme »). Par défaut : « Ajouter ». */
   libelleAjouter?: string;
-  /**
-   * Autres boutons d'ajout, au même niveau choisi (ex. Préparation : « Ajouter à la
-   * séance » puis « Ajouter au programme »). Même règle de retour que `onAjouter`.
-   */
-  autresAjouts?: AjoutSupplementaire[];
-}
-
-export interface AjoutSupplementaire {
-  libelle: string;
-  onAjouter: (exercice: ExerciceBibliotheque, niveau: Niveau) => unknown;
 }
 
 export type BibliothequeSelecteurProps = PropsComplet | PropsSelection;
@@ -356,33 +346,19 @@ export function BibliothequeSelecteur(props: BibliothequeSelecteurProps) {
               </fieldset>
 
               {props.mode === "selection" && (
-                <div className="actions-ajout">
-                  {[
-                    {
-                      libelle: props.libelleAjouter ?? t("web.bibliotheque.ajouter"),
-                      onAjouter: props.onAjouter,
-                    },
-                    ...(props.autresAjouts ?? []),
-                  ].map((action, i) => (
-                    <button
-                      key={action.libelle}
-                      type="button"
-                      className={i === 0 ? "bouton-ajouter" : "bouton-ajouter-secondaire"}
-                      onClick={async () => {
-                        if ((await action.onAjouter(choisi, niveauChoisi)) === false) return;
-                        setAnnonce(
-                          t("web.bibliotheque.ajoute", {
-                            titre: choisi.titre,
-                            niveau: niveauChoisi,
-                          }),
-                        );
-                      }}
-                    >
-                      {action.libelle} —{" "}
-                      {t("web.bibliotheque.niveauCourt", { niveau: niveauChoisi })}
-                    </button>
-                  ))}
-                </div>
+                <button
+                  type="button"
+                  className="bouton-ajouter"
+                  onClick={async () => {
+                    if ((await props.onAjouter(choisi, niveauChoisi)) === false) return;
+                    setAnnonce(
+                      t("web.bibliotheque.ajoute", { titre: choisi.titre, niveau: niveauChoisi }),
+                    );
+                  }}
+                >
+                  {props.libelleAjouter ?? t("web.bibliotheque.ajouter")} —{" "}
+                  {t("web.bibliotheque.niveauCourt", { niveau: niveauChoisi })}
+                </button>
               )}
               {annonce && (
                 <p className="message message-succes" role="status">

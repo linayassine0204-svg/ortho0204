@@ -5,12 +5,22 @@ import { dateFr, libelleAge } from "@/lib/format";
 import type { Categorie } from "@/lib/serveur/categories";
 import { AGE_MIN_COMPTE_PATIENT } from "@/lib/serveur/invitations";
 import type { Fiche as DonneesFiche } from "@/lib/serveur/patients";
+import type { SeancePassee } from "@/lib/serveur/seances";
 import { CasesPathologies } from "./CasesPathologies";
 import { Documents } from "./Documents";
 import { FormulaireFiche } from "./FormulaireFiche";
+import { SeancesFiche } from "./SeancesFiche";
 
 /** Sous-partie Fiche du dossier patient. */
-export function Fiche({ fiche, categories }: { fiche: DonneesFiche; categories: Categorie[] }) {
+export function Fiche({
+  fiche,
+  categories,
+  seances,
+}: {
+  fiche: DonneesFiche;
+  categories: Categorie[];
+  seances: SeancePassee[];
+}) {
   const naissanceIso = new Date(fiche.dateNaissance).toISOString().slice(0, 10);
   const enfant = fiche.age < AGE_MIN_COMPTE_PATIENT;
   const aUnParent = fiche.contacts.some((c) => c.role === "PARENT");
@@ -121,6 +131,11 @@ export function Fiche({ fiche, categories }: { fiche: DonneesFiche; categories: 
         <section className="carte" aria-labelledby="titre-documents">
           <h2 id="titre-documents">{t("web.fiche.documents")}</h2>
           <Documents patientId={fiche.id} documents={fiche.documents} />
+        </section>
+
+        <section id="seances" className="carte carte-large" aria-labelledby="titre-seances">
+          <h2 id="titre-seances">{t("web.fiche.seances.titre")}</h2>
+          <SeancesFiche patientId={fiche.id} seances={seances} />
         </section>
 
         <section className="carte carte-large" aria-labelledby="titre-notes">

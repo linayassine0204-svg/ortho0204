@@ -1242,9 +1242,7 @@ legend {
 }
 
 .resume-seance h2,
-.seance-construction h2,
-.programme-rapide h2,
-.seances-passees h2 {
+.seance-construction h2 {
   margin: 0 0 0.5rem;
 }
 
@@ -1314,9 +1312,7 @@ legend {
   gap: 1.5rem;
 }
 
-.seance-construction,
-.programme-rapide,
-.seances-passees {
+.seance-construction {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1447,41 +1443,6 @@ legend {
   align-self: flex-start;
   background: var(--vert-fonce);
   color: #fff;
-}
-
-.liste-passees {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.liste-passees .carte {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.75rem 1rem;
-}
-
-.liste-passees .bouton-secondaire-vert {
-  align-self: flex-start;
-  margin-top: 0.25rem;
-}
-
-.actions-ajout {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.bouton-ajouter-secondaire {
-  width: 100%;
-  background: #fff;
-  color: var(--vert-fonce);
-  border: 2px solid var(--vert);
-  font-size: 1.1rem;
 }
 
 /* ─── Bilans et comptes rendus ─────────────────────────────────────────── */
@@ -1661,4 +1622,56 @@ legend {
   padding: 0.2rem 0.6rem;
   border-radius: 0.3rem;
   margin: 0;
+}
+
+/* ─── Fiche : séances passées ──────────────────────────────────────────── */
+
+.liste-seances-fiche {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.seance-fiche {
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  padding: 0.6rem 0.9rem;
+}
+
+.seance-fiche summary {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.seance-fiche[open] summary {
+  border-bottom: 1px solid var(--bordure);
+  padding-bottom: 0.5rem;
+}
+
+.resume-notes {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seance-fiche-detail h3 {
+  font-size: 1.02rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.seance-fiche-detail ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.seance-fiche-detail .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { t } from "@app/shared";
 import type { Preparation } from "@/lib/serveur/seances";
 import { dateFr, jourFr } from "@/lib/format";
@@ -9,7 +10,13 @@ const jour = (aaaammjj: string) => dateFr(`${aaaammjj}T00:00:00Z`);
  * En haut de « Préparation » : ce qui a été fait à la maison depuis la dernière séance
  * (taux, ressenti, scores), les notes de la dernière séance et les points à reprendre.
  */
-export function ResumeAvantSeance({ resume }: { resume: Preparation["resume"] }) {
+export function ResumeAvantSeance({
+  patientId,
+  resume,
+}: {
+  patientId: string;
+  resume: Preparation["resume"];
+}) {
   const { maison, derniereSeance } = resume;
   const r = "web.preparation.resume";
   return (
@@ -79,6 +86,11 @@ export function ResumeAvantSeance({ resume }: { resume: Preparation["resume"] })
           ) : (
             <p>{t(`${r}.aucuneSeance`)}</p>
           )}
+          <p>
+            <Link href={`/patients/${encodeURIComponent(patientId)}/fiche#seances`}>
+              {t(`${r}.voirSeances`)}
+            </Link>
+          </p>
         </div>
       </div>
     </section>

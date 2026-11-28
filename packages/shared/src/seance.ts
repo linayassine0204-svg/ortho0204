@@ -370,6 +370,3 @@ export const modificationSeanceSchema = z
   .partial()
   .refine((v) => Object.keys(v).length > 0);
 export type ModificationSeance = z.infer<typeof modificationSeanceSchema>;
-
-/** POST …/seances/:seanceId/copie : reprendre les exercices d'une séance passée. */
-export const copieSeanceSchema = z.object({ depuisSeanceId: idSchema });

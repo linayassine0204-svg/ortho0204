@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   NIVEAUX,
@@ -19,12 +18,7 @@ import {
 } from "@/components/bibliotheque/BibliothequeSelecteur";
 import { IconeCategorie } from "@/components/bibliotheque/IconeCategorie";
 import { Message } from "@/components/Message";
-import { EtatEnvoi } from "@/components/programme/EditeurProgramme";
-import {
-  useProgramme,
-  type EtatProgramme,
-  type MessageEcran,
-} from "@/components/programme/useProgramme";
+import type { MessageEcran } from "@/components/programme/useProgramme";
 import { envoyerJson } from "@/lib/client/api";
 import { jourFr } from "@/lib/format";
 import type { ElementSeanceVue, Preparation } from "@/lib/serveur/seances";
@@ -36,24 +30,24 @@ const P = "web.preparation";
 /**
  * Préparer une séance en quelques minutes :
  * - en haut, le résumé avant séance ;
- * - au centre, la séance en construction (proposée, puis retenue) et le programme ;
+ * - au centre, la séance en construction (proposée, puis retenue), le matériel, l'export
+ *   PDF et les notes ;
  * - à droite, le panneau Bibliothèque (le composant <BibliothequeSelecteur>, réutilisé).
+ * Le programme à la maison se compose dans la sous-partie Programme ; les séances passées
+ * sont dans la Fiche.
  */
 export function EcranPreparation({
   patient,
   initial,
-  programme: programmeInitial,
   exercices,
   categories,
 }: {
   patient: PatientBibliotheque;
   initial: Preparation;
-  programme: EtatProgramme;
   exercices: ExerciceBibliotheque[];
   categories: CategorieFiltre[];
 }) {
   const [preparation, setPreparation] = useState(initial);
-  const programme = useProgramme(patient.id, programmeInitial);
 
   /** Après « Terminer » : on relit la préparation (nouvelle séance proposée). */
   async function recharger() {
@@ -65,14 +59,12 @@ export function EcranPreparation({
 
   return (
     <div className="preparation-ecran">
-      <ResumeAvantSeance resume={preparation.resume} />
+      <ResumeAvantSeance patientId={patient.id} resume={preparation.resume} />
       <SeanceEtBibliotheque
         // Nouvelle séance : on repart d'un état propre.
         key={preparation.seance.id}
         patient={patient}
         preparation={preparation}
-        programme={programme}
-        destinataires={programmeInitial.destinataires}
         exercices={exercices}
         categories={categories}
         onTerminee={recharger}
@@ -84,16 +76,12 @@ export function EcranPreparation({
 function SeanceEtBibliotheque({
   patient,
   preparation,
-  programme,
-  destinataires,
   exercices,
   categories,
   onTerminee,
 }: {
   patient: PatientBibliotheque;
   preparation: Preparation;
-  programme: ReturnType<typeof useProgramme>;
-  destinataires: EtatProgramme["destinataires"];
   exercices: ExerciceBibliotheque[];
   categories: CategorieFiltre[];
   onTerminee: () => Promise<void>;
@@ -162,21 +150,6 @@ function SeanceEtBibliotheque({
   async function reproposer() {
     const d = await appel<{ elements: ElementSeanceVue[] }>(`${base}/proposition`, {});
     if (d) setElements(d.elements);
-  }
-
-  async function copier(depuisSeanceId: string) {
-    const d = await appel<{ copies: number; elements: ElementSeanceVue[] }>(`${base}/copie`, {
-      depuisSeanceId,
-    });
-    if (!d) return;
-    setElements(d.elements);
-    setMessage({
-      type: "succes",
-      texte:
-        d.copies > 0
-          ? t(`${P}.reutiliser.copiee`, { n: d.copies })
-          : t(`${P}.reutiliser.rienACopier`),
-    });
   }
 
   async function terminer() {
@@ -285,43 +258,6 @@ function SeanceEtBibliotheque({
             {t(`${P}.terminer`)}
           </button>
         </section>
-
-        <ProgrammeRapide
-          patientId={patient.id}
-          programme={programme}
-          destinataires={destinataires}
-        />
-
-        <section className="seances-passees" aria-labelledby="titre-passees">
-          <h2 id="titre-passees">{t(`${P}.reutiliser.titre`)}</h2>
-          {preparation.seancesPassees.length === 0 ? (
-            <p className="discret">{t(`${P}.reutiliser.aucune`)}</p>
-          ) : (
-            <ul className="liste-passees">
-              {preparation.seancesPassees.map((s) => (
-                <li key={s.id} className="carte">
-                  <strong>{t(`${P}.seanceDu`, { date: jourFr(s.date) })}</strong>
-                  <span className="discret">
-                    {s.exercices
-                      .map(
-                        (e) =>
-                          `${e.titre} (${t("web.bibliotheque.niveauCourt", { niveau: e.niveau })})`,
-                      )
-                      .join(", ")}
-                  </span>
-                  <button
-                    type="button"
-                    className="bouton-secondaire-vert"
-                    onClick={() => copier(s.id)}
-                    aria-label={`${t(`${P}.reutiliser.copier`)} : ${t(`${P}.seanceDu`, { date: jourFr(s.date) })}`}
-                  >
-                    {t(`${P}.reutiliser.copier`)}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
       </div>
 
       <aside
@@ -336,7 +272,6 @@ function SeanceEtBibliotheque({
           categories={categories}
           libelleAjouter={t(`${P}.seance.ajouter`)}
           onAjouter={ajouterALaSeance}
-          autresAjouts={[{ libelle: t("web.programme.ajouter"), onAjouter: programme.ajouter }]}
         />
       </aside>
     </div>
@@ -552,80 +487,5 @@ function NotesSeance({ base, seance }: { base: string; seance: Preparation["sean
         {etat && <Message type={etat.type} texte={etat.texte} />}
       </div>
     </div>
-  );
-}
-
-/** Programme à la maison : lecture et ajustement rapide (même programme que l'écran Programme). */
-function ProgrammeRapide({
-  patientId,
-  programme,
-  destinataires,
-}: {
-  patientId: string;
-  programme: ReturnType<typeof useProgramme>;
-  destinataires: EtatProgramme["destinataires"];
-}) {
-  const { elements, ajuster, retirer } = programme;
-  return (
-    <section className="programme-rapide" aria-labelledby="titre-programme-rapide">
-      <h2 id="titre-programme-rapide">{t(`${P}.programme.titre`)}</h2>
-      <p className="aide">{t(`${P}.programme.aide`)}</p>
-      <EtatEnvoi programme={programme} destinataires={destinataires} />
-      {elements.length === 0 ? (
-        <p className="carte">{t("web.programme.vide")}</p>
-      ) : (
-        <ul className="liste-seance" aria-label={t(`${P}.programme.titre`)}>
-          {elements.map((el) => (
-            <li key={el.elementId} className="element-seance" aria-label={el.titre}>
-              <div className="element-entete">
-                <IconeCategorie slug={el.categorie.slug} />
-                <div className="element-titre">
-                  <strong>{el.titre}</strong>
-                  <span className="discret">
-                    {el.jours.length > 0
-                      ? el.jours.map((j) => t(`web.programme.joursCourts.${j}`)).join(", ")
-                      : t(`${P}.programme.rythmeLibre`, { fois: el.foisParSemaine })}
-                  </span>
-                </div>
-              </div>
-              <div className="element-niveau">
-                <button
-                  type="button"
-                  className="bouton-niveau"
-                  disabled={el.niveau <= 1}
-                  onClick={() => ajuster(el, "baisser")}
-                  aria-label={`${t("web.programme.baisser")} : ${el.titre}`}
-                >
-                  −
-                </button>
-                <span className="niveau-actuel">
-                  {t("web.programme.niveau", { niveau: el.niveau })}
-                </span>
-                <button
-                  type="button"
-                  className="bouton-niveau"
-                  disabled={el.niveau >= 3}
-                  onClick={() => ajuster(el, "monter")}
-                  aria-label={`${t("web.programme.monter")} : ${el.titre}`}
-                >
-                  +
-                </button>
-                <button
-                  type="button"
-                  className="bouton-lien bouton-danger"
-                  onClick={() => retirer(el)}
-                  aria-label={`${t("web.programme.retirer")} : ${el.titre}`}
-                >
-                  {t("web.programme.retirer")}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-      <Link className="bouton-lien" href={`/patients/${encodeURIComponent(patientId)}/programme`}>
-        {t(`${P}.programme.ouvrir`)}
-      </Link>
-    </section>
   );
 }

@@ -30,8 +30,8 @@ import { ficheSeancePdf } from "./pdf-seance";
 const JOUR_MS = 24 * 60 * 60 * 1000;
 /** Sans séance terminée, le résumé et les résultats portent sur les 14 derniers jours. */
 const JOURS_SANS_SEANCE = 14;
-/** Nombre de séances passées listées pour être copiées. */
-const SEANCES_PASSEES = 10;
+/** Nombre de séances passées listées dans la Fiche. */
+const SEANCES_PASSEES = 100;
 
 const inclusionElement = {
   exercice: { include: { categorie: true, niveaux: true } },
@@ -222,12 +222,16 @@ function estDoublon(erreur: unknown): boolean {
   );
 }
 
-/** Séance en préparation du patient ; créée (avec la séance proposée) si elle n'existe pas. */
+/**
+ * Séance en préparation du patient ; créée si elle n'existe pas, avec la séance proposée
+ * (sauf `avecPropositions: false`, quand on réutilise une séance passée).
+ */
 async function seanceEnPreparation(
   prisma: PrismaClient,
   acteur: Acteur,
   patientId: string,
   maintenant: Date,
+  avecPropositions = true,
 ) {
   const existante = await prisma.seance.findFirst({ where: { patientId, termineeLe: null } });
   if (existante) return existante;
@@ -236,7 +240,7 @@ async function seanceEnPreparation(
       const seance = await tx.seance.create({
         data: { patientId, orthoId: acteur.id, date: maintenant },
       });
-      await insererPropositions(tx, acteur, patientId, seance.id, maintenant);
+      if (avecPropositions) await insererPropositions(tx, acteur, patientId, seance.id, maintenant);
       return seance;
     });
   } catch (erreur) {
@@ -289,7 +293,8 @@ async function prochainOrdre(prisma: Client, seanceId: string) {
 
 /**
  * Tout ce qu'affiche « Préparation » : la séance en construction (proposée + retenue),
- * le résumé avant séance et les séances passées. La lecture est journalisée.
+ * et le résumé avant séance. La lecture est journalisée. (Les séances passées sont dans
+ * la Fiche : `listerSeancesPassees`.)
  */
 export async function lirePreparation(
   prisma: PrismaClient,
@@ -300,22 +305,10 @@ export async function lirePreparation(
   await autoriser(prisma, acteur, patientId);
   await journaliserAcces(prisma, { userId: acteur.id, patientId, section: "preparation" });
   const seance = await seanceEnPreparation(prisma, acteur, patientId, maintenant);
-  const [elements, derniere, programme, passees] = await Promise.all([
+  const [elements, derniere, programme] = await Promise.all([
     elementsDe(prisma, seance.id),
     derniereSeanceTerminee(prisma, patientId),
     programmeActif(prisma, patientId),
-    prisma.seance.findMany({
-      where: { patientId, termineeLe: { not: null } },
-      orderBy: { date: "desc" },
-      take: SEANCES_PASSEES,
-      include: {
-        elements: {
-          where: { retenu: true },
-          orderBy: { ordre: "asc" },
-          include: { exercice: { select: { titre: true } } },
-        },
-      },
-    }),
   ]);
 
   // Résumé de la maison : du jour de la dernière séance à hier (heure de Paris).
@@ -377,11 +370,6 @@ export async function lirePreparation(
           }
         : null,
     },
-    seancesPassees: passees.map((s) => ({
-      id: s.id,
-      date: s.date,
-      exercices: s.elements.map((e) => ({ titre: e.exercice.titre, niveau: e.niveau })),
-    })),
   };
 }
 export type Preparation = Awaited<ReturnType<typeof lirePreparation>>;
@@ -573,58 +561,111 @@ export async function terminerSeance(
   });
 }
 
+// ─── Séances passées (Fiche) ───────────────────────────────────────────────
+
 /**
- * Réutiliser une séance passée : ses exercices (aux mêmes niveaux) rejoignent la séance
- * en préparation. Ceux déjà retenus sont laissés tels quels ; une proposition en attente
- * pour le même exercice est acceptée au niveau de la séance copiée.
+ * Séances terminées du patient, de la plus récente à la plus ancienne, pour la zone
+ * « Séances » de la Fiche : date, exercices faits, notes, points à reprendre, matériel.
+ * À appeler après la lecture de la Fiche (déjà journalisée) : droits revérifiés ici.
  */
-export async function copierSeance(
+export async function listerSeancesPassees(
   prisma: PrismaClient,
   acteur: Acteur,
   patientId: string,
-  seanceId: string,
+) {
+  await patientAutorise(prisma, acteur, patientId, "lire", "fiche", { journaliser: false });
+  const seances = await prisma.seance.findMany({
+    where: { patientId, termineeLe: { not: null } },
+    orderBy: { date: "desc" },
+    take: SEANCES_PASSEES,
+    include: {
+      elements: { where: { retenu: true }, orderBy: { ordre: "asc" }, include: inclusionElement },
+    },
+  });
+  return seances.map((s) => {
+    const exercices = s.elements.map(versVue);
+    return {
+      id: s.id,
+      date: s.date,
+      objectifs: s.objectifs,
+      notes: s.notes,
+      pointsAReprendre: s.pointsAReprendre,
+      materielEnPlus: s.materiel,
+      exercices: exercices.map((e) => ({
+        titre: e.titre,
+        niveau: e.niveau,
+        consigne: e.consigne,
+        dureeMinutes: e.dureeMinutes,
+      })),
+      materiel: materielSeance(exercices),
+    };
+  });
+}
+export type SeancePassee = Awaited<ReturnType<typeof listerSeancesPassees>>[number];
+
+/**
+ * « Réutiliser cette séance » (depuis la Fiche) : la préparation de la prochaine séance
+ * est pré-remplie avec les exercices de la séance passée, aux mêmes niveaux, et ses
+ * objectifs et son matériel en plus. Sans préparation en cours, elle est créée (sans
+ * propositions). Avec une préparation en cours, les propositions en attente sont
+ * remplacées ; les exercices déjà retenus et les notes sont gardés (rien n'est perdu).
+ */
+export async function reutiliserSeance(
+  prisma: PrismaClient,
+  acteur: Acteur,
+  patientId: string,
   depuisSeanceId: string,
+  maintenant = new Date(),
 ) {
   await autoriser(prisma, acteur, patientId);
-  await seanceDuPatient(prisma, patientId, seanceId);
-  if (depuisSeanceId === seanceId) throw erreurs.donneesInvalides();
-  await seanceDuPatient(prisma, patientId, depuisSeanceId, false);
-  const source = await prisma.elementSeance.findMany({
-    where: { seanceId: depuisSeanceId, retenu: true },
-    orderBy: { ordre: "asc" },
-    include: { exercice: { select: { cabinetId: true } } },
+  const source = await prisma.seance.findFirst({
+    where: { id: depuisSeanceId, patientId, termineeLe: { not: null } },
+    include: {
+      elements: {
+        where: { retenu: true },
+        orderBy: { ordre: "asc" },
+        include: { exercice: { select: { cabinetId: true } } },
+      },
+    },
   });
-  const copies = await prisma.$transaction(async (tx) => {
-    const presents = new Map(
-      (await tx.elementSeance.findMany({ where: { seanceId } })).map((e) => [e.exerciceId, e]),
+  if (!source) throw erreurs.introuvable();
+  const seance = await seanceEnPreparation(prisma, acteur, patientId, maintenant, false);
+  await prisma.$transaction(async (tx) => {
+    await tx.elementSeance.deleteMany({ where: { seanceId: seance.id, retenu: false } });
+    const presents = new Set(
+      (await tx.elementSeance.findMany({ where: { seanceId: seance.id } })).map(
+        (e) => e.exerciceId,
+      ),
     );
-    let ordre = await prochainOrdre(tx, seanceId);
-    let n = 0;
-    for (const e of source) {
+    let ordre = await prochainOrdre(tx, seance.id);
+    for (const e of source.elements) {
+      if (presents.has(e.exerciceId)) continue;
       if (!can(acteur, "lire", { type: "exercice", cabinetId: e.exercice.cabinetId })) continue;
-      const present = presents.get(e.exerciceId);
-      if (present?.retenu) continue;
-      if (present) {
-        await tx.elementSeance.update({
-          where: { id: present.id },
-          data: { retenu: true, niveau: e.niveau },
-        });
-      } else {
-        await tx.elementSeance.create({
-          data: {
-            seanceId,
-            exerciceId: e.exerciceId,
-            niveau: e.niveau,
-            ordre: ordre++,
-            origine: "COPIE",
-          },
-        });
-      }
-      n += 1;
+      await tx.elementSeance.create({
+        data: {
+          seanceId: seance.id,
+          exerciceId: e.exerciceId,
+          niveau: e.niveau,
+          ordre: ordre++,
+          origine: "COPIE",
+        },
+      });
     }
-    return n;
+    await tx.seance.update({
+      where: { id: seance.id },
+      data: {
+        objectifs: seance.objectifs ?? source.objectifs,
+        materiel: seance.materiel ?? source.materiel,
+      },
+    });
   });
-  return { copies, elements: await elementsDe(prisma, seanceId) };
+  await journaliserAcces(prisma, {
+    userId: acteur.id,
+    patientId,
+    section: "preparation",
+    action: "MODIFICATION",
+  });
+  return { seanceId: seance.id };
 }
 
 // ─── Fiche de séance (PDF) ─────────────────────────────────────────────────
