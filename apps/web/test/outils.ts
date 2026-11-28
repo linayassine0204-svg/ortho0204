@@ -201,7 +201,9 @@ export const PNG_FICTIF = new Uint8Array([
 export function textePdf(octets: Uint8Array): string {
   const brut = Buffer.from(octets).toString("latin1");
   const morceaux: string[] = [];
-  for (const m of brut.matchAll(/stream\r?\n([\s\S]*?)\r?\nendstream/g)) {
+  // pdf-lib écrit « stream\n … \nendstream » : ne pas retirer de « \r », qui peut être le
+  // dernier octet des données compressées (sinon la décompression échoue, 1 fois sur 256).
+  for (const m of brut.matchAll(/stream\n([\s\S]*?)\nendstream/g)) {
     const flux = Buffer.from(m[1] ?? "", "latin1");
     let contenu: string;
     try {
