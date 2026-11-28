@@ -1,5 +1,8 @@
 # Programme à la maison
 
+C'est le **seul endroit** où l'on ajoute des exercices pour la maison (la Préparation ne prépare que
+la séance au cabinet).
+
 ## Écran `/patients/[id]/programme`
 
 - **À gauche, le programme actuel** : pour chaque exercice, le niveau (boutons − et + : « baisser

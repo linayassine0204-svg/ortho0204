@@ -10,8 +10,8 @@
 | Menu        | Adresse        | État                                                           |
 | ----------- | -------------- | -------------------------------------------------------------- |
 | Fiche       | `/fiche`       | faite                                                          |
-| Préparation | `/preparation` | bientôt disponible                                             |
-| Bilans      | `/bilans`      | bientôt disponible                                             |
+| Préparation | `/preparation` | fait (voir PREPARATION.md) : la prochaine séance seulement     |
+| Bilans      | `/bilans`      | fait (voir BILANS.md)                                          |
 | Programme   | `/programme`   | fait (voir PROGRAMME.md)                                       |
 | Conseils    | `/conseils`    | fait (voir CONSEILS.md)                                        |
 | Messages    | `/messagerie`  | bientôt disponible, **masqué si la messagerie est désactivée** |
@@ -30,7 +30,9 @@ toujours créé dans le cabinet de l'orthophoniste connecté, quoi que le naviga
 ## Fiche
 
 Identité (prénom, nom, date de naissance), pathologies, contacts (parents ou compte du patient, avec
-l'état de leur consentement, et les invitations en attente), médecin prescripteur, documents, notes.
+l'état de leur consentement, et les invitations en attente), médecin prescripteur, documents, notes,
+et la zone **Séances** : les séances passées (lecture, export PDF, « Réutiliser cette séance »), voir
+PREPARATION.md.
 Chaque modification est journalisée (`MODIFICATION`).
 
 ### Documents

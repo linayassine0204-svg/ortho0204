@@ -1,6 +1,8 @@
 # Préparation de séance
 
-Écran `/patients/[id]/preparation` : préparer la séance du jour en quelques minutes.
+Écran `/patients/[id]/preparation` : préparer la **prochaine** séance en quelques minutes. Il ne sert
+qu'à cela : le programme à la maison se compose dans **Programme**, et l'historique des séances
+passées est dans la **Fiche** (zone « Séances »).
 Réservé à l'orthophoniste du cabinet (les familles n'y ont jamais accès).
 
 ## Les zones de l'écran
@@ -16,13 +18,26 @@ Réservé à l'orthophoniste du cabinet (les familles n'y ont jamais accès).
   3. le **matériel à préparer**, calculé automatiquement ;
   4. **Exporter la fiche (PDF)** ;
   5. les **notes de séance** (objectifs, matériel en plus, notes, points à reprendre), au clavier ou en
-     dictée locale (voir plus bas), puis **Terminer la séance** ;
-  6. le **programme à la maison** : lecture, niveau −/+, retrait et envoi (même programme que l'écran
-     Programme, même code : `useProgramme`) ;
-  7. les **séances passées**, avec « Copier dans la séance ».
+     dictée locale (voir plus bas), puis **Terminer la séance**.
 - **À droite, le panneau Bibliothèque** : le composant `<BibliothequeSelecteur>` réutilisé tel quel, en
   mode sélection, filtres pré-réglés sur le patient. On choisit le niveau, puis **Ajouter à la séance**
-  ou **Ajouter au programme** (option `autresAjouts` du composant).
+  (seul bouton : pour la maison, c'est la sous-partie Programme).
+- Le résumé propose un lien **« Voir les séances »** vers la zone « Séances » de la Fiche.
+
+## Séances passées (Fiche) et « Réutiliser cette séance »
+
+Dans la Fiche (`/patients/[id]/fiche#seances`), les séances terminées, de la plus récente à la plus
+ancienne : date, exercices faits, notes. Un clic ouvre la séance en lecture (objectifs, exercices et
+consignes, notes, points à reprendre, matériel, **export PDF**).
+
+**Réutiliser cette séance** pré-remplit la préparation de la prochaine séance, puis ouvre
+Préparation :
+
+- les exercices de la séance passée, aux mêmes niveaux (retenus, origine « Copié »), ses objectifs et
+  son matériel en plus ;
+- sans préparation en cours, elle est créée **sans propositions** ;
+- avec une préparation en cours, ses propositions en attente sont remplacées ; les exercices déjà
+  retenus et les notes sont **gardés** (rien n'est perdu). La séance passée n'est pas modifiée.
 
 ## Séance proposée : les règles (pas d'IA)
 
@@ -83,19 +98,17 @@ Code : `apps/web/lib/client/dictee.ts`.
 
 ## API
 
-| Route                                                            | Rôle                                                               |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `GET /api/patients/:id/preparation`                              | séance en préparation (créée avec la proposition), résumé, passées |
-| `POST /api/patients/:id/seances/:seanceId/elements`              | ajouter `{ exerciceId, niveau }` (panneau Bibliothèque)            |
-| `PATCH /api/patients/:id/seances/:seanceId/elements/:elementId`  | `{ retenu: true }`, `{ niveau }` ou `{ exerciceId }` (remplacer)   |
-| `DELETE /api/patients/:id/seances/:seanceId/elements/:elementId` | retirer                                                            |
-| `POST /api/patients/:id/seances/:seanceId/proposition`           | proposer à nouveau (les retenus restent)                           |
-| `PATCH /api/patients/:id/seances/:seanceId`                      | `notes`, `pointsAReprendre`, `objectifs`, `materiel`               |
-| `POST /api/patients/:id/seances/:seanceId/terminer`              | terminer la séance                                                 |
-| `POST /api/patients/:id/seances/:seanceId/copie`                 | `{ depuisSeanceId }` : copier les exercices d'une séance passée    |
-| `GET /api/patients/:id/seances/:seanceId/pdf`                    | fiche de séance (PDF)                                              |
-
-« Ajouter au programme » utilise l'API du programme (`POST /api/patients/:id/programme/elements`).
+| Route                                                            | Rôle                                                             |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `GET /api/patients/:id/preparation`                              | séance en préparation (créée avec la proposition), résumé        |
+| `POST /api/patients/:id/seances/:seanceId/elements`              | ajouter `{ exerciceId, niveau }` (panneau Bibliothèque)          |
+| `PATCH /api/patients/:id/seances/:seanceId/elements/:elementId`  | `{ retenu: true }`, `{ niveau }` ou `{ exerciceId }` (remplacer) |
+| `DELETE /api/patients/:id/seances/:seanceId/elements/:elementId` | retirer                                                          |
+| `POST /api/patients/:id/seances/:seanceId/proposition`           | proposer à nouveau (les retenus restent)                         |
+| `PATCH /api/patients/:id/seances/:seanceId`                      | `notes`, `pointsAReprendre`, `objectifs`, `materiel`             |
+| `POST /api/patients/:id/seances/:seanceId/terminer`              | terminer la séance                                               |
+| `POST /api/patients/:id/seances/:seanceId/reutiliser`            | réutiliser cette séance passée : préparation pré-remplie         |
+| `GET /api/patients/:id/seances/:seanceId/pdf`                    | fiche de séance (PDF)                                            |
 
 ## Reste à faire (hors tâche 9)
 

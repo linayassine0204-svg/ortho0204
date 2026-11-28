@@ -20,7 +20,6 @@ aperçu partout, en deux modes :
   categories={categories}
   onAjouter={(exercice, niveau) => { /* ajouter à la séance ou au programme */ }}
   libelleAjouter="Ajouter à la séance"          // facultatif
-  autresAjouts={[{ libelle: "Ajouter au programme", onAjouter: … }]} // facultatif
 />
 ```
 
