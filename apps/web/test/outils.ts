@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { inflateSync } from "node:zlib";
 import { NextRequest } from "next/server";
 import { hashPassword, type Role } from "@app/db";
 import { db } from "@/lib/serveur/db";
@@ -195,3 +196,34 @@ export const PDF_FICTIF = new TextEncoder().encode("%PDF-1.4\n% document fictif\
 export const PNG_FICTIF = new Uint8Array([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
 ]);
+
+/** Texte d'un PDF produit par pdf-lib (flux décompressés, chaînes en hexadécimal). */
+export function textePdf(octets: Uint8Array): string {
+  const brut = Buffer.from(octets).toString("latin1");
+  const morceaux: string[] = [];
+  for (const m of brut.matchAll(/stream\r?\n([\s\S]*?)\r?\nendstream/g)) {
+    const flux = Buffer.from(m[1] ?? "", "latin1");
+    let contenu: string;
+    try {
+      contenu = inflateSync(flux).toString("latin1");
+    } catch {
+      contenu = flux.toString("latin1");
+    }
+    for (const t of contenu.matchAll(/<([0-9A-Fa-f]+)> Tj/g)) {
+      // Polices standard : codage WinAnsi (latin-1, sauf quelques signes comme « — »).
+      const winAnsi: Record<number, string> = {
+        0x95: "•",
+        0x96: "–",
+        0x97: "—",
+        0x92: "’",
+        0x9c: "œ",
+      };
+      morceaux.push(
+        [...Buffer.from(t[1] ?? "", "hex")]
+          .map((o) => winAnsi[o] ?? String.fromCharCode(o))
+          .join(""),
+      );
+    }
+  }
+  return morceaux.join("\n");
+}

@@ -1,5 +1,5 @@
 import type { ActionAcces, PrismaClient } from "@app/db";
-import type { SectionPatient } from "./droits";
+import type { SectionRessource } from "./droits";
 
 /**
  * Écrit une ligne dans le journal d'accès. Appelé à chaque lecture d'un dossier
@@ -10,7 +10,7 @@ export async function journaliserAcces(
   entree: {
     userId: string;
     patientId: string;
-    section?: SectionPatient | "resume" | "documents" | "enregistrement";
+    section?: SectionRessource | "resume" | "documents" | "enregistrement";
     action?: ActionAcces;
   },
 ): Promise<void> {

@@ -1,4 +1,3 @@
-import { inflateSync } from "node:zlib";
 import { PDFDocument } from "pdf-lib";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -24,6 +23,7 @@ import {
   ipFictive,
   jetonMobile,
   jetonWeb,
+  textePdf,
   unique,
 } from "./outils";
 
@@ -444,31 +444,6 @@ describe("notes, fin de séance et réutilisation", () => {
     expect(r.status).toBe(404);
   });
 });
-
-/** Texte d'un PDF produit par pdf-lib (flux décompressés, chaînes en hexadécimal). */
-function textePdf(octets: Uint8Array): string {
-  const brut = Buffer.from(octets).toString("latin1");
-  const morceaux: string[] = [];
-  for (const m of brut.matchAll(/stream\r?\n([\s\S]*?)\r?\nendstream/g)) {
-    const flux = Buffer.from(m[1] ?? "", "latin1");
-    let contenu: string;
-    try {
-      contenu = inflateSync(flux).toString("latin1");
-    } catch {
-      contenu = flux.toString("latin1");
-    }
-    for (const t of contenu.matchAll(/<([0-9A-Fa-f]+)> Tj/g)) {
-      // Polices standard : codage WinAnsi (latin-1, sauf quelques signes comme « — »).
-      const winAnsi: Record<number, string> = { 0x96: "–", 0x97: "—", 0x92: "’", 0x9c: "œ" };
-      morceaux.push(
-        [...Buffer.from(t[1] ?? "", "hex")]
-          .map((o) => winAnsi[o] ?? String.fromCharCode(o))
-          .join(""),
-      );
-    }
-  }
-  return morceaux.join("\n");
-}
 
 async function telecharger(patientId: string, seanceId: string, cookie = cookieOrtho) {
   const req = new NextRequest("http://localhost:3000/api/test", {

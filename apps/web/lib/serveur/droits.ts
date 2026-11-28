@@ -43,10 +43,18 @@ export const SECTIONS_PATIENT = [
 ] as const;
 export type SectionPatient = (typeof SECTIONS_PATIENT)[number];
 
+/**
+ * Parties lisibles par la famille qui ne sont pas des sous-parties du dossier :
+ * - documentsPartages : les bilans et courriers que l'orthophoniste a cochés « partager »
+ *   (la section « bilans », elle, reste réservée à l'orthophoniste).
+ */
+export type PartieFamille = "documentsPartages";
+export type SectionRessource = SectionPatient | PartieFamille;
+
 /** Sections visibles dans l'application mobile, selon le rôle. */
-const SECTIONS_FAMILLE: Record<"PARENT" | "PATIENT_ADULT", readonly SectionPatient[]> = {
-  PARENT: ["programme", "conseils", "messagerie", "suivi"],
-  PATIENT_ADULT: ["programme", "messagerie"],
+const SECTIONS_FAMILLE: Record<"PARENT" | "PATIENT_ADULT", readonly SectionRessource[]> = {
+  PARENT: ["programme", "conseils", "messagerie", "suivi", "documentsPartages"],
+  PATIENT_ADULT: ["programme", "messagerie", "documentsPartages"],
 };
 
 export interface RessourcePatient {
@@ -64,7 +72,7 @@ export interface RessourcePatient {
    */
   consentementIds: readonly string[];
   /** Partie du dossier visée. Absente = identité minimale (prénom, âge). */
-  section?: SectionPatient;
+  section?: SectionRessource;
 }
 
 export interface RessourceCabinet {

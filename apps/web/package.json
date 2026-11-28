@@ -13,6 +13,7 @@
   "dependencies": {
     "@app/db": "workspace:*",
     "@app/shared": "workspace:*",
+    "docx": "9.15.3",
     "dotenv": "^18.0.10",
     "next": "^16.4.6",
     "pdf-lib": "1.17.1",
@@ -28,6 +29,7 @@
     "@types/node": "^22.20.6",
     "@types/react": "^19.3.2",
     "@types/react-dom": "^19.3.0",
+    "fflate": "0.8.2",
     "jsdom": "^26.1.0"
   }
 }

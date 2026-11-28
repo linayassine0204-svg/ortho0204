@@ -40,6 +40,9 @@ export const erreurs = {
   dejaDansSeance: () => new ErreurApi(409, "deja_dans_seance", "erreurs.dejaDansSeance"),
   /** Une séance terminée ne se modifie plus (ses notes restent consultables). */
   seanceTerminee: () => new ErreurApi(409, "seance_terminee", "erreurs.seanceTerminee"),
+  /** Partage refusé : des parties ne sont pas encore relues. */
+  documentARelire: () => new ErreurApi(409, "document_a_relire", "erreurs.documentARelire"),
+  partieInconnue: () => new ErreurApi(404, "partie_inconnue", "erreurs.partieInconnue"),
 };
 
 export function corpsErreur(erreur: ErreurApi) {

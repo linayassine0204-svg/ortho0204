@@ -85,6 +85,12 @@ describe("can() — parent", () => {
     }
   });
 
+  it("lit les documents partagés (jamais la section bilans), sans pouvoir les modifier", () => {
+    expect(can(parent, "lire", section(enfant, "documentsPartages"))).toBe(true);
+    expect(can(parent, "modifier", section(enfant, "documentsPartages"))).toBe(false);
+    expect(can(parent, "lire", section(enfant, "bilans"))).toBe(false);
+  });
+
   it("ne peut ni modifier, ni supprimer, ni inviter", () => {
     for (const action of ["modifier", "supprimer", "inviter"] as const) {
       expect(can(parent, action, enfant)).toBe(false);
@@ -113,6 +119,7 @@ describe("can() — patient adulte", () => {
     for (const s of ["fiche", "preparation", "bilans", "conseils", "suivi"] as const) {
       expect(can(adulte, "lire", section(dossierAdulte, s))).toBe(false);
     }
+    expect(can(adulte, "lire", section(dossierAdulte, "documentsPartages"))).toBe(true);
   });
 
   it("ne peut pas modifier son dossier", () => {

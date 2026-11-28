@@ -10,7 +10,7 @@ import {
   type Acteur,
   type Action,
   type RessourcePatient,
-  type SectionPatient,
+  type SectionRessource,
 } from "./droits";
 import { erreurs } from "./erreurs";
 import { journaliserAcces } from "./journal";
@@ -30,7 +30,7 @@ type PatientAvecDroits = Prisma.PatientGetPayload<{ include: typeof inclusionDro
 /** Construit la ressource passée à `can()` à partir du patient chargé en base. */
 export function ressourcePatient(
   patient: PatientAvecDroits,
-  section?: SectionPatient,
+  section?: SectionRessource,
 ): RessourcePatient {
   return {
     type: "patient",
@@ -60,7 +60,7 @@ export async function patientAutorise(
   acteur: Acteur,
   patientId: string,
   action: Action,
-  section?: SectionPatient,
+  section?: SectionRessource,
   options: { journaliser?: boolean } = {},
 ): Promise<PatientAvecDroits> {
   const patient = await prisma.patient.findUnique({
