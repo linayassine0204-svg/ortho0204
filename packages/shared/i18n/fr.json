@@ -704,7 +704,8 @@
       "vocalIndisponible": "Enregistrement vocal indisponible dans ce navigateur.",
       "vocalDuree": "Message vocal, {{secondes}} s",
       "photoAlt": "Photo envoyée dans la messagerie",
-      "limites": "Photo (JPEG, PNG) ou message vocal, 10 Mo au maximum."
+      "limites": "Photo (JPEG, PNG) ou message vocal, 10 Mo au maximum.",
+      "actualiser": "Actualiser"
     }
   },
   "mobile": {

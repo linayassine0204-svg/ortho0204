@@ -60,6 +60,10 @@ export function Coquille({ patient, children }: { patient?: PatientMenu; childre
           </ul>
         </nav>
         <div className="menu-bas">
+          {/* Réglages du cabinet : hors des deux grandes entrées (Patients, Bibliothèque). */}
+          <LienMenu href="/reglages" className="lien-reglages">
+            {t("web.menu.reglages")}
+          </LienMenu>
           <BoutonDeconnexion />
         </div>
       </aside>

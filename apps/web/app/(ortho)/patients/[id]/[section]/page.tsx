@@ -13,7 +13,20 @@ import { EditeurProgramme } from "@/components/programme/EditeurProgramme";
 import { EcranConseils } from "@/components/conseils/EcranConseils";
 import { lireConseilsPatient } from "@/lib/serveur/conseils";
 import { EcranPreparation } from "@/components/preparation/EcranPreparation";
+import { EcranMessages } from "@/components/messagerie/EcranMessages";
+import { ErreurApi } from "@/lib/serveur/erreurs";
+import { lireFil, listerReponsesRapides } from "@/lib/serveur/messagerie";
 import { lirePreparation, listerSeancesPassees } from "@/lib/serveur/seances";
+
+/** Fil du patient ; messagerie désactivée ou refus : page 404 (le menu ne l'affiche pas). */
+async function filDePage(...args: Parameters<typeof lireFil>) {
+  try {
+    return await lireFil(...args);
+  } catch (erreur) {
+    if (erreur instanceof ErreurApi) notFound();
+    throw erreur;
+  }
+}
 
 function estSection(valeur: string): valeur is SectionPatient {
   return (SECTIONS_PATIENT as readonly string[]).includes(valeur);
@@ -87,6 +100,21 @@ export default async function SectionPage({ params }: PageProps<"/patients/[id]/
       <main className="contenu contenu-large">
         <h1>{t("web.conseils.titre")}</h1>
         <EcranConseils initial={conseils} />
+      </main>
+    );
+  }
+
+  if (section === "messagerie") {
+    const { utilisateur } = await patientDePage(id);
+    // lireFil vérifie les droits (messagerie désactivée : refus) et journalise la lecture.
+    const [fil, reponses] = await Promise.all([
+      filDePage(db(), utilisateur, id),
+      listerReponsesRapides(db(), utilisateur),
+    ]);
+    return (
+      <main className="contenu">
+        <h1>{t("web.messages.titre")}</h1>
+        <EcranMessages patientId={id} initial={fil} reponses={reponses} />
       </main>
     );
   }

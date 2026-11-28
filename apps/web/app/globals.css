@@ -1675,3 +1675,143 @@ legend {
   gap: 0.75rem;
   margin-top: 0.75rem;
 }
+
+/* ─── Messagerie et réglages ───────────────────────────────────────────── */
+
+.lien-reglages {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.reglages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 44rem;
+}
+
+.reglages form.carte,
+.formulaire-reponse {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.liste-reponses {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ligne-reponse {
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  padding: 0.75rem;
+}
+
+.ligne-reponse .actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.messagerie {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 48rem;
+}
+
+.bandeau-horaires {
+  background: var(--menthe);
+  border-left: 4px solid var(--vert);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.3rem;
+  margin: 0;
+}
+
+.fil-messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bulle {
+  max-width: 80%;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--bordure);
+}
+
+.bulle-moi {
+  align-self: flex-end;
+  background: #e3f1ec;
+  border-color: var(--vert);
+}
+
+.bulle-autre {
+  align-self: flex-start;
+  background: #fff;
+}
+
+.bulle p {
+  margin: 0;
+}
+
+.bulle-auteur {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.bulle-texte {
+  white-space: pre-wrap;
+}
+
+.bulle-lu {
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.photo-message {
+  display: block;
+  max-width: 100%;
+  max-height: 18rem;
+  border-radius: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.vocal-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.composer textarea {
+  width: 100%;
+  font: inherit;
+}
+
+.pieces-a-joindre {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.bouton-fichier {
+  margin-top: 0;
+  cursor: pointer;
+}

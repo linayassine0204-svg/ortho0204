@@ -9,6 +9,7 @@ import type { SeancePassee } from "@/lib/serveur/seances";
 import { CasesPathologies } from "./CasesPathologies";
 import { Documents } from "./Documents";
 import { FormulaireFiche } from "./FormulaireFiche";
+import { MessageriePatient } from "./MessageriePatient";
 import { SeancesFiche } from "./SeancesFiche";
 
 /** Sous-partie Fiche du dossier patient. */
@@ -126,6 +127,15 @@ export function Fiche({
               maxLength={200}
             />
           </FormulaireFiche>
+        </section>
+
+        <section className="carte" aria-labelledby="titre-messagerie-patient">
+          <h2 id="titre-messagerie-patient">{t("web.fiche.messagerie.titre")}</h2>
+          <MessageriePatient
+            patientId={fiche.id}
+            cabinet={fiche.messagerie.cabinet}
+            initial={fiche.messagerie.patient}
+          />
         </section>
 
         <section className="carte" aria-labelledby="titre-documents">
