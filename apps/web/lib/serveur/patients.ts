@@ -70,13 +70,25 @@ export async function patientAutorise(
   if (!patient) throw erreurs.introuvable();
   const ressource = ressourcePatient(patient, section);
   if (!can(acteur, action, ressource)) {
+    // Messagerie désactivée : refus clair, mais seulement pour qui y aurait accès sinon
+    // (les autres reçoivent 404, comme d'habitude, pour ne rien révéler).
+    if (
+      section === "messagerie" &&
+      !ressource.messagerieActivee &&
+      can(acteur, action, { ...ressource, messagerieActivee: true })
+    ) {
+      throw erreurs.messagerieDesactivee();
+    }
     // « Consentement requis » seulement si c'est bien lui qui manque (sinon : 404).
     const avecConsentement = {
       ...ressource,
       consentementIds: [...ressource.consentementIds, acteur.id],
     };
     const actionFamille =
-      action === "lire" || action === "realiser" || action === "confirmerLecture";
+      action === "lire" ||
+      action === "realiser" ||
+      action === "confirmerLecture" ||
+      action === "ecrire";
     if (actionFamille && can(acteur, action, avecConsentement)) {
       throw erreurs.consentementRequis();
     }
@@ -334,6 +346,11 @@ export async function lireFiche(prisma: PrismaClient, acteur: Acteur, patientId:
     documents: p.documents,
     notes: p.notes,
     messagerieActivee: messagerieActivee(base),
+    /** Réglage du cabinet et exception du patient (null : suit le cabinet). */
+    messagerie: {
+      cabinet: base.cabinet.messagerieActivee,
+      patient: base.reglage?.messagerieActivee ?? null,
+    },
   };
 }
 export type Fiche = Awaited<ReturnType<typeof lireFiche>>;

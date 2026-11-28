@@ -85,6 +85,18 @@ describe("can() — parent", () => {
     }
   });
 
+  it("écrit seulement dans la messagerie activée, avec son consentement", () => {
+    expect(can(parent, "ecrire", section(enfant, "messagerie"))).toBe(true);
+    expect(can(parent, "ecrire", section(enfant, "programme"))).toBe(false);
+    expect(can(parent, "ecrire", enfant)).toBe(false);
+    expect(
+      can(parent, "ecrire", { ...section(enfant, "messagerie"), messagerieActivee: false }),
+    ).toBe(false);
+    expect(can(parent, "ecrire", { ...section(enfant, "messagerie"), consentementIds: [] })).toBe(
+      false,
+    );
+  });
+
   it("lit les documents partagés (jamais la section bilans), sans pouvoir les modifier", () => {
     expect(can(parent, "lire", section(enfant, "documentsPartages"))).toBe(true);
     expect(can(parent, "modifier", section(enfant, "documentsPartages"))).toBe(false);

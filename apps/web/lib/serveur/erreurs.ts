@@ -43,6 +43,14 @@ export const erreurs = {
   /** Partage refusé : des parties ne sont pas encore relues. */
   documentARelire: () => new ErreurApi(409, "document_a_relire", "erreurs.documentARelire"),
   partieInconnue: () => new ErreurApi(404, "partie_inconnue", "erreurs.partieInconnue"),
+  /** Messagerie coupée pour ce patient (cabinet ou exception) : l'API refuse tout. */
+  messagerieDesactivee: () =>
+    new ErreurApi(403, "messagerie_desactivee", "erreurs.messagerieDesactivee"),
+  pieceJointeTypeRefuse: () =>
+    new ErreurApi(415, "piece_jointe_type_refuse", "erreurs.pieceJointeTypeRefuse"),
+  pieceJointeTropGrosse: () =>
+    new ErreurApi(413, "piece_jointe_trop_grosse", "erreurs.pieceJointeTropGrosse"),
+  messageVide: () => new ErreurApi(400, "message_vide", "erreurs.messageVide"),
 };
 
 export function corpsErreur(erreur: ErreurApi) {

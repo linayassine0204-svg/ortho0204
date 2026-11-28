@@ -16,7 +16,8 @@ export interface Acteur {
  * - consentir : donner ou retirer son propre consentement pour un patient ;
  * - creer : créer un patient dans un cabinet ;
  * - realiser : enregistrer qu'un exercice du programme a été fait (famille seulement) ;
- * - confirmerLecture : « J'ai compris » sur un conseil reçu (famille seulement).
+ * - confirmerLecture : « J'ai compris » sur un conseil reçu (famille seulement) ;
+ * - ecrire : envoyer un message dans la messagerie du patient.
  */
 export type Action =
   | "lire"
@@ -26,7 +27,8 @@ export type Action =
   | "consentir"
   | "creer"
   | "realiser"
-  | "confirmerLecture";
+  | "confirmerLecture"
+  | "ecrire";
 
 /** Actions propres à la famille : l'orthophoniste ne les fait jamais à sa place. */
 const ACTIONS_FAMILLE: readonly Action[] = ["consentir", "realiser", "confirmerLecture"];
@@ -127,6 +129,8 @@ function peutSurPatient(acteur: Acteur, action: Action, patient: RessourcePatien
         patient.section === undefined || SECTIONS_FAMILLE[acteur.role].includes(patient.section);
       // « J'ai compris » : sur les conseils, si la famille peut les voir (parents seulement).
       if (action === "confirmerLecture") return patient.section === "conseils" && sectionVisible;
+      // Écrire : seulement dans la messagerie (activée), à son orthophoniste.
+      if (action === "ecrire") return patient.section === "messagerie" && sectionVisible;
       if (action !== "lire") return false;
       return sectionVisible;
     }
