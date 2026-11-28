@@ -44,7 +44,7 @@ erDiagram
 
 | Table                    | Ce qu'elle contient                                                                                                                                                                 |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cabinet**              | Le cabinet (nom) et le grand interrupteur « messagerie activée oui/non ».                                                                                                           |
+| **Cabinet**              | Le cabinet (nom) et le grand interrupteur « messagerie activée oui/non », et les horaires de réponse affichés aux familles.                                                         |
 | **User** (`utilisateur`) | Un compte : e-mail, mot de passe **haché** (jamais en clair), rôle (`ORTHO`, `PARENT` ou `PATIENT_ADULT`), cabinet.                                                                 |
 | **LienTuteur**           | « Ce parent est responsable de cet enfant ». Un enfant peut avoir plusieurs parents, un parent plusieurs enfants. C'est ce lien qui décidera de ce qu'un parent a le droit de voir. |
 | **Consentement**         | Qui a accepté quoi (conditions, données de santé, messagerie, audio), avec quelle version du texte, quand, et s'il l'a retiré (avec la date du retrait).                            |
@@ -106,11 +106,12 @@ erDiagram
 
 ### Messagerie
 
-| Table           | Ce qu'elle contient                                               |
-| --------------- | ----------------------------------------------------------------- |
-| **FilMessages** | Une conversation à propos d'un patient.                           |
-| **Message**     | Un message du fil : auteur, texte, date d'envoi, date de lecture. |
-| **PieceJointe** | Un fichier joint à un message (référence du fichier uniquement).  |
+| Table             | Ce qu'elle contient                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| **FilMessages**   | La conversation d'un patient : **une seule par patient** (avec ses parents, ou avec lui s'il est majeur).  |
+| **Message**       | Un message du fil : auteur, texte, date d'envoi, date de lecture.                                          |
+| **ReponseRapide** | Modèle de message du cabinet pour les questions qui reviennent.                                            |
+| **PieceJointe**   | Photo ou message vocal joint à un message : type réel contrôlé, taille, durée d'un vocal, clé de stockage. |
 
 ### Traçabilité
 

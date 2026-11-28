@@ -7,15 +7,15 @@
 - **Dossier** `/patients/[id]/[section]` : sous le nom du patient, dans l'entrée _Patients_ du menu,
   on trouve les 7 sous-parties.
 
-| Menu        | Adresse        | État                                                           |
-| ----------- | -------------- | -------------------------------------------------------------- |
-| Fiche       | `/fiche`       | faite                                                          |
-| Préparation | `/preparation` | fait (voir PREPARATION.md) : la prochaine séance seulement     |
-| Bilans      | `/bilans`      | fait (voir BILANS.md)                                          |
-| Programme   | `/programme`   | fait (voir PROGRAMME.md)                                       |
-| Conseils    | `/conseils`    | fait (voir CONSEILS.md)                                        |
-| Messages    | `/messagerie`  | bientôt disponible, **masqué si la messagerie est désactivée** |
-| Progrès     | `/suivi`       | bientôt disponible                                             |
+| Menu        | Adresse        | État                                                                  |
+| ----------- | -------------- | --------------------------------------------------------------------- |
+| Fiche       | `/fiche`       | faite                                                                 |
+| Préparation | `/preparation` | fait (voir PREPARATION.md) : la prochaine séance seulement            |
+| Bilans      | `/bilans`      | fait (voir BILANS.md)                                                 |
+| Programme   | `/programme`   | fait (voir PROGRAMME.md)                                              |
+| Conseils    | `/conseils`    | fait (voir CONSEILS.md)                                               |
+| Messages    | `/messagerie`  | fait (voir MESSAGERIE.md), **masqué si la messagerie est désactivée** |
+| Progrès     | `/suivi`       | bientôt disponible                                                    |
 
 Les adresses suivent les noms de CLAUDE.md (Messagerie, Suivi) ; les libellés viennent de `fr.json`.
 
@@ -31,7 +31,7 @@ toujours créé dans le cabinet de l'orthophoniste connecté, quoi que le naviga
 
 Identité (prénom, nom, date de naissance), pathologies, contacts (parents ou compte du patient, avec
 l'état de leur consentement, et les invitations en attente), médecin prescripteur, documents, notes,
-et la zone **Séances** : les séances passées (lecture, export PDF, « Réutiliser cette séance »), voir
+l'exception de **messagerie** du patient, et la zone **Séances** : les séances passées (lecture, export PDF, « Réutiliser cette séance »), voir
 PREPARATION.md.
 Chaque modification est journalisée (`MODIFICATION`).
 

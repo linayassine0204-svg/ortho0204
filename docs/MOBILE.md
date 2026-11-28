@@ -66,6 +66,12 @@ chiffré est dans AsyncStorage (`donnees/cache.ts`).
 - Accès retiré (404) ou consentement retiré (403) : la copie de ce patient est effacée.
 - La copie ne contient que le nécessaire (pas de date de naissance, pas de nom de famille).
 
+## Messages
+
+Onglet présent seulement si la messagerie est activée pour le patient : conversation avec
+l'orthophoniste, horaires de réponse, texte, photo de la galerie, message vocal. Rien n'est gardé sur
+le téléphone (voir MESSAGERIE.md).
+
 ## Lancer sur un téléphone
 
 L'API tourne sur l'ordinateur (`pnpm dev:web`). Le téléphone ne connaît pas `localhost` : indiquer
