@@ -90,7 +90,7 @@
         "titre": "Documents partagés",
         "aucun": "Aucun document partagé pour l'instant.",
         "lire": "Lire (PDF)",
-        "partageLe": "Partagé le {{date}}"
+        "partageLe": "document du {{date}}"
       }
     },
     "bientot": {

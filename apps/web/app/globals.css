@@ -1483,3 +1483,182 @@ legend {
   border: 2px solid var(--vert);
   font-size: 1.1rem;
 }
+
+/* ─── Bilans et comptes rendus ─────────────────────────────────────────── */
+
+.badge-statut {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 1px solid;
+}
+
+.statut-rempli {
+  background: #e3f1ec;
+  color: var(--vert-fonce);
+  border-color: var(--vert);
+}
+
+.statut-automatique {
+  background: #e7ecf4;
+  color: var(--marine);
+  border-color: #6b7fa3;
+}
+
+.statut-a-relire {
+  background: #fdf3e1;
+  color: #7a4f00;
+  border-color: var(--ambre);
+}
+
+.statut-a-ecrire {
+  background: #fff;
+  color: #8a1c13;
+  border-color: #8a1c13;
+  border-style: dashed;
+}
+
+.bilans-ecran {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tableau-bilans {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-bilans th,
+.tableau-bilans td {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--bordure);
+  vertical-align: top;
+}
+
+.formulaire-bilan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 40rem;
+}
+
+.formulaire-bilan h2 {
+  margin: 0;
+}
+
+.periode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.periode .aide {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.editeur-bilan {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 60rem;
+}
+
+.entete-bilan input[type="text"] {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.barre-bilan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.barre-bilan .bouton-secondaire-vert {
+  margin-top: 0;
+}
+
+.legende-statuts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+  font-size: 0.95rem;
+  color: var(--texte-discret);
+}
+
+.parties-bilan {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.partie-bilan {
+  border: 1px solid var(--bordure);
+  border-left: 5px solid var(--vert);
+  border-radius: var(--rayon);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.partie-auto {
+  border-left-color: #6b7fa3;
+  background: #f7f9fc;
+}
+
+.partie-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.partie-entete h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.partie-bilan textarea {
+  width: 100%;
+  font: inherit;
+}
+
+.partie-bilan .aide {
+  margin: 0;
+}
+
+.partage-bilan h2 {
+  margin-top: 0;
+}
+
+.documents-partages {
+  flex-basis: 100%;
+}
+
+.documents-partages h2 {
+  font-size: 1.05rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.editeur-bilan .badge-a-valider {
+  align-self: flex-start;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.3rem;
+  margin: 0;
+}

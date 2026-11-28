@@ -310,6 +310,25 @@ describe("statuts", () => {
     expect(liste.corps.familleConsentante).toBe(1);
   });
 
+  it("enregistrements simultanés de plusieurs parties : aucun n'est perdu", async () => {
+    const { patient } = await patientSuivi();
+    const { bilan } = (await nouveau(patient.id, { type: "EVOLUTION" })).corps;
+    await Promise.all(
+      bilan.sections.map((s: { cle: string; type: string }) =>
+        partie(
+          patient.id,
+          bilan.id,
+          s.cle,
+          s.type === "LIBRE" ? { contenu: "Écrit." } : { relu: true },
+        ),
+      ),
+    );
+    const { bilan: final } = (
+      await appeler(lire, { cookie: cookieOrtho, params: { id: patient.id, bilanId: bilan.id } })
+    ).corps;
+    expect(final.statut).toBe("REMPLI");
+  });
+
   it("courrier : texte de départ « À relire », partie inconnue refusée", async () => {
     const { patient } = await patientSuivi();
     const { bilan } = (

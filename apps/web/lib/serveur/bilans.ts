@@ -311,24 +311,33 @@ async function journaliserModification(prisma: PrismaClient, acteur: Acteur, pat
   });
 }
 
-/** Enregistre de nouvelles parties ; un document partagé modifié n'est plus partagé. */
-async function enregistrerSections(
+/**
+ * Modifie un document en exclusivité : la ligne est verrouillée le temps de relire et
+ * de réécrire ses parties (deux enregistrements rapprochés ne s'écrasent pas).
+ * Un document partagé qui est modifié n'est plus partagé.
+ */
+async function modifierEnExclusivite(
   prisma: PrismaClient,
-  bilan: BilanEnBase,
-  sections: SectionDocument[],
-  autres: { titre?: string; destinataire?: string | null } = {},
+  patientId: string,
+  bilanId: string,
+  calcul: (
+    tx: Prisma.TransactionClient,
+    bilan: BilanEnBase,
+    sections: SectionDocument[],
+  ) => Promise<{ sections: SectionDocument[]; titre?: string; destinataire?: string | null }>,
 ) {
-  const misAJour = await prisma.bilan.update({
-    where: { id: bilan.id },
-    data: {
-      ...autres,
-      sections,
-      partage: false,
-      partageLe: null,
-      partageParId: null,
-    },
+  return prisma.$transaction(async (tx) => {
+    const verrou = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "bilan" WHERE "id" = ${bilanId} AND "patientId" = ${patientId} FOR UPDATE`;
+    if (verrou.length === 0) throw erreurs.introuvable();
+    const bilan = await tx.bilan.findUniqueOrThrow({ where: { id: bilanId } });
+    const { sections, titre, destinataire } = await calcul(tx, bilan, sectionsDe(bilan));
+    const misAJour = await tx.bilan.update({
+      where: { id: bilan.id },
+      data: { titre, destinataire, sections, partage: false, partageLe: null, partageParId: null },
+    });
+    return { bilan: vue(misAJour), partageRetire: bilan.partage };
   });
-  return { bilan: vue(misAJour), partageRetire: bilan.partage };
 }
 
 // ─── Orthophoniste ─────────────────────────────────────────────────────────
@@ -434,11 +443,16 @@ export async function modifierBilan(
   d: { titre?: string; destinataire?: string | null },
 ) {
   await autoriser(prisma, acteur, patientId);
-  const bilan = await bilanDuPatient(prisma, patientId, bilanId);
-  const resultat = await enregistrerSections(prisma, bilan, sectionsDe(bilan), {
-    titre: d.titre,
-    destinataire: d.destinataire,
-  });
+  const resultat = await modifierEnExclusivite(
+    prisma,
+    patientId,
+    bilanId,
+    async (_, __, sections) => ({
+      sections,
+      titre: d.titre,
+      destinataire: d.destinataire,
+    }),
+  );
   await journaliserModification(prisma, acteur, patientId);
   return resultat;
 }
@@ -456,13 +470,19 @@ export async function modifierSection(
   d: { contenu?: string; relu?: true },
 ) {
   await autoriser(prisma, acteur, patientId);
-  const bilan = await bilanDuPatient(prisma, patientId, bilanId);
-  const sections = sectionsDe(bilan);
-  if (!sections.some((s) => s.cle === cle)) throw erreurs.partieInconnue();
-  const nouvelles = sections.map((s) =>
-    s.cle === cle ? { ...s, contenu: d.contenu ?? s.contenu, relu: true } : s,
+  const resultat = await modifierEnExclusivite(
+    prisma,
+    patientId,
+    bilanId,
+    async (_, __, sections) => {
+      if (!sections.some((s) => s.cle === cle)) throw erreurs.partieInconnue();
+      return {
+        sections: sections.map((s) =>
+          s.cle === cle ? { ...s, contenu: d.contenu ?? s.contenu, relu: true } : s,
+        ),
+      };
+    },
   );
-  const resultat = await enregistrerSections(prisma, bilan, nouvelles);
   await journaliserModification(prisma, acteur, patientId);
   return resultat;
 }
@@ -475,18 +495,20 @@ export async function actualiserBilan(
   bilanId: string,
 ) {
   await autoriser(prisma, acteur, patientId);
-  const bilan = await bilanDuPatient(prisma, patientId, bilanId);
-  const donnees = await donneesBilan(
+  const resultat = await modifierEnExclusivite(
     prisma,
     patientId,
-    { debut: bilan.dateDebut ? jourDe(bilan.dateDebut) : null, fin: jourDe(bilan.date) },
-    bilan.seanceId,
-    bilan.type === "COMPTE_RENDU_SEANCE",
-  );
-  const resultat = await enregistrerSections(
-    prisma,
-    bilan,
-    actualiserSections(sectionsDe(bilan), donnees),
+    bilanId,
+    async (tx, bilan, sections) => {
+      const donnees = await donneesBilan(
+        tx,
+        patientId,
+        { debut: bilan.dateDebut ? jourDe(bilan.dateDebut) : null, fin: jourDe(bilan.date) },
+        bilan.seanceId,
+        bilan.type === "COMPTE_RENDU_SEANCE",
+      );
+      return { sections: actualiserSections(sections, donnees) };
+    },
   );
   await journaliserModification(prisma, acteur, patientId);
   return resultat;
