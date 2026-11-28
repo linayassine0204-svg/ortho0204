@@ -25,6 +25,15 @@ const config: ExpoConfig = {
         enableBackgroundPlayback: false,
       },
     ],
+    // Photos : seulement pour joindre une photo à un message, choisie par la famille.
+    [
+      "expo-image-picker",
+      {
+        photosPermission: t("mobile.messages.permissionPhotos"),
+        cameraPermission: false,
+        microphonePermission: false,
+      },
+    ],
   ],
 };
 

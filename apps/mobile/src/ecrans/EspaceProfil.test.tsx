@@ -17,6 +17,10 @@ function afficher(messagerieActivee: boolean) {
       chargerProgramme={charger}
       onDeconnexion={vi.fn()}
       maintenant={() => VENDREDI}
+      chargerMessages={async () => ({
+        etat: "ok",
+        fil: { horairesReponse: "Je réponds sous 48 h (fictif).", messages: [] },
+      })}
     />,
   );
 }
@@ -27,7 +31,8 @@ describe("<EspaceProfil> : barre d'onglets", () => {
     const onglets = screen.getAllByRole("tab").map((o) => o.getAttribute("aria-label"));
     expect(onglets).toEqual(["Aujourd'hui", "Conseils", "Messages"]);
     fireEvent.click(screen.getByRole("tab", { name: "Messages" }));
-    expect(await screen.findByText("La messagerie arrive bientôt.")).toBeTruthy();
+    // La vraie messagerie s'ouvre : horaires de réponse affichés à la famille.
+    expect(await screen.findByText("Je réponds sous 48 h (fictif).")).toBeTruthy();
   });
 
   it("messagerie désactivée : l'onglet Messages est absent", () => {

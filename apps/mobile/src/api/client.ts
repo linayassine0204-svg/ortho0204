@@ -48,6 +48,11 @@ export interface ClientApi {
   /** Envoi d'un fichier (multipart). Délai plus long que les autres requêtes. */
   postFormulaire<T>(chemin: string, formulaire: FormData): Promise<T>;
   delete(chemin: string): Promise<void>;
+  /**
+   * Adresse et en-tête d'autorisation d'un fichier protégé (photo, message vocal), pour
+   * l'afficher ou l'écouter directement depuis notre serveur.
+   */
+  sourceProtegee(chemin: string): Promise<{ uri: string; headers: Record<string, string> }>;
   estConnecte(): Promise<boolean>;
   deconnexion(): Promise<void>;
 }
@@ -192,6 +197,11 @@ export function creerClientApi(dependances: {
     postFormulaire: (chemin, formulaire) =>
       protege(chemin, { method: "POST", body: formulaire }, DELAI_MAX_FICHIER_MS),
     delete: (chemin) => protege(chemin, { method: "DELETE" }),
+
+    async sourceProtegee(chemin) {
+      const jetons = await jetonValide();
+      return { uri: `${baseUrl}${chemin}`, headers: { Authorization: `Bearer ${jetons.acces}` } };
+    },
 
     async estConnecte() {
       return (await lireJetons()) !== null;

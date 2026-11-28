@@ -830,7 +830,8 @@
       "consentement": "Donnez d'abord votre accord dans l'application pour utiliser la messagerie.",
       "envoiImpossible": "Le message n'a pas pu être envoyé. Réessayez.",
       "actualiser": "Actualiser",
-      "photoRefusee": "Accès aux photos refusé : vous pouvez l'autoriser dans les réglages du téléphone."
+      "photoRefusee": "Accès aux photos refusé : vous pouvez l'autoriser dans les réglages du téléphone.",
+      "permissionPhotos": "L'application utilise vos photos seulement pour joindre une photo à un message envoyé à votre {{terme.professionnel}}."
     },
     "erreurs": {
       "reseau": "Pas de connexion internet. Vérifiez votre réseau puis réessayez."

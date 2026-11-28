@@ -20,7 +20,16 @@ vi.mock("@react-native-async-storage/async-storage", () => ({ default: {} }));
 vi.mock("@react-native-community/netinfo", () => ({
   default: { addEventListener: () => () => undefined },
 }));
-vi.mock("expo-audio", () => ({}));
+vi.mock("expo-audio", () => ({
+  useAudioPlayer: () => ({ play: vi.fn(), pause: vi.fn(), seekTo: vi.fn() }),
+  useAudioPlayerStatus: () => ({
+    playing: false,
+    didJustFinish: false,
+    duration: 0,
+    currentTime: 0,
+  }),
+}));
+vi.mock("expo-image-picker", () => ({ launchImageLibraryAsync: vi.fn() }));
 vi.mock("expo-file-system", () => ({}));
 vi.mock("react-native-safe-area-context", async () => {
   const { View } = await import("react-native");

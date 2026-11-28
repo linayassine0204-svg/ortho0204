@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
-import { t, type ElementEnvoye } from "@app/shared";
+import { t, type ElementEnvoye, type MessageVue } from "@app/shared";
 import type { EnregistreurVoix } from "../audio/types";
 import { BarreOnglets } from "../composants/BarreOnglets";
 import { Bouton } from "../composants/Bouton";
 import type { ChargementConseils } from "../donnees/conseils";
+import type { ChargementMessages, PhotoLocale } from "../donnees/messages";
 import type { ChargementProgramme } from "../donnees/programme";
 import type { AudioLocal, FaitLocal, ServiceRealisations } from "../donnees/realisations";
 import { ongletActif, ongletsVisibles, type Onglet } from "../navigation/onglets";
@@ -13,7 +14,7 @@ import { palette } from "../theme";
 import { EcranAujourdhui } from "./EcranAujourdhui";
 import { EcranConseils } from "./EcranConseils";
 import { EcranExercice } from "./EcranExercice";
-import { EcranVide } from "./EcranVide";
+import { EcranMessages, type SourceProtegee } from "./EcranMessages";
 
 interface Props {
   profil: Profil;
@@ -34,6 +35,16 @@ interface Props {
   donnerAccordAudio?: () => Promise<void>;
   /** Change après chaque synchronisation : rafraîchit « en attente ». */
   versionSynchro?: number;
+  /** Messagerie (onglet présent seulement si elle est activée pour ce patient). */
+  chargerMessages?: () => Promise<ChargementMessages>;
+  envoyerMessage?: (envoi: {
+    contenu: string;
+    photo: PhotoLocale | null;
+    vocal: AudioLocal | null;
+  }) => Promise<MessageVue>;
+  choisirPhoto?: () => Promise<PhotoLocale | null>;
+  sourcePieceJointe?: (pieceId: string) => Promise<SourceProtegee>;
+  LecteurVocal?: (props: { source: SourceProtegee }) => ReactNode;
 }
 
 const enregistreurAbsent: EnregistreurVoix = {
@@ -58,6 +69,13 @@ export function EspaceProfil({
   supprimerVoix = () => undefined,
   donnerAccordAudio = async () => undefined,
   versionSynchro = 0,
+  chargerMessages = async () => ({ etat: "horsLigne" }),
+  envoyerMessage = async () => {
+    throw new Error(t("mobile.messages.envoiImpossible"));
+  },
+  choisirPhoto = async () => null,
+  sourcePieceJointe = async () => ({ uri: "", headers: {} }),
+  LecteurVocal = () => null,
 }: Props) {
   const onglets = ongletsVisibles({ messagerieActivee: profil.messagerieActivee, role });
   const [choix, setChoix] = useState<Onglet>("aujourdhui");
@@ -162,8 +180,16 @@ export function EspaceProfil({
         ) : actif === "conseils" ? (
           <EcranConseils charger={chargerConseils} marquerLu={marquerConseilLu} />
         ) : (
-          // Messagerie : tâche 11. L'onglet n'existe que si elle est activée.
-          <EcranVide titre={t("mobile.messages.titre")} texte={t("mobile.messages.bientot")} />
+          // L'onglet n'existe que si la messagerie est activée (et l'API refuse sinon).
+          <EcranMessages
+            charger={chargerMessages}
+            envoyer={envoyerMessage}
+            enregistreur={enregistreur}
+            choisirPhoto={choisirPhoto}
+            sourcePieceJointe={sourcePieceJointe}
+            LecteurVocal={LecteurVocal}
+            supprimerVoix={supprimerVoix}
+          />
         )}
       </View>
       {onglets.length > 1 && <BarreOnglets onglets={onglets} actif={actif} onChoisir={setChoix} />}

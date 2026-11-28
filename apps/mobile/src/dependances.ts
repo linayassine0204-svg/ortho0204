@@ -7,7 +7,9 @@ import { supprimerFichierVoix, supprimerToutesLesVoix, useEnregistreurVoix } fro
 import { API_URL } from "./config";
 import { creerCacheChiffre, type Cache } from "./donnees/cache";
 import { coffreTelephone } from "./donnees/coffre";
+import type { PhotoLocale } from "./donnees/messages";
 import { creerServiceRealisations, type ServiceRealisations } from "./donnees/realisations";
+import { choisirPhoto } from "./photos";
 
 export interface Dependances {
   client: ClientApi;
@@ -19,6 +21,8 @@ export interface Dependances {
   supprimerVoix: (uri: string) => Promise<void>;
   /** Supprime toutes les voix gardées sur le téléphone (déconnexion). */
   effacerVoix: () => Promise<void>;
+  /** Choix d'une photo dans la galerie (pièce jointe d'un message). */
+  choisirPhoto: () => Promise<PhotoLocale | null>;
   /** Appelle `rappel` quand le réseau revient. Renvoie de quoi se désabonner. */
   surRetourReseau: (rappel: () => void) => () => void;
 }
@@ -44,6 +48,7 @@ export function dependancesTelephone(): Dependances {
     useEnregistreurVoix,
     supprimerVoix: supprimerFichierVoix,
     effacerVoix: supprimerToutesLesVoix,
+    choisirPhoto,
     surRetourReseau: (rappel) => {
       let connecte: boolean | null = null;
       return NetInfo.addEventListener((etat) => {

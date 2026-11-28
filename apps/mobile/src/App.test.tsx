@@ -40,6 +40,7 @@ function telephone() {
       useEnregistreurVoix: useEnregistreurFictif,
       supprimerVoix,
       effacerVoix: async () => undefined,
+      choisirPhoto: async () => null,
       surRetourReseau: (rappel) => {
         reseau.revenu = rappel;
         return () => undefined;

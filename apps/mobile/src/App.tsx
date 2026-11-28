@@ -6,7 +6,9 @@ import { t } from "@app/shared";
 import { ErreurApi } from "./api/client";
 import { messageErreur } from "./api/erreurs";
 import { dependancesTelephone, type Dependances } from "./dependances";
+import { LecteurVocal } from "./audio/lecture";
 import { chargerConseils, marquerConseilLu } from "./donnees/conseils";
+import { chargerMessages, cheminPieceJointe, envoyerMessage } from "./donnees/messages";
 import { chargerProgramme } from "./donnees/programme";
 import { chargerInfosSession, type InfosSession } from "./donnees/session";
 import { EcranAccueil } from "./ecrans/EcranAccueil";
@@ -144,6 +146,15 @@ export default function App({ dependances }: { dependances?: Dependances }) {
       throw e;
     }
   }, [client, profil, quitter]);
+  const messagesCharges = useCallback(async () => {
+    if (!profil) throw new Error("profil absent");
+    try {
+      return await chargerMessages(client, profil.patientId);
+    } catch (e) {
+      if (e instanceof ErreurApi && e.status === 401) await quitter(t("erreurs.nonConnecte"));
+      throw e;
+    }
+  }, [client, profil, quitter]);
   const conseilLu = useCallback(
     (envoiId: string) => {
       if (!profil) throw new Error("profil absent");
@@ -219,6 +230,13 @@ export default function App({ dependances }: { dependances?: Dependances }) {
             enregistreur={enregistreur}
             supprimerVoix={(audio) => void deps.supprimerVoix(audio.uri)}
             versionSynchro={versionSynchro}
+            chargerMessages={messagesCharges}
+            envoyerMessage={(envoi) => envoyerMessage(client, etat.profil?.patientId ?? "", envoi)}
+            choisirPhoto={deps.choisirPhoto}
+            sourcePieceJointe={(pieceId) =>
+              client.sourceProtegee(cheminPieceJointe(etat.profil?.patientId ?? "", pieceId))
+            }
+            LecteurVocal={LecteurVocal}
             donnerAccordAudio={async () => {
               const patientId = etat.profil?.patientId ?? "";
               await client.post(`/patients/${encodeURIComponent(patientId)}/consentement/audio`);
