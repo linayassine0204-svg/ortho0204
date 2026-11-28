@@ -132,6 +132,26 @@ describe("contraintes", () => {
     ).rejects.toThrow();
   });
 
+  it("refuse un document partagé sans date de partage, ou une période à l'envers", async () => {
+    const bilan = await prisma.bilan.findFirstOrThrow({ where: { partage: false } });
+    await expect(
+      prisma.bilan.update({ where: { id: bilan.id }, data: { partage: true } }),
+    ).rejects.toThrow();
+    await expect(
+      prisma.bilan.update({
+        where: { id: bilan.id },
+        data: { dateDebut: new Date(bilan.date.getTime() + 86_400_000) },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse un niveau hors de 1 à 3 sur une réalisation", async () => {
+    const realisation = await prisma.realisation.findFirstOrThrow();
+    await expect(
+      prisma.realisation.update({ where: { id: realisation.id }, data: { niveau: 4 } }),
+    ).rejects.toThrow();
+  });
+
   it("refuse un score hors de 0 à 100", async () => {
     const realisation = await prisma.realisation.findFirstOrThrow();
     await expect(

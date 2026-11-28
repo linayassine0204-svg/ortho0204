@@ -57,17 +57,16 @@ enum Repetition {
   MENSUELLE
 }
 
+/// Documents du dossier : bilans, comptes rendus et courriers.
 enum TypeBilan {
   INITIAL
   EVOLUTION
   RENOUVELLEMENT
   FIN_DE_PRISE_EN_CHARGE
-}
-
-enum StatutBilan {
-  BROUILLON
-  FINALISE
-  ENVOYE
+  COMPTE_RENDU_SEANCE
+  COURRIER_MEDECIN
+  COURRIER_ECOLE
+  COURRIER_ASSURANCE
 }
 
 enum TypeSession {
@@ -144,6 +143,7 @@ model User {
   plansConseil      PlanConseil[]
   seances           Seance[]
   bilans            Bilan[]
+  bilansPartages    Bilan[]            @relation("BilansPartages")
   messages          Message[]
   sessions          Session[]
   invitationsCreees Invitation[]       @relation("InvitationsCreees")
@@ -482,6 +482,8 @@ model Realisation {
   score              Int?
   /// « Sur combien » au moment de la réalisation (copie de Exercice.scoreMax).
   scoreMax           Int?
+  /// Niveau de l'exercice au moment de la réalisation (scores par niveau des bilans).
+  niveau             Int?
   /// Identifiant créé par le téléphone : une réalisation renvoyée (synchronisation
   /// après une coupure réseau) n'est jamais enregistrée deux fois.
   idClient           String?
@@ -642,6 +644,7 @@ model Seance {
   patient  Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
   ortho    User?           @relation(fields: [orthoId], references: [id], onDelete: SetNull)
   elements ElementSeance[]
+  bilans   Bilan[]
 
   @@index([patientId, date])
   @@map("seance")
@@ -672,19 +675,37 @@ model ElementSeance {
   @@map("element_seance")
 }
 
+/// Bilan, compte rendu ou courrier, découpé en parties (`sections`, format
+/// SectionDocument[] de packages/shared/src/bilans.ts) : parties remplies
+/// automatiquement depuis les données, et parties à écrire. Le statut (Rempli,
+/// Automatique, À relire, À écrire) se calcule à partir des parties.
 model Bilan {
-  id        String      @id @default(cuid())
-  patientId String
-  auteurId  String?
-  type      TypeBilan
-  date      DateTime    @db.Date
-  contenu   String
-  statut    StatutBilan @default(BROUILLON)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id           String    @id @default(cuid())
+  patientId    String
+  auteurId     String?
+  type         TypeBilan
+  titre        String
+  /// Modèle de départ (clé dans packages/shared/src/modeles-bilans.ts).
+  modele       String?
+  /// Période couverte par les chiffres automatiques (début ; la fin est `date`).
+  dateDebut    DateTime? @db.Date
+  date         DateTime  @db.Date
+  /// Compte rendu d'une séance précise.
+  seanceId     String?
+  /// Destinataire d'un courrier (texte libre).
+  destinataire String?
+  sections     Json
+  /// Partagé avec la famille : seulement si l'orthophoniste l'a coché. Faux par défaut.
+  partage      Boolean   @default(false)
+  partageLe    DateTime?
+  partageParId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  auteur  User?   @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  patient    Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  auteur     User?   @relation(fields: [auteurId], references: [id], onDelete: SetNull)
+  seance     Seance? @relation(fields: [seanceId], references: [id], onDelete: SetNull)
+  partagePar User?   @relation("BilansPartages", fields: [partageParId], references: [id], onDelete: SetNull)
 
   @@index([patientId, date])
   @@map("bilan")

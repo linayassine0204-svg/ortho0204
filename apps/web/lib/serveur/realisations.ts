@@ -54,7 +54,7 @@ export async function enregistrerRealisation(
   // la famille a pu le faire hors ligne avant le retrait).
   const element = await prisma.elementProgramme.findFirst({
     where: { id: donnees.elementId, programme: { patientId } },
-    select: { id: true, exercice: { select: { scoreMax: true } } },
+    select: { id: true, niveau: true, exercice: { select: { scoreMax: true } } },
   });
   if (!element) throw erreurs.introuvable();
 
@@ -89,6 +89,8 @@ export async function enregistrerRealisation(
         ressenti: donnees.ressenti,
         score: donnees.score,
         scoreMax: donnees.score === null ? null : scoreMax,
+        // Niveau du moment : les bilans donnent les scores par niveau.
+        niveau: element.niveau,
       },
       select: selection,
     });

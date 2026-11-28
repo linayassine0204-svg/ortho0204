@@ -344,6 +344,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
     ressenti: Ressenti | null;
     score: number | null;
     scoreMax: number | null;
+    niveau: number;
   }[] = [];
   for (let j = SEMAINES_DE_REALISATIONS * 7; j >= 1; j--) {
     const jour = moinsJours(aujourdhui, j);
@@ -370,6 +371,7 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
                 )
               : null,
           scoreMax: fait && scoreMax ? scoreMax : null,
+          niveau: element.niveau,
         });
       }
     }
@@ -538,16 +540,43 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
       });
     }
   }
-  await prisma.bilan.createMany({
-    data: [lea, tom, adulte].map((p) => ({
-      patientId: p.id,
-      auteurId: ortho.id,
-      type: "INITIAL" as const,
-      date: moinsJours(aujourdhui, 49),
-      contenu: "Compte rendu fictif de bilan initial.",
-      statut: "FINALISE" as const,
-    })),
-  });
+  // ── Bilans initiaux (déjà écrits). Seul celui de Tom est partagé avec la famille. ──
+  for (const p of [lea, tom, adulte]) {
+    const partage = p.id === tom.id;
+    await prisma.bilan.create({
+      data: {
+        patientId: p.id,
+        auteurId: ortho.id,
+        type: "INITIAL",
+        titre: "Bilan initial",
+        modele: "INITIAL",
+        date: moinsJours(aujourdhui, 49),
+        sections: [
+          {
+            cle: "anamnese",
+            titre: "Anamnèse",
+            type: "LIBRE",
+            source: null,
+            aide: null,
+            contenu: "Anamnèse fictive (données de test).",
+            relu: true,
+          },
+          {
+            cle: "conclusion",
+            titre: "Conclusion",
+            type: "LIBRE",
+            source: null,
+            aide: null,
+            contenu: "Conclusion fictive de bilan initial.",
+            relu: true,
+          },
+        ],
+        partage,
+        partageLe: partage ? moinsJours(aujourdhui, 48) : null,
+        partageParId: partage ? ortho.id : null,
+      },
+    });
+  }
 
   // ── Messagerie ──
   await prisma.filMessages.create({

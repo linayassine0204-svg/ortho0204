@@ -206,4 +206,14 @@ describe("seed : données fictives", () => {
       expect(seances[0]?.date.getTime()).toBeLessThan(AUJOURDHUI_TEST.getTime());
     }
   });
+
+  it("crée un bilan initial par patient ; seul celui de Tom est partagé", async () => {
+    const bilans = await prisma.bilan.findMany();
+    expect(bilans).toHaveLength(3);
+    expect(bilans.filter((b) => b.partage).map((b) => b.patientId)).toEqual([ids.patients.tom]);
+  });
+
+  it("garde le niveau de l'exercice sur chaque réalisation", async () => {
+    expect(await prisma.realisation.count({ where: { niveau: null } })).toBe(0);
+  });
 });
