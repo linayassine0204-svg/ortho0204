@@ -9,3 +9,5 @@ export * from "./programme.ts";
 export * from "./realisation.ts";
 export * from "./conseils.ts";
 export * from "./seance.ts";
+export * from "./bilans.ts";
+export * from "./modeles-bilans.ts";

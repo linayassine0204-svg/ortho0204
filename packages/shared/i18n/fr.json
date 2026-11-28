@@ -85,7 +85,13 @@
       "titreParent": "Mes enfants suivis",
       "titrePatient": "Mon suivi",
       "aucun": "Aucun dossier relié à votre compte pour le moment.",
-      "consentementTitre": "Votre consentement"
+      "consentementTitre": "Votre consentement",
+      "documents": {
+        "titre": "Documents partagés",
+        "aucun": "Aucun document partagé pour l'instant.",
+        "lire": "Lire (PDF)",
+        "partageLe": "Partagé le {{date}}"
+      }
     },
     "bientot": {
       "titre": "Bientôt disponible",
@@ -431,6 +437,212 @@
       "terminerConfirmer": "Terminer la séance ? Ses notes et points à reprendre serviront à préparer la suivante.",
       "terminee": "Séance terminée. Une nouvelle préparation est prête.",
       "bibliotheque": "Bibliothèque"
+    },
+    "bilans": {
+      "titre": "Bilans et comptes rendus",
+      "types": {
+        "INITIAL": "Bilan initial",
+        "EVOLUTION": "Bilan d'évolution",
+        "RENOUVELLEMENT": "Bilan de renouvellement",
+        "FIN_DE_PRISE_EN_CHARGE": "Bilan de fin de prise en charge",
+        "COMPTE_RENDU_SEANCE": "Compte rendu de séance",
+        "COURRIER_MEDECIN": "Courrier au médecin",
+        "COURRIER_ECOLE": "Courrier à l'école",
+        "COURRIER_ASSURANCE": "Courrier à l'assurance"
+      },
+      "statuts": {
+        "REMPLI": "Rempli",
+        "AUTOMATIQUE": "Automatique",
+        "A_RELIRE": "À relire",
+        "A_ECRIRE": "À écrire"
+      },
+      "statutsAide": {
+        "REMPLI": "Écrit ou relu par le {{terme.professionnel}}.",
+        "AUTOMATIQUE": "Rempli depuis les données : à relire.",
+        "A_RELIRE": "Texte d'exemple du modèle : à relire et adapter.",
+        "A_ECRIRE": "À compléter."
+      },
+      "liste": {
+        "vide": "Aucun document pour l'instant.",
+        "colTitre": "Document",
+        "colDate": "Date",
+        "colStatut": "Statut",
+        "colParties": "Parties",
+        "colPartage": "Famille",
+        "parties": "{{rempli}} remplie(s) sur {{total}}",
+        "partage": "Partagé",
+        "nonPartage": "Non partagé",
+        "ouvrir": "Ouvrir"
+      },
+      "creer": {
+        "titre": "Nouveau document",
+        "type": "Type de document",
+        "pathologie": "Modèle de la pathologie",
+        "sansPathologie": "Modèle général",
+        "debut": "Période : du",
+        "fin": "au",
+        "periodeAide": "Les chiffres automatiques portent sur cette période. Laisser vide : réglage habituel.",
+        "seance": "Séance",
+        "derniereSeance": "Dernière séance terminée",
+        "destinataire": "Destinataire",
+        "destinataireAide": "Par exemple : Dr Martin, ou l'enseignante de Léa.",
+        "bouton": "Créer à partir du modèle",
+        "aValider": "Les modèles sont des exemples à valider par des {{terme.professionnels}}."
+      },
+      "editeur": {
+        "retour": "Tous les documents",
+        "periode": "Période : du {{debut}} au {{fin}}",
+        "periodeFin": "Date : {{fin}}",
+        "destinataire": "Destinataire",
+        "titreDocument": "Titre du document",
+        "enregistrer": "Enregistrer",
+        "enregistre": "Enregistré.",
+        "marquerRelu": "Marquer comme relu",
+        "automatiqueAide": "Rempli automatiquement depuis les données. Relisez, corrigez si besoin.",
+        "actualiser": "Actualiser les chiffres",
+        "actualiserConfirmer": "Recalculer les parties automatiques ? Vos corrections dans ces parties seront remplacées.",
+        "actualise": "Chiffres actualisés : les parties automatiques sont à relire.",
+        "modifie": "Non enregistré",
+        "listeAide": "Une idée par ligne ; commencez une ligne par « - » pour une liste.",
+        "exporterPdf": "Exporter en PDF",
+        "exporterWord": "Exporter en Word (.docx)",
+        "brouillon": "Des parties ne sont pas encore relues : l'export porte la mention « Brouillon ».",
+        "supprimer": "Supprimer le document",
+        "supprimerConfirmer": "Supprimer définitivement ce document ?",
+        "statut": "Statut : {{statut}}"
+      },
+      "partage": {
+        "titre": "Partage avec la famille",
+        "case": "Partager avec la famille",
+        "aide": "Par défaut, rien n'est partagé. Une fois coché, la famille peut lire ce document dans son espace.",
+        "pasRelu": "Pour partager, toutes les parties doivent être relues (statut « Rempli »).",
+        "partageLe": "Partagé le {{date}}.",
+        "retireAuto": "Le document a été modifié : le partage a été retiré. Recochez après relecture.",
+        "personne": "Aucun compte famille relié n'a donné son consentement : personne ne le verra pour l'instant."
+      },
+      "export": {
+        "patient": "Patient : {{nom}} — né(e) le {{naissance}}",
+        "date": "Date : {{date}}",
+        "periode": "Période : du {{debut}} au {{fin}}",
+        "destinataire": "À l'attention de : {{destinataire}}",
+        "professionnel": "{{terme.professionnelMajuscule}} : {{nom}}",
+        "brouillon": "BROUILLON — parties à relire",
+        "pied": "Document confidentiel (données de santé) — page {{page}} sur {{total}}",
+        "piedWord": "Document confidentiel (données de santé)",
+        "vide": "(à compléter)"
+      },
+      "auto": {
+        "identite": "{{prenom}} {{nom}}, né(e) le {{naissance}} ({{age}} ans).",
+        "pathologies": "Prise en charge : {{pathologies}}.",
+        "aucunePathologie": "Prise en charge : pathologie non renseignée.",
+        "prescripteur": "Médecin prescripteur : {{nom}}.",
+        "prescripteurContact": "Médecin prescripteur : {{nom}} ({{contact}}).",
+        "aucunPrescripteur": "Médecin prescripteur : non renseigné.",
+        "seance": "1 séance, le {{debut}}.",
+        "seances": "{{n}} séances, du {{debut}} au {{fin}}.",
+        "aucuneSeance": "Aucune séance terminée sur la période.",
+        "exerciceNiveau": "{{titre}} : niveau {{niveau}} ({{n}} séance(s))",
+        "exerciceProgression": "{{titre}} : du niveau {{premier}} au niveau {{dernier}} ({{n}} séance(s))",
+        "aucunExercice": "Aucun exercice noté en séance.",
+        "pasDeProgramme": "Pas de programme à la maison.",
+        "rienDePrevu": "Aucun exercice prévu à la maison sur la période.",
+        "taux": "À la maison : {{faites}} exercices faits sur {{prevues}} prévus ({{pourcent}} %).",
+        "ressentis": "Ressenti : {{facile}} facile, {{moyen}} moyen, {{difficile}} difficile.",
+        "ligneTaux": "{{titre}} : {{faites}} sur {{prevues}} ({{pourcent}} %)",
+        "ligneSansPrevu": "{{titre}} : rien de prévu",
+        "scoreNiveau": "{{titre}}, niveau {{niveau}} : {{pourcent}} % en moyenne ({{n}} réalisations)",
+        "scoreNiveauUn": "{{titre}}, niveau {{niveau}} : {{pourcent}} % (1 réalisation)",
+        "aucunScore": "Aucun score enregistré sur la période.",
+        "programme": "{{titre}} : niveau {{niveau}}, {{fois}} fois par semaine",
+        "seanceDu": "Séance du {{date}}.",
+        "exerciceSeance": "{{titre}} (niveau {{niveau}})",
+        "aucuneSeanceChoisie": "Aucune séance terminée.",
+        "notes": "Notes : {{notes}}",
+        "aucuneNote": "Pas de notes de séance.",
+        "points": "À reprendre : {{points}}"
+      },
+      "modeles": {
+        "parties": {
+          "identite": "Identité",
+          "prescripteur": "Prescription",
+          "motif": "Motif de la demande",
+          "anamnese": "Anamnèse",
+          "tests": "Tests et épreuves",
+          "observations": "Observations cliniques",
+          "conclusion": "Conclusion",
+          "projet": "Projet thérapeutique",
+          "seances": "Séances",
+          "exercices": "Exercices travaillés en séance",
+          "realisation": "Exercices à la maison",
+          "scores": "Scores par niveau",
+          "evolution": "Évolution constatée",
+          "suite": "Suite proposée",
+          "seance": "Séance",
+          "notesSeance": "Notes de séance",
+          "maison": "Pour la maison",
+          "programme": "Programme à la maison",
+          "objet": "Objet",
+          "corps": "Courrier",
+          "formule": "Formule de politesse"
+        },
+        "aides": {
+          "motif": "Exemple : qui a demandé le bilan, pour quelles difficultés, depuis quand.",
+          "anamnese": "Exemple : développement, histoire médicale, scolarité, langues parlées, environnement familial.",
+          "conclusion": "Exemple : synthèse des difficultés et des points d'appui ; indication ou non de rééducation.",
+          "projet": "Exemple : objectifs, fréquence et durée des séances, place de la famille.",
+          "evolution": "Exemple : ce qui a progressé, ce qui reste difficile, comparaison avec le bilan précédent.",
+          "suite": "Exemple : poursuite, adaptation des objectifs, fréquence, fin de prise en charge.",
+          "maison": "Exemple : conseils et exercices pour la semaine, ce que la famille peut observer."
+        },
+        "aidesPathologie": {
+          "langage-oral": {
+            "tests": "Exemple : épreuves de lexique (désignation, dénomination), de morphosyntaxe et de compréhension orale ; résultats et écarts à la norme.",
+            "observations": "Exemple : intelligibilité, appétence à communiquer, tours de parole, compréhension des consignes."
+          },
+          "langage-ecrit": {
+            "tests": "Exemple : épreuves de lecture (mots, pseudo-mots, texte), de compréhension écrite, de transcription et de conscience phonologique.",
+            "observations": "Exemple : stratégies de lecture, fatigabilité, erreurs typiques, rapport à l'écrit."
+          },
+          "articulation": {
+            "tests": "Exemple : examen des praxies bucco-faciales, inventaire phonétique, répétition de mots et de syllabes.",
+            "observations": "Exemple : sons touchés, position de la langue, souffle, conscience de l'erreur."
+          },
+          "begaiement": {
+            "tests": "Exemple : échantillons de parole (lecture, conversation, récit), fréquence et type des disfluences, échelles d'auto-évaluation.",
+            "observations": "Exemple : comportements associés, évitements, vécu de la parole, situations facilitantes."
+          },
+          "voix": {
+            "tests": "Exemple : bilan perceptif de la voix, temps maximum de phonation, auto-évaluation du handicap vocal.",
+            "observations": "Exemple : hygiène vocale, situations de forçage, posture, respiration."
+          },
+          "deglutition": {
+            "tests": "Exemple : observation d'un repas, essais de textures, examen de la sphère oro-faciale.",
+            "observations": "Exemple : fausses routes, durée des repas, adaptations déjà en place, confort."
+          },
+          "cognition-mathematique": {
+            "tests": "Exemple : épreuves de dénombrement, de comparaison de quantités, de transcodage et de résolution de problèmes.",
+            "observations": "Exemple : stratégies de comptage, usage des doigts, anxiété face aux nombres."
+          }
+        },
+        "departs": {
+          "COURRIER_MEDECIN": {
+            "objet": "Objet : suivi de {{prenom}} {{nom}}",
+            "corps": "Cher confrère, chère consœur,\n\nJe vous adresse des nouvelles de {{prenom}}, que je suis en rééducation à votre demande.\n\n[À compléter : évolution, points d'attention, suite proposée.]",
+            "formule": "Je reste à votre disposition et vous prie d'agréer mes salutations confraternelles."
+          },
+          "COURRIER_ECOLE": {
+            "objet": "Objet : accompagnement de {{prenom}} en classe",
+            "corps": "Madame, Monsieur,\n\nAvec l'accord de la famille, je vous transmets quelques pistes pour accompagner {{prenom}} en classe.\n\n[À compléter : aménagements suggérés, ce qui aide {{prenom}}, ce qui est à éviter.]",
+            "formule": "Je reste disponible pour échanger avec l'équipe et vous prie d'agréer mes salutations distinguées."
+          },
+          "COURRIER_ASSURANCE": {
+            "objet": "Objet : prise en charge de {{prenom}} {{nom}}",
+            "corps": "Madame, Monsieur,\n\nJe vous confirme la prise en charge de {{prenom}} {{nom}} en rééducation, sur prescription médicale.\n\n[À compléter : nature de la prise en charge, demande de renouvellement le cas échéant.]",
+            "formule": "Je vous prie d'agréer mes salutations distinguées."
+          }
+        },
+        "aValider": "Modèle d'exemple : à valider par un {{terme.professionnel}}."
+      }
     }
   },
   "mobile": {
@@ -590,7 +802,9 @@
     "audioTropGros": "Cet enregistrement est trop long.",
     "datePassee": "La date choisie est déjà passée.",
     "dejaDansSeance": "Cet exercice est déjà dans la séance.",
-    "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus."
+    "seanceTerminee": "Cette séance est terminée : elle ne se modifie plus.",
+    "documentARelire": "Pour partager ce document, toutes ses parties doivent être relues.",
+    "partieInconnue": "Cette partie n'existe pas dans le document."
   },
   "consentement": {
     "donneesSante": {
