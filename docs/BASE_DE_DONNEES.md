@@ -79,13 +79,13 @@ erDiagram
 
 ### Programme et suivi à la maison
 
-| Table                | Ce qu'elle contient                                                                                                                                                                                                                                                         |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Programme**        | Le programme d'exercices d'un patient (titre, dates, actif ou non, auteur).                                                                                                                                                                                                 |
-| **ElementProgramme** | Une ligne du programme : quel exercice, quel niveau (1 à 3), combien de fois par semaine (1 à 7), quels jours, le mot pour la famille, et la date de retrait éventuelle (l'historique est gardé).                                                                           |
-| **VersionProgramme** | Une version **envoyée** du programme : copie figée de son contenu (numéro, date, auteur). La famille voit la dernière.                                                                                                                                                      |
-| **Realisation**      | Une fois où l'exercice a été fait (ou non) : date, fait oui/non, ressenti (facile, moyen, difficile), score « sur N » si l'exercice en prévoit un (`Exercice.scoreMax`, ex. 7 sur 10), identifiant du téléphone (`idClient`) qui empêche les doublons à la synchronisation. |
-| **Enregistrement**   | Un fichier audio lié à une réalisation. La base ne garde que la **référence** du fichier, pas le fichier lui-même (il sera stocké chez l'hébergeur HDS).                                                                                                                    |
+| Table                | Ce qu'elle contient                                                                                                                                                                                                                                                                                                                             |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Programme**        | Le programme d'exercices d'un patient (titre, dates, actif ou non, auteur).                                                                                                                                                                                                                                                                     |
+| **ElementProgramme** | Une ligne du programme : quel exercice, quel niveau (1 à 3), combien de fois par semaine (1 à 7), quels jours, le mot pour la famille, et la date de retrait éventuelle (l'historique est gardé).                                                                                                                                               |
+| **VersionProgramme** | Une version **envoyée** du programme : copie figée de son contenu (numéro, date, auteur). La famille voit la dernière.                                                                                                                                                                                                                          |
+| **Realisation**      | Une fois où l'exercice a été fait (ou non) : date, fait oui/non, ressenti (facile, moyen, difficile), score « sur N » si l'exercice en prévoit un (`Exercice.scoreMax`, ex. 7 sur 10), niveau de l'exercice à ce moment-là (scores par niveau des bilans), identifiant du téléphone (`idClient`) qui empêche les doublons à la synchronisation. |
+| **Enregistrement**   | Un fichier audio lié à une réalisation. La base ne garde que la **référence** du fichier, pas le fichier lui-même (il sera stocké chez l'hébergeur HDS).                                                                                                                                                                                        |
 
 ### Conseils
 
@@ -102,7 +102,7 @@ erDiagram
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Seance**        | Date, objectifs, matériel en plus, notes, points à reprendre, date de fin. **Une seule séance en préparation** (sans date de fin) par patient.                                                                  |
 | **ElementSeance** | Exercice d'une séance, au niveau choisi : proposé par les règles (en attente tant qu'il n'est pas accepté), ajouté depuis la bibliothèque, ou copié d'une séance passée. Un exercice une seule fois par séance. |
-| **Bilan**         | Type (initial, évolution, renouvellement, fin de prise en charge), contenu, statut (brouillon, finalisé, envoyé).                                                                                               |
+| **Bilan**         | Bilan, compte rendu de séance ou courrier : titre, modèle, période, destinataire, **parties** (automatiques ou à écrire, en JSON), partage avec la famille (**désactivé par défaut**). Voir `BILANS.md`.        |
 
 ### Messagerie
 
