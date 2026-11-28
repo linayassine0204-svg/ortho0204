@@ -216,4 +216,16 @@ describe("seed : données fictives", () => {
   it("garde le niveau de l'exercice sur chaque réalisation", async () => {
     expect(await prisma.realisation.count({ where: { niveau: null } })).toBe(0);
   });
+
+  it("messagerie : horaires du cabinet, réponses rapides et conversation de Léa", async () => {
+    const cabinet = await prisma.cabinet.findUniqueOrThrow({ where: { id: ids.cabinetId } });
+    expect(cabinet.messagerieActivee).toBe(true);
+    expect(cabinet.horairesReponse).toBeTruthy();
+    expect(await prisma.reponseRapide.count({ where: { cabinetId: ids.cabinetId } })).toBe(3);
+    const fil = await prisma.filMessages.findUniqueOrThrow({
+      where: { patientId: ids.patients.lea },
+      include: { messages: true },
+    });
+    expect(fil.messages.length).toBeGreaterThan(0);
+  });
 });

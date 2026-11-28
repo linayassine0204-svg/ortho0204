@@ -146,7 +146,11 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
 
   // ── Cabinet et comptes ──
   const cabinet = await prisma.cabinet.create({
-    data: { nom: "Cabinet des Tilleuls (fictif)", messagerieActivee: true },
+    data: {
+      nom: "Cabinet des Tilleuls (fictif)",
+      messagerieActivee: true,
+      horairesReponse: "Je réponds sous 48 h, du lundi au vendredi.",
+    },
   });
   const compte = (local: string, role: Role, prenom: string) =>
     prisma.user.create({
@@ -593,22 +597,29 @@ export async function seed(prisma: PrismaClient, options: SeedOptions): Promise<
           },
           {
             auteurId: ortho.id,
-            contenu: "Message fictif : oui, voici la fiche d'exercice en pièce jointe.",
+            contenu: "Message fictif : oui, décalons à jeudi même heure.",
             envoyeLe: moinsJours(aujourdhui, 2),
-            piecesJointes: {
-              create: [
-                {
-                  nomFichier: "fiche-rimes.pdf",
-                  typeMime: "application/pdf",
-                  tailleOctets: 48_000,
-                  cleStockage: "fictif/pieces-jointes/fiche-rimes.pdf",
-                },
-              ],
-            },
           },
         ],
       },
     },
+  });
+  // Réponses rapides du cabinet (exemples fictifs).
+  await prisma.reponseRapide.createMany({
+    data: [
+      {
+        titre: "Séance décalée",
+        texte: "Bonjour, c'est noté, la séance est décalée. Bonne journée.",
+      },
+      {
+        titre: "Exercices oubliés",
+        texte: "Bonjour, ce n'est pas grave : reprenez les exercices demain, sans pression.",
+      },
+      {
+        titre: "Absence",
+        texte: "Bonjour, merci de m'avoir prévenue. Nous nous verrons à la prochaine séance.",
+      },
+    ].map((r, i) => ({ ...r, cabinetId: cabinet.id, ordre: i + 1 })),
   });
 
   // ── Journal d'accès ──

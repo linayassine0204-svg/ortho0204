@@ -32,6 +32,7 @@ const TABLES_ATTENDUES = [
   "programme",
   "realisation",
   "reglage_patient",
+  "reponse_rapide",
   "seance",
   "session",
   "tentative_connexion",
@@ -149,6 +150,12 @@ describe("contraintes", () => {
     const realisation = await prisma.realisation.findFirstOrThrow();
     await expect(
       prisma.realisation.update({ where: { id: realisation.id }, data: { niveau: 4 } }),
+    ).rejects.toThrow();
+  });
+
+  it("refuse une deuxième conversation pour le même patient", async () => {
+    await expect(
+      prisma.filMessages.create({ data: { patientId: ids.patients.lea } }),
     ).rejects.toThrow();
   });
 

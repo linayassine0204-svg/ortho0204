@@ -109,13 +109,16 @@ model Cabinet {
   nom               String
   /// Messagerie activée pour tout le cabinet (exception possible par patient : ReglagePatient).
   messagerieActivee Boolean  @default(false)
+  /// Message affiché aux familles dans la messagerie (ex. « Je réponds sous 48 h »).
+  horairesReponse   String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  utilisateurs User[]
-  patients     Patient[]
-  exercices    Exercice[]
-  conseils     Conseil[]
+  utilisateurs    User[]
+  patients        Patient[]
+  exercices       Exercice[]
+  conseils        Conseil[]
+  reponsesRapides ReponseRapide[]
 
   @@map("cabinet")
 }
@@ -241,7 +244,7 @@ model Patient {
   conseils      Conseil[]
   seances       Seance[]
   bilans        Bilan[]
-  filsMessages  FilMessages[]
+  filMessages   FilMessages?
   reglage       ReglagePatient?
   invitations   Invitation[]
   documents     Document[]
@@ -713,16 +716,17 @@ model Bilan {
 
 // ─── Messagerie ──────────────────────────────────────────────────────────────
 
+/// Conversation d'un patient : UNE par patient (avec ses parents, ou avec lui s'il est
+/// majeur). L'historique reste au dossier.
 model FilMessages {
   id        String   @id @default(cuid())
-  patientId String
+  patientId String   @unique
   sujet     String?
   createdAt DateTime @default(now())
 
   patient  Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
   messages Message[]
 
-  @@index([patientId])
   @@map("fil_messages")
 }
 
@@ -730,8 +734,10 @@ model Message {
   id       String    @id @default(cuid())
   filId    String
   auteurId String?
+  /// Texte (peut être vide si le message n'est qu'une pièce jointe).
   contenu  String
   envoyeLe DateTime  @default(now())
+  /// Lu par l'autre côté (la famille pour un message de l'orthophoniste, et inversement).
   luLe     DateTime?
 
   fil           FilMessages   @relation(fields: [filId], references: [id], onDelete: Cascade)
@@ -742,18 +748,37 @@ model Message {
   @@map("message")
 }
 
+/// Photo ou message vocal joint à un message. Seule la clé de stockage est en base.
 model PieceJointe {
-  id           String @id @default(cuid())
-  messageId    String
-  nomFichier   String
-  typeMime     String
-  tailleOctets Int
-  cleStockage  String @unique
+  id            String @id @default(cuid())
+  messageId     String
+  nomFichier    String
+  typeMime      String
+  tailleOctets  Int
+  cleStockage   String @unique
+  /// Message vocal : durée annoncée par l'appareil (secondes).
+  dureeSecondes Int?
 
   message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@index([messageId])
   @@map("piece_jointe")
+}
+
+/// Réponse rapide : modèle de message du cabinet pour les questions qui reviennent.
+model ReponseRapide {
+  id        String   @id @default(cuid())
+  cabinetId String
+  titre     String
+  texte     String
+  ordre     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cabinet Cabinet @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+
+  @@index([cabinetId, ordre])
+  @@map("reponse_rapide")
 }
 
 // ─── Traçabilité ─────────────────────────────────────────────────────────────
